@@ -1,0 +1,9 @@
+pathlib
+chardet
+requests
+argparse
+loguru
+tldextract
+datetime
+exrex
+sre_yield
