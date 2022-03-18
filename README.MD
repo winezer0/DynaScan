@@ -433,7 +433,7 @@
       python3 DynaScan.py -f target.txt
       python3 DynaScan.py -f target.txt -p http://127.0.0.1:8080
     
-      其他控制细节参数请通过config.py进行配置
+      其他控制细节参数请通过Setting.py进行配置
     
       T00L Version: Ver 0.0.1
 
