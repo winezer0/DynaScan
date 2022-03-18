@@ -4,9 +4,10 @@
 
 **( 戴拿)  (dynamic Weak File Scanner 动态敏感文件扫描器 -- NOVESEC)**  
 
-欢迎大家提交需求和BUG
-
-如果我未及时回复您的BUG信息,请求NOVASEC公众号后台留言,或直接微信搜索[WINEZER0 酒零]
+```
+欢迎大家提交需求和BUG,如果我未及时回复您的信息,
+请求NOVASEC公众号后台留言,或直接微信搜索[WINEZER0 酒零]
+```
 
 
 
