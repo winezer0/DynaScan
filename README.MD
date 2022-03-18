@@ -415,9 +415,9 @@
 
 ## 5、其他使用与配置信息
 
-    python3 DynaWeakFileScan.py -h
+    python3 .py -h
     
-    usage: DynaWeakFileScan.py [-h] [-u TARGET] [-f TARGET_FILE] [-p PROXY] [-t thread] [-d] [-v]
+    usage: DynaScan.py [-h] [-u TARGET] [-f TARGET_FILE] [-p PROXY] [-t thread] [-d] [-v]
     
     optional arguments:
       -h, --help       show this help message and exit
@@ -429,9 +429,9 @@
       -v version       显示程序当前版本号
     
     Examples:
-      python3 DynaWeakFileScan.py -u http://www.baidu.com
-      python3 DynaWeakFileScan.py -f target.txt
-      python3 DynaWeakFileScan.py -f target.txt -p http://127.0.0.1:8080
+      python3 DynaScan.py -u http://www.baidu.com
+      python3 DynaScan.py -f target.txt
+      python3 DynaScan.py -f target.txt -p http://127.0.0.1:8080
     
       其他控制细节参数请通过config.py进行配置
     
