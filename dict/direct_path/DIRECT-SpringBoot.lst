@@ -1,3 +1,8 @@
+/swagger-resources/static/	frequency==1
+/swagger-resources/actuator	frequency==1
+/swagger-ui.html	frequency==1
+/swagger/actuator	frequency==1
+/webjars/springfox-swagger-ui/actuator	frequency==1
 /api/{re=exrex:(|swagger|swagger-resources|swagger-dubbo)}$/	frequency==1
 /api/{re=exrex:(|swagger|swagger-resources|swagger-dubbo)}$/ui	frequency==1
 /api/{re=exrex:(|swagger|swagger-resources|swagger-dubbo)}$/ui.html	frequency==1
@@ -7,6 +12,15 @@
 /{re=exrex:(|actuator|webjars|webjars/actuator)}$/.	frequency==1
 /{re=exrex:(|actuator|webjars|webjars/actuator)}$/acl/article?id=66	frequency==1
 /{re=exrex:(|actuator|webjars|webjars/actuator)}$/acm	frequency==1
+/{re=exrex:(|actuator|webjars|webjars/actuator)}$/application.properties	frequency==1
+/{re=exrex:(|actuator|webjars|webjars/actuator)}$/bootstrap-test.yml	frequency==1
+/{re=exrex:(|actuator|webjars|webjars/actuator)}$/bootstrap.yml	frequency==1
+/{re=exrex:(|actuator|webjars|webjars/actuator)}$/doc.html	frequency==1
+/{re=exrex:(|actuator|webjars|webjars/actuator)}$/logs	frequency==1
+/{re=exrex:(|actuator|webjars|webjars/actuator)}$/logs/nacos	frequency==1
+/{re=exrex:(|actuator|webjars|webjars/actuator)}$/public/	frequency==1
+/{re=exrex:(|actuator|webjars|webjars/actuator)}$/resources/	frequency==1
+/{re=exrex:(|actuator|webjars|webjars/actuator)}$/rsa/publicKey	frequency==1
 /{re=exrex:(|actuator|webjars|webjars/actuator)}$/admin/swagger-ui.html	frequency==1
 /{re=exrex:(|actuator|webjars|webjars/actuator)}$/api-docs	frequency==1
 /{re=exrex:(|actuator|webjars|webjars/actuator)}$/api-docs/swagger.json	frequency==1
