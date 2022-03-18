@@ -211,8 +211,7 @@
 ​    基础变量会在【基本变量替换时】被替换为字典文件的内容。
 
     基本变量替换字典示例：
-    backup_ext.lst字典文件衍生规则: 
-    {'%backup_ext%': '(\\.rar|\\.zip|\\.gz|\\.tar|\\.tgz|\\.tar\\.gz|\\.7z|\\.z|\\.bz2|\\.tar\\.bz2|\\.iso|\\.cab)'}
+    backup_ext.lst字典文件衍生规则: {'%backup_ext%': ['rar','zip']}
 
 ### 4.3、因变量介绍: 
 
@@ -224,8 +223,7 @@
 ```
 
     因变量替换字典示例:
-    解析 https://www.baidu.com 得到因变量字典: 
-    {'%%domain%%': '(baidu|baidu_com|www\\.baidu\\.com|baidu\\.com|www_baidu_com)'}
+    解析 https://www.baidu.com 得到因变量字典: {'%%domain%%': ['baidu','baidu_com','www.baidu.com','baidu.com','www_baidu_com']}
 
 ### 4.4、动态替换规则: 
 
