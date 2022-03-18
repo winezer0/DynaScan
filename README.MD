@@ -415,7 +415,7 @@
 
 ## 5、其他使用与配置信息
 
-    python3 .py -h
+    python3 DynaScan.py -h
     
     usage: DynaScan.py [-h] [-u TARGET] [-f TARGET_FILE] [-p PROXY] [-t thread] [-d] [-v]
     
