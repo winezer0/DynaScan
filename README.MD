@@ -2,7 +2,7 @@
 
 # DynaScan
 
- **(dynamic Weak File Scanner 动态敏感文件扫描器)**
+**( 戴拿)  (dynamic Weak File Scanner 动态敏感文件扫描器)** 
 
 ## 1.1、程序开发目的
 
