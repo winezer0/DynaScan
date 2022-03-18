@@ -30,6 +30,7 @@ version = "Ver 0.1.2 2022-03-19 00:54"
 # NOW_ENCODE = 'utf-8'
 
 # 中文路径、特殊字符会以列表内的编码作为基础编码，再进行URL编码
+ALL_BASE_ENCODE = ['utf-8', 'gb2312']
 
 # 是否对所有最终PATH开启URL编码模式,解决中文路径乱码问题
 ENCODE_ALL_PATH = True
