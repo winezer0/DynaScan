@@ -282,23 +282,19 @@ def get_key_list_with_frequency(frequency_dict={}, frequency=1, frequency_max=99
 
 
 ########字典列表处理相关######################
-
-# 读取多个字典文件、进行规则解析、进行基本变量替换
-def read_many_file_to_dict_with_frequency_and_rule_parse_and_replace_base_var(module, dir_path='.',
-                                                                              dict_file_suffix='.lst', REPLACE_DICT={},
-                                                                              separator='frequency==', annotation='#',
+# 读取字典文件列表、进行规则解析、进行基本变量替换
+def read_list_file_to_dict_with_frequency_and_rule_parse_and_replace_base_var(module, dir_path='.',
+                                                                              list_dir_file=[],
+                                                                              replace_dict={},
+                                                                              separator='frequency==',
+                                                                              annotation='#',
                                                                               additional=True, frequency=1,
                                                                               logger=None):
-    # 0、获取目录下存在的文件名
     # 1、读取多个文件,并叠加频率参数
     # 2、取出其中符合频率规则的元素
     # 3、每个元素进行规则解析
     # 4、对每个元素进行规则替换
     # 5、返回替换后的规则列表
-
-    # 获取字典目录下的所有文件名
-    list_dir_file = get_relative_file_name(dir_path, dict_file_suffix)
-    logger.info("[*] 路径 {} 下存在 {} 字典: {}".format(dir_path, module, list_dir_file))
 
     # 读取直接文件目录下的所有字典
     frequency_dict_ = read_many_file_to_dict_with_frequency(dir_path, list_dir_file, separator=separator,
@@ -314,17 +310,49 @@ def read_many_file_to_dict_with_frequency_and_rule_parse_and_replace_base_var(mo
     # 对直接规则字典列表里的元素进行规则解析 # 每一行字典解析顺序-规则解析,基本变量替换,因变量替换
     logger.info("[*] {}字典 元素 {{XX=XXX:XXXXX}}$ 规则解析渲染开始...".format(module))
     frequency_list_, render_count, run_time = rule_list_base_render(frequency_list_, logger)
-    logger.info(
-        "[+] {}字典 元素渲染完毕,剩余元素 {} 个,本次解析规则 {} 次, 耗时 {} 秒".format(module, len(frequency_list_), render_count, run_time))
+    logger.info("[+] {}字典 元素渲染完毕,剩余元素 {} 个,本次解析规则 {} 次, 耗时 {} 秒".format(module, len(frequency_list_), render_count, run_time))
     logger.debug("[*] {}字典 元素渲染后内容: {}".format(module, frequency_list_))
 
     # 对直接规则字典列表里的元素进行基本变量替换 # 每一行字典解析顺序-规则解析,基本变量替换,因变量替换
-    logger.info("[*] {}字典 元素 {} 变量替换开始...".format(module, REPLACE_DICT.keys()))
-    frequency_list_, replace_count, run_time = replace_list_has_key_str(frequency_list_, REPLACE_DICT)
+    logger.info("[*] {}字典 元素 {} 变量替换开始...".format(module, replace_dict.keys()))
+    frequency_list_, replace_count, run_time = replace_list_has_key_str(frequency_list_, replace_dict)
     logger.info(
-        "[+] {}字典 元素 {} 变量替换完毕,剩余元素 {} 个,本次替换 {} 次, 耗时 {} 秒".format(module, REPLACE_DICT.keys(), len(frequency_list_),
+        "[+] {}字典 元素 {} 变量替换完毕,剩余元素 {} 个,本次替换 {} 次, 耗时 {} 秒".format(module, replace_dict.keys(), len(frequency_list_),
                                                                     replace_count, run_time))
-    logger.debug("[*] {}字典 元素 {} 变量替换后内容: {}".format(module, REPLACE_DICT.keys(), frequency_list_))
+    logger.debug("[*] {}字典 元素 {} 变量替换后内容: {}".format(module, replace_dict.keys(), frequency_list_))
+    return frequency_list_
+
+
+# 读取多个字典文件、进行规则解析、进行基本变量替换
+def read_many_file_to_dict_with_frequency_and_rule_parse_and_replace_base_var(module, dir_path='.',
+                                                                              dict_file_suffix='.lst',
+                                                                              replace_dict={},
+                                                                              separator='frequency==',
+                                                                              annotation='#',
+                                                                              additional=True,
+                                                                              frequency=1,
+                                                                              logger=None):
+    # 0、获取目录下存在的文件名列表
+    # 1、读取多个文件,并叠加频率参数
+    # 2、取出其中符合频率规则的元素
+    # 3、每个元素进行规则解析
+    # 4、对每个元素进行规则替换
+    # 5、返回替换后的规则列表
+
+    # 获取字典目录下的所有文件名
+    list_dir_file = get_relative_file_name(dir_path, dict_file_suffix)
+    logger.info("[*] 路径 {} 下存在 {} 字典: {}".format(dir_path, module, list_dir_file))
+
+    # 读取文件列表中的内容,并进行频率筛选
+    frequency_list_ = read_list_file_to_dict_with_frequency_and_rule_parse_and_replace_base_var(module, dir_path=dir_path,
+                                                                                                list_dir_file=list_dir_file,
+                                                                                                replace_dict=replace_dict,
+                                                                                                separator=separator,
+                                                                                                annotation=annotation,
+                                                                                                additional=additional,
+                                                                                                frequency=frequency,
+                                                                                                logger=logger)
+
     return frequency_list_
 
 
@@ -742,7 +770,7 @@ def url_to_raw_rule(url_list=[], BASE_VAR_REPLACE_DICT={}, DEPEND_VAR_REPLACE_DI
 
         # 循环替换基础变量值为%键%
         url_path_reverse_base_var = url_path_reverse_depend_var
-        # print(REPLACE_DICT)
+        # print(replace_dict)
         for key, value in BASE_VAR_REPLACE_DICT.items():
             url_path_reverse_base_var = re.sub(list_to_re_str(value), key, url_path_reverse_depend_var, count=0)
         # print(url_str,"替换基础变量值",url_path_reverse_base_var)

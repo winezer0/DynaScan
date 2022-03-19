@@ -77,17 +77,24 @@ dir_combin_files = 'dict/combin_files'
 # 字典文件后缀
 dict_file_suffix = '.lst'
 
-# 命中文件路径
-hit_ext_path = dir_base_var + '/' + 'HIT_EXT' + dict_file_suffix
-hit_direct_path = dir_direct_path + '/' + 'HIT_DIRECT' + dict_file_suffix
-hit_folder_path = dir_combin_folder + '/' + 'HIT_FLODER' + dict_file_suffix
-hit_files_path = dir_combin_files + '/' + 'HIT_FILE' + dict_file_suffix
+# 是否读取DIRECT目录下的字典
+DIRECT_DICT_MODE = True
+
+# 指定仅读取的 direct 目录指定的文件字典,,不再读取 direct 目录下的所有文件
+SPECIFY_DIRECT_DICT = ['DIRECT-SpringBoot.lst']
+
+# 指定仅读取 combin-xxx目录指定的文件字典,不再读取 combin-xxx 目录下的所有文件
+SPECIFY_COMBIN_FOLDER_DICT = []
+SPECIFY_COMBIN_FILES_DICT = []
+
+# 是否读取COMBIN-XX目录下的字典
+COMBIN_DICT_MODE = False
 
 # 要提取的路径频率阈值，大于等于FREQUENCY_MIN 小于等于 FREQUENCY_MAX的字典会被提取
 # 读取命中的后缀文件时的频率阈值 # 由于后缀文件不好进行进一步的解析,所以加到每个后缀以后
 FREQUENCY_MIN_HIT = 1
 FREQUENCY_MAX_HIT = 999
-# 是否将命中扩展的值扩展到每一个基本变量中
+# 是否将历史命中扩展的值扩展到每一个基本变量中
 APPEND_HIT_EXT = True
 
 # 读取BASE目录下字典时的频率阈值
@@ -107,13 +114,14 @@ SEPARATOR = 'frequency=='
 
 # 如果结果字典中已有的值,是否进行追加频率,False时直接进行频率覆盖
 ADDITIONAL = True
+
 # 行注释符号
 ANNOTATION = '#'
 # 替换字符列表-不再需要手动指定－从文件名和文件内容中自动提取键值对
 # 自动读取base目录所有文件并进行自动赋值
 
 # 因变量替换对应表,初值为空,后根据URL变量自动填充替换
-# REPLACE_DICT = {"%DOMAIN%": [], "%PATH%": [] }
+# replace_dict = {"%DOMAIN%": [], "%PATH%": [] }
 # %%DOMAIN%% 在URL中,域名因变量列表所代表的字符串
 # %%PATH%% 在URL中,路径因变量列表所代表的字符串
 # 由于需要动态改变,因此时在代码内部实现,
@@ -125,7 +133,7 @@ IGNORE_IP_FORMAT = True
 CUSTOME_REPLACE_VAR = ['zxjgxt']
 
 # 是否在每个因变量内追加自定义变量
-APPEND_CUSTOME_VAR = True
+APPEND_CUSTOM_VAR = True
 
 # DOMAIN因变量中HOST:PORt中的替换规则,替换后追加到域名因子列表
 DOMAIN_SYSBOL_REPLACE_DICT = {
@@ -134,8 +142,8 @@ DOMAIN_SYSBOL_REPLACE_DICT = {
 
 # PATH因变量中HOST:PORt中的替换规则,替换后追加到域名因子列表
 PATH_SYSBOL_REPLACE_DICT = {
-    ":": ["_"],  #获取的路径相关单词中的[:]会替换为[_]
-    ".": ["_"]   #获取的路径相关单词中的[.]会替换为[_]
+    ":": ["_"],  # 获取的路径相关单词中的[:]会替换为[_]
+    ".": ["_"]   # 获取的路径相关单词中的[.]会替换为[_]
 }
 
 # 路径中不该有的字符 # 解析出来的域名单词和路径单词中有这个符号的元素会删除
@@ -147,6 +155,15 @@ REMOVE_NOT_PATH_SYMBOL = True
 
 # 是否替换路径中的多个//为一个/
 REMOVE_MULTI_SLASHES = True
+
+# 命中文件保存路径
+hit_ext_path = dir_base_var + '/' + 'HIT_EXT' + dict_file_suffix
+hit_direct_path = dir_direct_path + '/' + 'HIT_DIRECT' + dict_file_suffix
+hit_folder_path = dir_combin_folder + '/' + 'HIT_FLODER' + dict_file_suffix
+hit_files_path = dir_combin_files + '/' + 'HIT_FILE' + dict_file_suffix
+
+# 是否保存命中结果到HIT_XXX文件
+SAVE_HIT_RESULT = False
 ####################无需进行处理的初始变量赋值开始###########################
 # 代码中会自动添加基本变量替换关键字
 # #不需要手动填写因变量关键字,但是手动实现因变量函数

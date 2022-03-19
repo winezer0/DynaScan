@@ -34,9 +34,9 @@ def handle_error(url, common_error_list, module, error, logger):
     # 把常规错误的关键字加入列表common_error_list内,列表为空时都作为非常规错误处理
     common_error_flag = list_element_in_str(common_error_list, str(error))
     if common_error_flag:
-        logger.debug("[-] 目标 {} COMMON ERROR ON Acquire {}: {}".format(url, module, error))
+        logger.debug("[-] 当前目标 {} COMMON ERROR ON Acquire {}: {}".format(url, module, error))
     else:
-        logger.error("[-] 目标 {} OTHERS ERROR ON Acquire {}: {}".format(url, module, error))
+        logger.error("[-] 当前目标 {} OTHERS ERROR ON Acquire {}: {}".format(url, module, error))
 
 
 def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False, proxies=None, headers=None,
@@ -83,17 +83,17 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
                 resp_status = 1
                 result = (
                 url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
-                logger.debug("[-] 目标 {} 中文数据编码错误,但是已经开启中文编码处理功能,忽略本次结果 {}!!!".format(url, result))
+                logger.debug("[-] 当前目标 {} 中文数据编码错误,但是已经开启中文编码处理功能,忽略本次结果 {}!!!".format(url, result))
             else:
                 # 需要重试的结果
                 result = (
                 url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
-                logger.error("[-] 目标 {} 中文数据编码错误,需要针对中文编码进行额外处理,返回固定结果 {}!!!".format(url, result))
+                logger.error("[-] 当前目标 {} 中文数据编码错误,需要针对中文编码进行额外处理,返回固定结果 {}!!!".format(url, result))
         else:
             # 如果是其他访问错误,就进程访问重试
             if retry_times > 0:
                 #############################################################
-                logger.debug("[-] 目标 {} 开始进行倒数第 {} 次重试,(HTTP_TIMEOUT = HTTP_TIMEOUT * 1.5)...".format(url, retry_times))
+                logger.debug("[-] 当前目标 {} 开始进行倒数第 {} 次重试,(HTTP_TIMEOUT = HTTP_TIMEOUT * 1.5)...".format(url, retry_times))
                 result = requests_plus(method=method, url=url, proxies=proxies, cookies=cookies, headers=headers,
                                        timeout=timeout * 1.5, verify=verify, allow_redirects=allow_redirects,
                                        dynamic_host_header=dynamic_host_header,
@@ -105,7 +105,7 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
                 # 如果重试次数为小于0,返回固定结果-1
                 result = (
                 url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
-                logger.error("[-] 目标 {} 剩余重试次数为0,返回固定结果{},需要进一步手动进行处理...".format(url, result))
+                logger.error("[-] 当前目标 {} 剩余重试次数为0,返回固定结果{},需要进一步手动进行处理...".format(url, result))
     else:
         # 当获取到响应结果时,获取三个响应关键匹配项目
         #############################################################
@@ -219,7 +219,7 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
         result = (
         url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
 
-        logger.debug("[*] 目标 {} 请求返回结果集合:{}".format(url, result))
+        logger.debug("[*] 当前目标 {} 请求返回结果集合:{}".format(url, result))
     return result
 
 
