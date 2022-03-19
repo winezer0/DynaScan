@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+import re
 import sys
 
 from libs.utils_dict.BaseKeyReplace import replace_list_has_key_str
@@ -67,7 +68,7 @@ def multi_threaded_requests_url(url_path_list, threads_count=10, proxies={}, coo
 
 
 # 处理测试URL访问结果,返回一个用于对比的此时结果字典
-def handle_test_result_dict(test_path_result_dict={}, logger=None):
+def handle_test_result_dict(test_path_result_dict={},filter_moudle_default_value_dict={}, logger=None):
     dynamic_exclude_dict = {}
     for target in test_path_result_dict.keys():
         # 针对每个target进行处理,实际情况下应该只有一个target,因为处理函数在循环内部调用。
@@ -86,44 +87,11 @@ def handle_test_result_dict(test_path_result_dict={}, logger=None):
         # 需要被筛选的项目对应变量名序列
         # filter_moudle_name_list = filter_moudle_default_value_dict.keys()
 
-        # 每个筛选的变量,需要被忽略的默认值和空置
-        filter_moudle_default_value_dict = {
-            "resp_text_title": ["Null-Title", "Ignore-Title", "Blank-Title"],
-            "resp_text_hash": ["Null-Text-Hash", "Ignore-Text-Hash"],
-            "resp_content_length": [-1, 0],
-            "resp_text_size": [-1, 0],
-            "resp_bytes_head": ["Null-Bytes", "Blank-Bytes"]}
-
         # 确定各个URL的对比参数
         # {"target":{"resp_content_length":"xxx","resp_text_size":"xxx","resp_bytes_head":"xxx","resp_text_title":"xxx"}}
         # dynamic_exclusion_dict = {} 存储所有目标的对比参数
         # dynamic_exclude_dict[target] = {} 存储单个目标的对比参数
         dynamic_exclude_dict[target] = {}
-        """
-        # ＃当所有测试路径的响应resp_bytes_head相同,并且不在module_none_value_list内时，这个resp_bytes_head就能拿来作为不存在路径的参照
-        module_index = -1  # module在结果列表内对应的反向序列
-        module_name = "resp_bytes_head"  # 模块对应的返回结果类型名字
-        module_none_value_list = ["Null-Bytes", "Blank-Bytes"]
-        dynamic_exclude_dict = filter_dynamic(module_name, module_index, module_none_value_list,test_path_result_dict, dynamic_exclude_dict,target, logger)
-
-        # ＃当所有测试路径的响应resp_text_size相同,并且大于0时，这个resp_text_size就能拿来作为不存在路径的参照
-        module_index = -2  # module在结果列表内对应的反向序列
-        module_name = "resp_text_size"  # 模块对应的返回结果类型名字
-        module_none_value_list = [-1, 0]
-
-        dynamic_exclude_dict = filter_dynamic(module_name, module_index, module_none_value_list,test_path_result_dict, dynamic_exclude_dict,target, logger)
-        # ＃当所有测试路径的响应resp_content_length相同,并且大于0时，这个resp_content_length就能拿来作为不存在路径的参照
-        module_index = -3  # module在结果列表内对应的反向序列
-        module_name = "resp_content_length"  # 模块对应的返回结果类型名字
-        module_none_value_list = [-1, 0]
-        dynamic_exclude_dict = filter_dynamic(module_name, module_index, module_none_value_list,test_path_result_dict, dynamic_exclude_dict,target, logger)
-
-        # ＃当所有测试路径的响应resp_text_title相同,并且不在module_none_value_list内 时，这个resp_content_length就能拿来作为不存在路径的参照
-        module_name = "resp_text_title"  # 模块对应的返回结果类型名字
-        module_index = -4  # module在结果列表内对应的反向序列
-        module_none_value_list = ["Null-Title", "Ignore-Title", "Blank-Title"]
-        dynamic_exclude_dict = filter_dynamic(module_name, module_index, module_none_value_list,test_path_result_dict, dynamic_exclude_dict,target, logger)
-        """
         for module_name in filter_moudle_default_value_dict.keys():
             # ＃当所有测试路径的响应resp_text_title相同,并且不在module_none_value_list内 时，这个resp_content_length就能拿来作为不存在路径的参照
             module_index = result_moudle_name_list.index(module_name)  # module在结果列表内对应的反向序列
@@ -149,12 +117,9 @@ def filter_dynamic(module_name, module_index, module_none_value_list, test_path_
 
 
 # 处理拆分结果列表 并写入文件
-def handle_real_result_dict(real_path_result_dict={}, logger=None, exclude_status=[], dynamic_exclude_dict={},
-                            exclude_dynamic_switch=True):
-    # print(EXCLUDE_STATUS)
-    # print(dynamic_exclude_dict)
-    # print(real_path_result_dict)
-    # print(EXCLUDE_DYNAMIC_SWITCH)
+def handle_real_result_dict(real_path_result_dict={}, logger=None, exclude_status=[], exclude_regexp='',
+                            dynamic_exclude_dict={},exclude_dynamic_switch=True,
+                            filter_moudle_default_value_dict={}):
 
     # 保存所有被写入的结果列表,用于统计等
     all_write_result = []
@@ -209,13 +174,17 @@ def handle_real_result_dict(real_path_result_dict={}, logger=None, exclude_statu
                     manual_file_path_open.write(tuple_result_format % tuple)
                 elif resp_status == 1:
                     # 状态码为-1,,说明没有成功获取到响应码,但是是编码错误，并且开启了编码功能，不需要手动重试
-                    logger.debug("[-] 当前目标 {} resp_status {} 等于 1,因此本请求结果发生编码相关错误".format(url, resp_status))
+                    logger.debug("[-] 当前目标 {} resp_status {} 等于 1,因此本请求结果发生编码相关错误".format(url,resp_status))
                     error_file_path_open.write(tuple_result_format % tuple)
                 elif resp_status in exclude_status:
                     # 状态码为在排除列表内,就输出到忽略文件夹
-                    logger.debug(
-                        "[-] 当前目标 {} resp_status {} 在 排除列表 {} 内,因此本请求结果忽略".format(url, resp_status, exclude_status))
+                    logger.debug("[-] 当前目标 {} resp_status {} 在 排除列表 {} 内,因此本请求结果忽略".format(url,resp_status, exclude_status))
                     ignore_file_path_open.write(tuple_result_format % tuple)
+                elif resp_text_title not in filter_moudle_default_value_dict["resp_text_title"] and re.match(exclude_regexp,resp_text_title):
+                    # 标题内容被排除正则匹配,就输出到忽略文件夹
+                    logger.error("[-] 当前目标 {} resp_text_title {} 被排除正则匹配,因此本请求结果忽略".format(url,resp_text_title, exclude_regexp))
+                    ignore_file_path_open.write(tuple_result_format % tuple)
+
                 elif exclude_dynamic_switch and dynamic_exclude_dict.__contains__(target):
                     # 需要被匹配的变量名字符串列表,用于根据key来动态生成变量
                     # match_list = ["resp_content_length", "resp_text_size", "resp_text_title", "resp_text_hash","resp_bytes_head"]
@@ -277,7 +246,8 @@ def attempt_add_proto_and_access(list_all_target, logger):
                                                                    allow_redirects=ALLOW_REDIRECTS,
                                                                    dynamic_host_header=DYNAMIC_HOST_HEADER,
                                                                    dynamic_refer_header=DYNAMIC_REFER_HEADER,
-                                                                   retry_times=RETRY_TIMES, logger=logger)
+                                                                   retry_times=RETRY_TIMES, logger=logger,
+                                                                   encode_all_path=ENCODE_ALL_PATH)
             for tuple in target_proto_result_list:
                 url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
                 if resp_status > 0:
@@ -304,7 +274,8 @@ def attempt_add_proto_and_access(list_all_target, logger):
                                                                    allow_redirects=ALLOW_REDIRECTS,
                                                                    dynamic_host_header=DYNAMIC_HOST_HEADER,
                                                                    dynamic_refer_header=DYNAMIC_REFER_HEADER,
-                                                                   retry_times=RETRY_TIMES, logger=logger)
+                                                                   retry_times=RETRY_TIMES, logger=logger,
+                                                                   encode_all_path=ENCODE_ALL_PATH)
             logger.info("[*] 当前目标 {} 协议探测结果:{}".format(target, target_proto_result_list))
             # [('https://www.baidu.com', 200, -1, -1, 'Blank-Title', 'Null-Text-Hash', '3c21444f435459504520'),
             # ('http://www.baidu.com', 200, -1, -1, 'Blank-Title', 'Null-Text-Hash', '3c21444f435459504520')]
@@ -313,7 +284,7 @@ def attempt_add_proto_and_access(list_all_target, logger):
                 logger.info("[*] 当前目标 {} 即将使用严格判断模式对访问结果进行筛选,判断最终协议头...".format(target))
                 # 是否除了URL,其他所有的返回内容都相同,如果是的话,仅返回http协议即可
                 if two_tuple_list_value_equal(target_proto_result_list):
-                    # print("两个协议的访问结果相同")
+                    # 两个协议的访问结果相同
                     tuple = target_proto_result_list[0]
                     tuple_result_format = "%s," * len(tuple) + "\n"
                     url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
@@ -327,7 +298,7 @@ def attempt_add_proto_and_access(list_all_target, logger):
                         logger.error(
                             "[-] 当前目标 {} 使用两个协议进行访问测试时结果相同,但响应状态码 {} ,本次URL将被过滤...".format(target, resp_status))
                 else:
-                    # print("两个协议的访问结果不相同")
+                    # 两个协议的访问结果不相同
                     for tuple in target_proto_result_list:
                         url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
                         if resp_status > 0:
@@ -345,7 +316,7 @@ def attempt_add_proto_and_access(list_all_target, logger):
                 for tuple in target_proto_result_list:
                     tuple_result_format = "%s," * len(tuple) + "\n"
                     url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
-                    # print(tuple_result_format % tuple, end="")
+                    # (tuple_result_format % tuple, end="")
                     # https://www.baidu.com,200,-1,-1,Blank-Title,Null-Text-Hash,3c21444f435459504520,
                     if resp_status > 0:
                         new_list_all_target.append(url)
@@ -529,29 +500,32 @@ def controller():
         module = '笛卡尔积组合-文件'
         if SPECIFY_COMBIN_FILES_DICT:
             logger.error("[+] 已开启 COMBIN-FILES 目录下的指定字典文件读取 {}".format(SPECIFY_COMBIN_FILES_DICT))
-            combin_files_frequency_list_ = read_list_file_to_dict_with_frequency_and_rule_parse_and_replace_base_var(module,
-                                                                                                                     dir_combin_files,
-                                                                                                                     dict_file_suffix,
-                                                                                                                     BASE_VAR_REPLACE_DICT,
-                                                                                                                     SEPARATOR,
-                                                                                                                     ANNOTATION,
-                                                                                                                     ADDITIONAL,
-                                                                                                                     FREQUENCY_MIN_COMBIN,
-                                                                                                                     logger)
+            combin_files_frequency_list_ = read_list_file_to_dict_with_frequency_and_rule_parse_and_replace_base_var(
+                module,
+                dir_combin_files,
+                dict_file_suffix,
+                BASE_VAR_REPLACE_DICT,
+                SEPARATOR,
+                ANNOTATION,
+                ADDITIONAL,
+                FREQUENCY_MIN_COMBIN,
+                logger)
         else:
-            combin_files_frequency_list_ = read_many_file_to_dict_with_frequency_and_rule_parse_and_replace_base_var(module,
-                                                                                                                     dir_combin_files,
-                                                                                                                     dict_file_suffix,
-                                                                                                                     BASE_VAR_REPLACE_DICT,
-                                                                                                                     SEPARATOR,
-                                                                                                                     ANNOTATION,
-                                                                                                                     ADDITIONAL,
-                                                                                                                     FREQUENCY_MIN_COMBIN,
-                                                                                                                     logger)
+            combin_files_frequency_list_ = read_many_file_to_dict_with_frequency_and_rule_parse_and_replace_base_var(
+                module,
+                dir_combin_files,
+                dict_file_suffix,
+                BASE_VAR_REPLACE_DICT,
+                SEPARATOR,
+                ANNOTATION,
+                ADDITIONAL,
+                FREQUENCY_MIN_COMBIN,
+                logger)
         logger.info("==================================================")
 
         # 5、合并笛卡尔积组合-目录和笛卡尔积组合-文件的结果
-        combin_folder_files_list, run_time = combine_folder_list_and_files_list(combin_folder_frequency_list_,combin_files_frequency_list_)
+        combin_folder_files_list, run_time = combine_folder_list_and_files_list(combin_folder_frequency_list_,
+                                                                                combin_files_frequency_list_)
         logger.info("[*] 笛卡尔积组合-目录+文件 组合结果: 当前元素 {} 个, 耗时 {} s".format(len(combin_folder_files_list), run_time))
         logger.info("==================================================")
     else:
@@ -653,12 +627,13 @@ def controller():
                                                                     allow_redirects=ALLOW_REDIRECTS,
                                                                     dynamic_host_header=DYNAMIC_HOST_HEADER,
                                                                     dynamic_refer_header=DYNAMIC_REFER_HEADER,
-                                                                    retry_times=RETRY_TIMES, logger=logger)
+                                                                    retry_times=RETRY_TIMES, logger=logger,
+                                                                    encode_all_path=ENCODE_ALL_PATH)
 
         # 提取测试路径响应结果对比项
         # 确定各个URL的对比参数 #dynamic_exclusion_dictionary存储对比参数
         # {"target":{"resp_content_length":"xxx","resp_text_size":"xxx","resp_bytes_head":"xxx"}}
-        dynamic_exclude_dict = handle_test_result_dict(test_path_result_dict, logger)
+        dynamic_exclude_dict = handle_test_result_dict(test_path_result_dict,FILTER_MOUDLE_DEFAULT_VALUE_DICT, logger)
         logger.info("[+] 当前目标 {} 所有测试URL访问结果筛选完毕 动态结果排除字典内容 [{}]".format(target,
                                                                          dynamic_exclude_dict if dynamic_exclude_dict else "无"))
 
@@ -721,15 +696,17 @@ def controller():
                                                                     allow_redirects=ALLOW_REDIRECTS,
                                                                     dynamic_host_header=DYNAMIC_HOST_HEADER,
                                                                     dynamic_refer_header=DYNAMIC_REFER_HEADER,
-                                                                    retry_times=RETRY_TIMES, logger=logger)
+                                                                    retry_times=RETRY_TIMES, logger=logger,
+                                                                    encode_all_path=ENCODE_ALL_PATH)
         logger.info("==================================================")
         # 针对每个目标进行请求处理的结束时间
         target_exec_end_time = time.time()
         logger.info("[*] 当前目标 {} 所有URL进程访问完毕,过程耗时[{}]...".format(target, target_exec_end_time - target_exec_start_time))
         logger.info("==================================================")
         logger.info("[+] 当前目标 {} 开始处理所有URL访问测试结果 结果自动筛选分类中...".format(target))
-        write_tuple_result = handle_real_result_dict(real_path_result_dict, logger, EXCLUDE_STATUS,
-                                                     dynamic_exclude_dict, EXCLUDE_DYNAMIC_SWITCH)
+        write_tuple_result = handle_real_result_dict(real_path_result_dict, logger, EXCLUDE_STATUS, EXCLUDE_REGEXP,
+                                                     dynamic_exclude_dict, EXCLUDE_DYNAMIC_SWITCH,
+                                                     FILTER_MOUDLE_DEFAULT_VALUE_DICT)
         logger.info("==================================================")
         if SAVE_HIT_RESULT:
             logger.info("[+] 当前目标 {} 已开启命中结果保存...".format(target))

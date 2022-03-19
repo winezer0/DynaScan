@@ -81,14 +81,14 @@ dict_file_suffix = '.lst'
 DIRECT_DICT_MODE = True
 
 # 指定仅读取的 direct 目录指定的文件字典,,不再读取 direct 目录下的所有文件
-SPECIFY_DIRECT_DICT = ['DIRECT-SpringBoot.lst']
+SPECIFY_DIRECT_DICT = []
 
 # 指定仅读取 combin-xxx目录指定的文件字典,不再读取 combin-xxx 目录下的所有文件
 SPECIFY_COMBIN_FOLDER_DICT = []
 SPECIFY_COMBIN_FILES_DICT = []
 
 # 是否读取COMBIN-XX目录下的字典
-COMBIN_DICT_MODE = False
+COMBIN_DICT_MODE = True
 
 # 要提取的路径频率阈值，大于等于FREQUENCY_MIN 小于等于 FREQUENCY_MAX的字典会被提取
 # 读取命中的后缀文件时的频率阈值 # 由于后缀文件不好进行进一步的解析,所以加到每个后缀以后
@@ -130,7 +130,7 @@ ANNOTATION = '#'
 IGNORE_IP_FORMAT = True
 
 # 存储自定义变量单词,会自动加入到%%DOMAIN%% 和%%PATH%% 中
-CUSTOME_REPLACE_VAR = ['zxjgxt']
+CUSTOME_REPLACE_VAR = []
 
 # 是否在每个因变量内追加自定义变量
 APPEND_CUSTOM_VAR = True
@@ -163,7 +163,7 @@ hit_folder_path = dir_combin_folder + '/' + 'HIT_FLODER' + dict_file_suffix
 hit_files_path = dir_combin_files + '/' + 'HIT_FILE' + dict_file_suffix
 
 # 是否保存命中结果到HIT_XXX文件
-SAVE_HIT_RESULT = False
+SAVE_HIT_RESULT = True # False # True
 ####################无需进行处理的初始变量赋值开始###########################
 # 代码中会自动添加基本变量替换关键字
 # #不需要手动填写因变量关键字,但是手动实现因变量函数
@@ -258,9 +258,20 @@ def random_x_forwarded_for(condition=False):
         return '8.8.8.8'
 
 #######################################################################
+# 每个筛选的变量,需要被忽略的默认值和空置
+FILTER_MOUDLE_DEFAULT_VALUE_DICT = {
+    "resp_text_title": ["Null-Title", "Ignore-Title", "Blank-Title"],
+    "resp_text_hash": ["Null-Text-Hash", "Ignore-Text-Hash"],
+    "resp_content_length": [-1, 0],
+    "resp_text_size": [-1, 0],
+    "resp_bytes_head": ["Null-Bytes", "Blank-Bytes"]}
+
 # 判断文件或目录不存在的状态码，多个以逗号隔开,符合该状态码的响应将不会写入结果文件
 EXCLUDE_STATUS = [404]
 
+# 判断文件是否不存在的正则，如果页面标题存在如下定义的内容，将从Result结果中剔除到ignore结果中
+# EXCLUDE_REGEXP = '404|[nN]ot [fF]ound|不存在|未找到|Error'
+EXCLUDE_REGEXP = '[nN]ot [fF]ound|不存在|未找到'
 # 动态排除模式：测试访问不存在路径,用于筛选出不正确的结果
 # 动态判断404、假页面的 length、size、head、hash等多个属性来排除虚假页面
 test_path_1 = get_random_str(12)
@@ -271,8 +282,6 @@ TEST_PATH_LIST = [test_path_1, test_path_2, test_path_3]
 # 动态排除模式开关
 EXCLUDE_DYNAMIC_SWITCH = True
 
-# 判断文件是否不存在的正则，如果页面存在如下定义的内容，将从Result结果中剔除到ignore结果中 #暂未添加
-# page_not_found_reg = r'404|[nN]ot [fF]ound|不存在|未找到|Error'
 
 # HTTP 头设置
 HEADERS = {
