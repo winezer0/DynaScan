@@ -180,7 +180,7 @@ def handle_real_result_dict(real_path_result_dict={}, logger=None, exclude_statu
                     # 状态码为在排除列表内,就输出到忽略文件夹
                     logger.debug("[-] 当前目标 {} resp_status {} 在 排除列表 {} 内,因此本请求结果忽略".format(url,resp_status, exclude_status))
                     ignore_file_path_open.write(tuple_result_format % tuple)
-                elif resp_text_title not in filter_moudle_default_value_dict["resp_text_title"] and re.match(exclude_regexp,resp_text_title):
+                elif resp_text_title not in filter_moudle_default_value_dict["resp_text_title"] and re.match(exclude_regexp,resp_text_title, re.IGNORECASE):
                     # 标题内容被排除正则匹配,就输出到忽略文件夹
                     logger.error("[-] 当前目标 {} resp_text_title {} 被排除正则匹配,因此本请求结果忽略".format(url,resp_text_title, exclude_regexp))
                     ignore_file_path_open.write(tuple_result_format % tuple)

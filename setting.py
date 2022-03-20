@@ -266,12 +266,12 @@ FILTER_MOUDLE_DEFAULT_VALUE_DICT = {
     "resp_text_size": [-1, 0],
     "resp_bytes_head": ["Null-Bytes", "Blank-Bytes"]}
 
-# 判断文件或目录不存在的状态码，多个以逗号隔开,符合该状态码的响应将不会写入结果文件
+# 判断URI不存在的状态码，多个以逗号隔开,符合该状态码的响应将不会写入结果文件
 EXCLUDE_STATUS = [404]
 
-# 判断文件是否不存在的正则，如果页面标题存在如下定义的内容，将从Result结果中剔除到ignore结果中
-# EXCLUDE_REGEXP = '404|[nN]ot [fF]ound|不存在|未找到|Error'
-EXCLUDE_REGEXP = '[nN]ot [fF]ound|不存在|未找到'
+# 判断URI是否不存在的正则，如果页面标题存在如下定义的内容，将从Result结果中剔除到ignore结果中 #re.IGNORECASE 忽略大小写
+EXCLUDE_REGEXP = r"页面不存在|未找到|404|410|not[ -]found"
+
 # 动态排除模式：测试访问不存在路径,用于筛选出不正确的结果
 # 动态判断404、假页面的 length、size、head、hash等多个属性来排除虚假页面
 test_path_1 = get_random_str(12)
