@@ -15,7 +15,7 @@ from libs.ToolUtils import get_random_str
 ##################################################################
 # 获取setting.py脚本所在路径作为的基本路径
 BASE_DIR = pathlib.Path(__file__).parent.resolve()
-
+##################################################################
 # 是否属于测试模式 # 测试模式每个目标URL只获取生成的前100个URL进行测试
 TEST_MODE_HANDLE = False  # True False
 
@@ -24,7 +24,6 @@ config.debug = False  # True False
 ##################################################################
 # 版本号配置
 version = "Ver 0.1.2 2022-03-19 00:54"
-
 ##################################################################
 # 中文路径、特殊字符会以列表内的编码作为基础编码，再进行URL编码
 ALL_BASE_ENCODE = ['utf-8', 'gbk']
@@ -40,11 +39,11 @@ ENCODE_ALL_PATH = True
 
 # URL路径列表编码处理包含两种模式,一种是仅处理中文路径（使用正则匹配出中文）,一种是所有路径都会处理,所有特殊字符都会被编码,
 # 是否仅对包含中文的路径使用URL编码模式
-ENCODE_CHINESE_ONLY = True # True # False
+ENCODE_CHINESE_ONLY = True  # True # False
 ##################################################################
-# 在配置文件中输入目标文件等参数 比cmd输入参数优先级低 一般作为默认参数使用
-config.target = None
-config.target_file = "target.txt"
+# 在配置文件中配置默认目标文件等参数 比cmd输入参数优先级低 一般作为默认参数使用
+# config.target = None
+# config.target_file = None
 ####################程序基本配置开始##################################
 # 是否对符合URL格式的目标直接开启目标URL可访问性判断
 ACCESS_TEST_URL = True
@@ -146,15 +145,14 @@ DOMAIN_SYSBOL_REPLACE_DICT = {
 # PATH因变量中HOST:PORt中的替换规则,替换后追加到域名因子列表
 PATH_SYSBOL_REPLACE_DICT = {
     ":": ["_"],  # 获取的路径相关单词中的[:]会替换为[_]
-    ".": ["_"]   # 获取的路径相关单词中的[.]会替换为[_]
+    ".": ["_"]  # 获取的路径相关单词中的[.]会替换为[_]
 }
 
 # 路径中不该有的字符 # 解析出来的域名单词和路径单词中有这个符号的元素会删除
-NOT_PATH_SYMBOL= [":"]
+NOT_PATH_SYMBOL = [":"]
 
 # 是否去除路径中包含不该有的字符（比如:）的元素
 REMOVE_NOT_PATH_SYMBOL = True
-
 
 # 是否替换路径中的多个//为一个/
 REMOVE_MULTI_SLASHES = True
@@ -166,7 +164,7 @@ hit_folder_path = dir_combin_folder + '/' + 'HIT_FLODER' + dict_file_suffix
 hit_files_path = dir_combin_files + '/' + 'HIT_FILE' + dict_file_suffix
 
 # 是否保存命中结果到HIT_XXX文件
-SAVE_HIT_RESULT = True # False # True
+SAVE_HIT_RESULT = True  # False # True
 ####################无需进行处理的初始变量赋值开始###########################
 # 代码中会自动添加基本变量替换关键字
 # #不需要手动填写因变量关键字,但是手动实现因变量函数
@@ -252,6 +250,7 @@ def random_useragent(condition=False):
     else:
         return USER_AGENTS[0]
 
+
 # 随机X-Forwarded-For，动态IP
 def random_x_forwarded_for(condition=False):
     if condition:
@@ -259,6 +258,7 @@ def random_x_forwarded_for(condition=False):
             random.randint(1, 254), random.randint(1, 254), random.randint(1, 254), random.randint(1, 254))
     else:
         return '8.8.8.8'
+
 
 #######################################################################
 # 每个筛选的变量,需要被忽略的默认值和空置
@@ -285,7 +285,6 @@ TEST_PATH_LIST = [test_path_1, test_path_2, test_path_3]
 # 动态排除模式开关
 EXCLUDE_DYNAMIC_SWITCH = True
 
-
 # HTTP 头设置
 HEADERS = {
     'User-Agent': random_useragent(ALLOW_RANDOM_USERAGENT),
@@ -299,4 +298,3 @@ for path in list__:
     if not os.path.exists(path):
         os.makedirs(path)
 ########################扩展的调用函数###################################
-
