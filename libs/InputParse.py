@@ -27,7 +27,7 @@ class ParserCmd(object):
                           \r  python3 {shell_name} -f target.txt
                           \r  python3 {shell_name} -f target.txt -p http://127.0.0.1:8080
                           \r  
-                          \r  其他控制细节参数请通过config.py进行配置
+                          \r  其他控制细节参数请通过setting.py进行配置
                           \r  
                           \r  T00L Version: {version}
                           \r  
