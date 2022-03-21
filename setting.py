@@ -26,11 +26,14 @@ config.debug = False  # True False
 version = "Ver 0.1.2 2022-03-19 00:54"
 
 ##################################################################
-# 请求编码设置 设置当前的编码 #已弃用
-# NOW_ENCODE = 'utf-8'
-
 # 中文路径、特殊字符会以列表内的编码作为基础编码，再进行URL编码
-ALL_BASE_ENCODE = ['utf-8', 'gb2312']
+ALL_BASE_ENCODE = ['utf-8', 'gbk']
+# 注意:gb2312编码繁体中文可能报错,此时可使用gbk编码,GBK与G2312编码结果相同
+# [13:08:12] [*] 中文编码模式: 路径列表中的元素[/說明.txt] 已基于 [utf-8] 编码 URL编码为:/%E8%AA%AA%E6%98%8E.txt
+# [13:08:12] [*] 中文编码模式: 路径列表中的元素[/說明.txt] 已基于 [gbk] 编码 URL编码为:/%D5f%C3%F7.txt
+# [13:10:46] [*] 中文编码模式: 路径列表中的元素[/說明.txt] 基于 [gb2312] 编码进行URL编码时,发生错误:'gb2312' codec can't encode character '\u8aaa' in position 1: illegal multibyte sequence
+# [13:06:36] [*] 中文编码模式: 路径列表中的元素[/服务器.rar4] 已基于 [gb2312] 编码 URL编码为:/%B7%FE%CE%F1%C6%F7.rar4
+# [13:08:12] [*] 中文编码模式: 路径列表中的元素[/服务器.rar4] 已基于 [gbk] 编码 URL编码为:/%B7%FE%CE%F1%C6%F7.rar4
 
 # 是否对所有最终PATH开启URL编码模式,解决中文路径乱码问题
 ENCODE_ALL_PATH = True

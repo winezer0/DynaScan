@@ -449,11 +449,13 @@ def url_path_chinese_encode(path_list, logger, encode_list=['utf-8', 'gb2312']):
         if match:
             new_path = None
             for encode in encode_list:
-                new_path = urllib.parse.quote(path.encode(encode))  # 解决/备份.zip读取问题失败
-                if path != new_path:
-                    new_path_list.append(new_path)
-                    logger.debug("[*] 中文编码模式: 路径列表中的元素[{}]已基于[{}]编码+URL编码为:{}".format(path, encode, new_path))
-
+                try:
+                    new_path = urllib.parse.quote(path.encode(encode))  # 解决/备份.zip读取问题失败
+                    if path != new_path:
+                        new_path_list.append(new_path)
+                        logger.debug("[*] 中文编码模式: 路径列表中的元素[{}] 已基于 [{}] 编码 URL编码为:{}".format(path, encode, new_path))
+                except Exception as error:
+                    logger.error("[-] 中文编码模式: 路径列表中的元素[{}] 基于 [{}] 编码进行URL编码时,发生错误:{}".format(path, encode, error))
     new_path_list = list(set(new_path_list))
     return new_path_list
 
@@ -470,10 +472,13 @@ def url_path_url_encode(path_list, logger, encode_list=['utf-8', 'gb2312']):
     for path in path_list:
         new_path_list.append(path)
         for encode in encode_list:
-            new_path = urllib.parse.quote(path.encode(encode))  # 解决/备份.zip读取问题失败
-            if path != new_path:
-                new_path_list.append(new_path)
-                logger.debug("[*] 全部编码模式: 路径列表中的元素[{}]已基于[{}]编码+URL编码为:{}".format(path, encode, new_path))
+            try:
+                new_path = urllib.parse.quote(path.encode(encode))  # 解决/备份.zip读取问题失败
+                if path != new_path:
+                    new_path_list.append(new_path)
+                    logger.debug("[*] 全部编码模式: 路径列表中的元素 [{}] 已基于 [{}] 编码 URL编码为:{}".format(path, encode, new_path))
+            except Exception as error:
+                logger.error("[-] 全部编码模式: 路径列表中的元素 [{}] 基于 [{}] 编码进行URL编码时,发生错误:{}".format(path, encode, error))
     new_path_list = list(set(new_path_list))
     return new_path_list
 
