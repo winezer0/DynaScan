@@ -38,7 +38,7 @@ class ParserCmd(object):
             add_help=True,
         )
         parser.epilog = example.format(shell_name=parser.prog, version=version)
-        parser.add_argument("-u", dest="target", type=str, default="www.baidu.com",  # 发布时需要改为 default=None
+        parser.add_argument("-u", dest="target", type=str, default=None,  # 发布时需要改为 default=None
                             help="指定扫描目标URL, Example: http://www.baidu.com")
 
         parser.add_argument("-f", dest="target_file", type=str, default=None,

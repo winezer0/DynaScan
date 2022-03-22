@@ -355,7 +355,7 @@ def controller():
     list_all_target = []
     if "target" in config and config.target:
         list_all_target.append(config.target)
-    elif "target_file" in config and file_is_exist(config.target_filetarget_file):
+    elif "target_file" in config and file_is_exist(config.target_file):
         list_all_target.extend(read_file_to_list_de_weight(config.target_file))
 
     # 对输入的目标数量进行判断和处理
