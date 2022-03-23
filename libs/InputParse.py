@@ -45,7 +45,7 @@ class ParserCmd(object):
         parser.add_argument("-p", dest="proxy", type=str, default=None,
                             help="指定请求时使用的HTTPS或SOCKS5的代理, Example: http://127.0.0.1:8080 or socks5://127.0.0.1:1080")
 
-        parser.add_argument("-t", dest="thread", type=int, default=10,
+        parser.add_argument("-t", dest="threads_count", type=int, default=None,
                             help="指定多线程池的最大线程数")
 
         parser.add_argument("-d", dest="debug", default=False, action="store_true",  # 发布时需要改为 default=False

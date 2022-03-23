@@ -37,7 +37,7 @@ def multi_threaded_requests_url(url_path_list, threads_count=10, proxies={}, coo
                                 retry_times=3, logger=None, encode='utf-8', encode_all_path=True):
     """
     # 对URL列表进行访问测试,输出返回响应结果
-    # 创建一个最大容纳数量为thread的线程池,然后进行访问操作
+    # 创建一个最大容纳数量为threads_count的线程池,然后进行访问操作
     # 返回响应元组组成的结果列表
     """
     url_access_result_list = []
@@ -259,74 +259,75 @@ def attempt_add_proto_and_access(list_all_target, logger):
                     logger.error("[*] 当前目标 {} 即将被忽略 响应结果 {} ".format(url, tuple))
 
     # 对none_proto_head_host里面的目标进行处理 #需要修改为多线程检测+批量结果处理,不然太慢了
-    if not ACCESS_ADD_PROTO_HEAD:
-        # 简单的处理方式,为每个HOST:PORT添加http协议头
-        new_list_all_target.append("http://{}".format(target))
-        logger.info("[*] ACCESS_ADD_PROTO_HEAD == False 没有开启协议头访问识别模式,简单添加目标 {} URL http://{} ".format(target, target))
-    else:
-        logger.info("[*] ACCESS_ADD_PROTO_HEAD == True 已开启协议头访问识别模式,即将检测目标每个目标的http及https协议...")
-        need_access_url_list = []
-        for target in none_proto_head_host:
-            need_access_url_list.append("http://{}".format(target))
-            need_access_url_list.append("https://{}".format(target))
-        need_access_url_list = list(set(need_access_url_list))
-        target_proto_result_list = multi_threaded_requests_url(need_access_url_list,
-                                                               threads_count=config.threads_count,
-                                                               proxies=config.proxies, cookies=COOKIES,
-                                                               headers=HEADERS, timeout=5,
-                                                               stream=HTTP_STREAM, verify=ALLOW_SSL_VERIFY,
-                                                               allow_redirects=ALLOW_REDIRECTS,
-                                                               dynamic_host_header=DYNAMIC_HOST_HEADER,
-                                                               dynamic_refer_header=DYNAMIC_REFER_HEADER,
-                                                               retry_times=RETRY_TIMES, logger=logger,
-                                                               encode_all_path=ENCODE_ALL_PATH)
-        if not SMART_ADD_PROTO_HEAD:
-            # 简单的判断模式,URL能够访问就加入列表
-            logger.info("[*] 当前使用响应状态码模式,对访问结果进行筛选,简单判断最终协议头...")
-            for tuple in target_proto_result_list:
-                url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
-                if resp_status > 0:
-                    logger.info("[*] 当前目标 {} 即将被添加 响应结果 {} ".format(url, tuple))
-                    new_list_all_target.append(url)
-                else:
-                    logger.error("[*] 当前目标 {} 即将被忽略 响应结果 {} ".format(url, tuple))
+    if none_proto_head_host:
+        if not ACCESS_ADD_PROTO_HEAD:
+            # 简单的处理方式,为每个HOST:PORT添加http协议头
+            new_list_all_target.append("http://{}".format(target))
+            logger.info("[*] ACCESS_ADD_PROTO_HEAD == {} 未开启协议头访问识别模式,简单添加目标 {} URL http://{}".format(ACCESS_ADD_PROTO_HEAD,target, target))
         else:
-            # 复杂的判断模式
-            logger.info("[*] 当前使用响应结果比较模式,对访问结果进行筛选,严格判断最终协议头...")
-            # 先拆分结果列表的URL,相同HOST的分为一个组
-            muilt_target_proto_result_dict = {}  # 多目标协议结果字典{"host":[(结果1),(结果2),(不应该有结果3)]}
-            for tuple in target_proto_result_list:
-                url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
-                host_port = url.split("://", 1)[-1]
-                if host_port in muilt_target_proto_result_dict.keys():
-                    muilt_target_proto_result_dict[host_port].append(tuple)
-                else:
-                    muilt_target_proto_result_dict[host_port]=[tuple]
-            logger.info("[*] 响应结果字典:{}".format(muilt_target_proto_result_dict))
-
-            # 对拆分的结果进行遍历比较
-            for target, target_proto_result_list in muilt_target_proto_result_dict.items():
-                # 是否除了URL,其他所有的返回内容都相同,如果是的话,仅返回http协议即可
-                if two_tuple_list_value_equal(target_proto_result_list):
-                    # 两个协议的访问结果相同
-                    tuple = target_proto_result_list[0]
-                    tuple_result_format = "%s," * len(tuple) + "\n"
+            logger.info("[*] ACCESS_ADD_PROTO_HEAD == {} 已开启协议头访问识别模式,即将对目标 {} 进行http协议及https协议检测...".format(ACCESS_ADD_PROTO_HEAD,target))
+            need_access_url_list = []
+            for target in none_proto_head_host:
+                need_access_url_list.append("http://{}".format(target))
+                need_access_url_list.append("https://{}".format(target))
+            need_access_url_list = list(set(need_access_url_list))
+            target_proto_result_list = multi_threaded_requests_url(need_access_url_list,
+                                                                   threads_count=config.threads_count,
+                                                                   proxies=config.proxies, cookies=COOKIES,
+                                                                   headers=HEADERS, timeout=5,
+                                                                   stream=HTTP_STREAM, verify=ALLOW_SSL_VERIFY,
+                                                                   allow_redirects=ALLOW_REDIRECTS,
+                                                                   dynamic_host_header=DYNAMIC_HOST_HEADER,
+                                                                   dynamic_refer_header=DYNAMIC_REFER_HEADER,
+                                                                   retry_times=RETRY_TIMES, logger=logger,
+                                                                   encode_all_path=ENCODE_ALL_PATH)
+            if not SMART_ADD_PROTO_HEAD:
+                # 简单的判断模式,URL能够访问就加入列表
+                logger.info("[*] 当前使用响应状态码模式,对访问结果进行筛选,简单判断最终协议头...")
+                for tuple in target_proto_result_list:
                     url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
                     if resp_status > 0:
-                        # http和https结果都相同同时,就添加一个http://xxxxj即可
-                        logger.info("[*] 当前目标 {} 使用两个协议进行访问测试时结果相同,响应状态码为 {} ,本次将添加URL http://{}".format(target, resp_status,target))
+                        logger.info("[*] 当前目标 {} 即将被添加 响应结果 {} ".format(url, tuple))
                         new_list_all_target.append(url)
                     else:
-                        logger.error("[-] 当前目标 {} 使用两个协议进行访问测试时结果相同,但响应状态码 {} ,本次目标将被过滤...".format(target, resp_status))
-                else:
-                    # 两个协议的访问结果不相同
-                    for tuple in target_proto_result_list:
+                        logger.error("[*] 当前目标 {} 即将被忽略 响应结果 {} ".format(url, tuple))
+            else:
+                # 复杂的判断模式
+                logger.info("[*] 当前使用响应结果比较模式,对访问结果进行筛选,严格判断最终协议头...")
+                # 先拆分结果列表的URL,相同HOST的分为一个组
+                muilt_target_proto_result_dict = {}  # 多目标协议结果字典{"host":[(结果1),(结果2),(不应该有结果3)]}
+                for tuple in target_proto_result_list:
+                    url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
+                    host_port = url.split("://", 1)[-1]
+                    if host_port in muilt_target_proto_result_dict.keys():
+                        muilt_target_proto_result_dict[host_port].append(tuple)
+                    else:
+                        muilt_target_proto_result_dict[host_port]=[tuple]
+                logger.info("[*] 响应结果字典:{}".format(muilt_target_proto_result_dict))
+
+                # 对拆分的结果进行遍历比较
+                for target, target_proto_result_list in muilt_target_proto_result_dict.items():
+                    # 是否除了URL,其他所有的返回内容都相同,如果是的话,仅返回http协议即可
+                    if two_tuple_list_value_equal(target_proto_result_list):
+                        # 两个协议的访问结果相同
+                        tuple = target_proto_result_list[0]
+                        tuple_result_format = "%s," * len(tuple) + "\n"
                         url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
                         if resp_status > 0:
-                            logger.info("[*] 当前目标 {} 使用两个协议进行访问测试时结果不相同,URL {} 状态码为 {} ,将被添加...".format(target, url,resp_status))
+                            # http和https结果都相同同时,就添加一个http://xxxxj即可
+                            logger.info("[*] 当前目标 {} 使用两个协议进行访问测试时结果相同,响应状态码为 {} ,本次将添加URL http://{}".format(target, resp_status,target))
                             new_list_all_target.append(url)
                         else:
-                            logger.error("[-] 当前目标 {} 使用两个协议进行访问测试时结果不相同,URL {} 状态码为 {} ,将被过滤...".format(target, url,resp_status))
+                            logger.error("[-] 当前目标 {} 使用两个协议进行访问测试时结果相同,但响应状态码 {} ,本次目标将被过滤...".format(target, resp_status))
+                    else:
+                        # 两个协议的访问结果不相同
+                        for tuple in target_proto_result_list:
+                            url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
+                            if resp_status > 0:
+                                logger.info("[*] 当前目标 {} 使用两个协议进行访问测试时结果不相同,URL {} 状态码为 {} ,将被添加...".format(target, url,resp_status))
+                                new_list_all_target.append(url)
+                            else:
+                                logger.error("[-] 当前目标 {} 使用两个协议进行访问测试时结果不相同,URL {} 状态码为 {} ,将被过滤...".format(target, url,resp_status))
     return new_list_all_target
 
 
@@ -351,6 +352,10 @@ def controller():
 
     # 根据用户输入的debug参数设置日志打印器属性 # 为主要是为了接受config.debug参数来配置输出颜色.
     logger = set_logger(info_log_file_path, err_log_file_path, dbg_log_file_path, config.debug)
+
+    # 输出所有参数
+    logger.info("[*] 所有输入参数信息: {}".format(config))
+    logger.info("==================================================")
 
     # 读取用户输入的URL和目标文件参数
     list_all_target = []
