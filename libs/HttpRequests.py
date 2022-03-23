@@ -49,7 +49,7 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
     if not headers:
         headers = {
             'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)',
-            'Referer': 'http://www.zhihu.com/articles',
+            'Referer': '{}'.format(url),
             'Accept-Encoding': ''}
 
     # 需要动态添加host字段
@@ -72,7 +72,7 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
         # 当错误原因时一般需要重试的错误时,直接忽略输出,进行访问重试
         module = "resp or resp_status"
         # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
-        common_error_list = ["retries", "Read timed out", "codec can't encode"]
+        common_error_list = ["retries", "Read timed out", "codec can't encode", "No host supplied", "Exceeded 30 redirects"]
         handle_error(url, common_error_list, module, error, logger)
         # 如果是数据编码错误,需要进行判断处理
         if "codec can't encode" in str(error):
@@ -90,6 +90,11 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
                 # 需要手动访问重试的结果
                 result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
                 logger.error("[-] 当前目标 {} 中文数据编码错误,需要针对中文编码进行额外处理,返回固定结果 {}!!!".format(url, result))
+        elif "No host supplied" in str(error):
+            # 不需要重试的结果 设置resp_status标记为1,
+            resp_status = 1
+            result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
+            logger.error("[-] 当前目标 {} 格式输入错误,忽略本次结果{}!!!".format(url, result))
         else:
             """
             如果服务器没有响应,但是也有可能存在可能访问的URL
@@ -99,6 +104,10 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
             """
             # 如果是其他访问错误,就进程访问重试
             if retry_times > 0:
+                if "Exceeded 30 redirects" in str(error):
+                    headers = None
+                    logger.error("[-] 当前目标 {} 即将修改请求头为默认头后进行重试{}!!!".format(url))
+
                 logger.debug("[-] 当前目标 {} 开始进行倒数第 {} 次重试,(HTTP_TIMEOUT = HTTP_TIMEOUT * 1.5)...".format(url, retry_times))
                 result = requests_plus(method=method, url=url, proxies=proxies, cookies=cookies, headers=headers,
                                        timeout=timeout * 1.5, verify=verify, allow_redirects=allow_redirects,

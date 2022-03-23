@@ -229,7 +229,7 @@ DYNAMIC_HOST_HEADER = True
 # 是否自动根据URL设置动态refer头
 DYNAMIC_REFER_HEADER = True
 
-# 是否允许随机User-Agent
+# 是否允许随机User-Agent # 随机User-Agent可能会导致无法建立默认会话 # 报错内容 Exceeded 30 redirects
 ALLOW_RANDOM_USERAGENT = True
 
 # 是否允许随机X-Forwarded-For
