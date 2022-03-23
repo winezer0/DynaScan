@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # encoding: utf-8
 import re
+import sys
+sys.dont_write_bytecode = True  # 设置不生成pyc文件
+
+import urllib
 
 import chardet
 import requests
@@ -62,15 +66,14 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
     resp_text_hash = "Null-Text-Hash"  # 赋值默认值
 
     try:
-        resp = requests.request(method=method, url=url, cookies=cookies, timeout=timeout, stream=stream,
-                                proxies=proxies, headers=headers, verify=verify, allow_redirects=allow_redirects)
+        resp = requests.request(method=method, url=url, cookies=cookies, timeout=timeout, stream=stream,proxies=proxies, headers=headers, verify=verify, allow_redirects=allow_redirects)
         resp_status = resp.status_code
     except Exception as error:
         # 当错误原因时一般需要重试的错误时,直接忽略输出,进行访问重试
         module = "resp or resp_status"
-        common_error_list = ["retries", "Read timed out", "codec can't encode"]  # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
+        # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
+        common_error_list = ["retries", "Read timed out", "codec can't encode"]
         handle_error(url, common_error_list, module, error, logger)
-
         # 如果是数据编码错误,需要进行判断处理
         if "codec can't encode" in str(error):
             # 如果是数据编码错误,就不再进行尝试 ,返回固定结果状态码
@@ -81,31 +84,31 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
             if encode_all_path:
                 # 不需要重试的结果 设置resp_status标记为1,
                 resp_status = 1
-                result = (
-                url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
+                result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
                 logger.debug("[-] 当前目标 {} 中文数据编码错误,但是已经开启中文编码处理功能,忽略本次结果 {}!!!".format(url, result))
             else:
-                # 需要重试的结果
-                result = (
-                url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
+                # 需要手动访问重试的结果
+                result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
                 logger.error("[-] 当前目标 {} 中文数据编码错误,需要针对中文编码进行额外处理,返回固定结果 {}!!!".format(url, result))
         else:
+            """
+            如果服务器没有响应,但是也有可能存在可能访问的URL
+            if resp_status == -1:
+                result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
+                logger.error("[-] 当前目标 {} 没有响应,跳过访问重试,返回固定结果{},需要后续手动进行验证...".format(url, result))
+            """
             # 如果是其他访问错误,就进程访问重试
             if retry_times > 0:
-                #############################################################
                 logger.debug("[-] 当前目标 {} 开始进行倒数第 {} 次重试,(HTTP_TIMEOUT = HTTP_TIMEOUT * 1.5)...".format(url, retry_times))
                 result = requests_plus(method=method, url=url, proxies=proxies, cookies=cookies, headers=headers,
                                        timeout=timeout * 1.5, verify=verify, allow_redirects=allow_redirects,
                                        dynamic_host_header=dynamic_host_header,
                                        dynamic_refer_header=dynamic_refer_header,
                                        retry_times=retry_times - 1, logger=logger, encode=encode)
-
             else:
-                #############################################################
                 # 如果重试次数为小于0,返回固定结果-1
-                result = (
-                url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
-                logger.error("[-] 当前目标 {} 剩余重试次数为0,返回固定结果{},需要进一步手动进行处理...".format(url, result))
+                result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
+                logger.error("[-] 当前目标 {} 剩余重试次数为0,返回固定结果{},需要后续手动进行验证...".format(url, result))
     else:
         # 当获取到响应结果时,获取三个响应关键匹配项目
         #############################################################
@@ -160,14 +163,11 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
                 # 0、使用import chardet
                 encode_content = resp.content  # print(type(resp.content)) # bytes类型
                 code_result = chardet.detect(encode_content)  # 利用chardet来检测这个网页使用的是什么编码方式
+                # print(encode_content,code_result)  # 扫描到压缩包时,没法获取编码结果
                 # 取code_result字典中encoding属性，如果取不到，那么就使用utf-8
                 encoding = code_result.get("encoding", "utf-8")
-                if not encoding:
-                    # print(encode_content,code_result)
-                    # 扫描到压缩包时,没法获取编码结果
-                    encoding = "utf-8"
+                if not encoding: encoding = "utf-8"
                 encode_content = encode_content.decode(encoding, 'replace')
-
                 # 1、字符集编码，可以使用r.encoding='xxx'模式，然后再r.text()会根据设定的字符集进行转换后输出。
                 # resp.encoding='utf-8'
                 # print(resp.text)，
@@ -179,11 +179,18 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
                 # resp.encoding = resp.apparent_encoding
                 # encode_content = req.content.decode(encoding, 'replace').encode('utf-8', 'replace')
                 # encode_content = resp.content.decode(resp.encoding, 'replace')  # 如果设置为replace，则会用?取代非法字符；
-
                 re_find_result_list = re.findall(r"<title.*?>(.+?)</title>", encode_content)
                 resp_text_title = resp_text_title = ",".join(re_find_result_list)
-                if resp_text_title.strip() == "":
-                    resp_text_title = "Blank-Title"
+                # 解决所有系统下字符串无法编码输出的问题,比如windows下控制台gbk的情况下,不能gbk解码就是BUG
+                # logger.error("当前控制台输出编码为:{}".format(sys.stdout.encoding))
+                # 解决windows下韩文无法输出的问题,如果不能gbk解码就是window BUG
+                # if sys.platform.lower().startswith('win'):
+                try:
+                    resp_text_title.encode(sys.stdout.encoding)
+                except Exception as error:
+                    resp_text_title = urllib.parse.quote(resp_text_title.encode('utf-8'))
+                    logger.error("[!] 字符串使用当前控制台编码 {} 编码失败,自动转换为UTF-8型URL编码 {}, ERROR:{}".format(sys.stdout.encoding, resp_text_title, error))
+                if resp_text_title.strip() == "": resp_text_title = "Blank-Title"
         except Exception as error:
             module = "resp_text_title"
             common_error_list = []  # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
@@ -214,11 +221,9 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
             # 如果没有开启编码所有路径的选项,就可以考虑单独对URL解码
             # 仅对没有编码的情况进行解码,如果GB2312编码了，但是UTF8解码会报错的。
             url = urllib.parse.unquote(url, encoding=encode)  # 解码为/备份.zip成功
-        """
         #############################################################
-        result = (
-        url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
-
+        """
+        result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
         logger.debug("[*] 当前目标 {} 请求返回结果集合:{}".format(url, result))
     return result
 

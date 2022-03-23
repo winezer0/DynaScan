@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
+import sys
+sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
 # 简单的判断文件编码类型
 # 说明：UTF兼容ISO8859-1和ASCII，GB18030兼容GBK，GBK兼容GB2312，GB2312兼容ASCII

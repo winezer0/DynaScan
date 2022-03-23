@@ -2,12 +2,15 @@
 # encoding: utf-8
 
 # 全局配置文件
+import sys
+sys.dont_write_bytecode = True  # 设置不生成pyc文件
+
 import os
 import random
 import pathlib
 import time
 
-from libs.Data import config
+from libs.DataType import config
 # 使用config存储主要的设置用户变量更加优雅,注意使用config存储logger后会导致不能用logger打印config,由于死循环调用的问题
 # 所有需要用户输入的变量[就是说cmd直接解析的参数,非直接解析的参数不需要加],需要添加config.作为前缀,
 from libs.ToolUtils import get_random_str
@@ -16,23 +19,23 @@ from libs.ToolUtils import get_random_str
 # 获取setting.py脚本所在路径作为的基本路径
 BASE_DIR = pathlib.Path(__file__).parent.resolve()
 ##################################################################
-# 是否属于测试模式 # 测试模式每个目标URL只获取生成的前100个URL进行测试
-TEST_MODE_HANDLE = False  # True False
-
 # 默认设置日志显示级别 # False 输出INFO级别信息 True 显示DEBUG级别信息
 config.debug = False  # True False
+
+# 是否属于测试模式 # 测试模式每个目标URL只获取生成的前100个URL进行测试
+TEST_MODE_HANDLE = False  # True False
 ##################################################################
 # 版本号配置
-version = "Ver 0.1.2 2022-03-19 00:54"
+version = "Ver 0.1.2 2022-03-23 12:00"
 ##################################################################
 # 中文路径、特殊字符会以列表内的编码作为基础编码，再进行URL编码
 ALL_BASE_ENCODE = ['utf-8', 'gbk']
 # 注意:gb2312编码繁体中文可能报错,此时可使用gbk编码,GBK与G2312编码结果相同
-# [13:08:12] [*] 中文编码模式: 路径列表中的元素[/說明.txt] 已基于 [utf-8] 编码 URL编码为:/%E8%AA%AA%E6%98%8E.txt
-# [13:08:12] [*] 中文编码模式: 路径列表中的元素[/說明.txt] 已基于 [gbk] 编码 URL编码为:/%D5f%C3%F7.txt
-# [13:10:46] [*] 中文编码模式: 路径列表中的元素[/說明.txt] 基于 [gb2312] 编码进行URL编码时,发生错误:'gb2312' codec can't encode character '\u8aaa' in position 1: illegal multibyte sequence
-# [13:06:36] [*] 中文编码模式: 路径列表中的元素[/服务器.rar4] 已基于 [gb2312] 编码 URL编码为:/%B7%FE%CE%F1%C6%F7.rar4
-# [13:08:12] [*] 中文编码模式: 路径列表中的元素[/服务器.rar4] 已基于 [gbk] 编码 URL编码为:/%B7%FE%CE%F1%C6%F7.rar4
+# 中文编码模式: 路径列表中的元素[/說明.txt] 已基于 [utf-8] 编码 URL编码为:/%E8%AA%AA%E6%98%8E.txt
+# 中文编码模式: 路径列表中的元素[/說明.txt] 已基于 [gbk] 编码 URL编码为:/%D5f%C3%F7.txt
+# 中文编码模式: 路径列表中的元素[/說明.txt] 基于 [gb2312] 编码进行URL编码时,发生错误:'gb2312' codec can't encode character '\u8aaa' in position 1: illegal multibyte sequence
+# 中文编码模式: 路径列表中的元素[/服务器.rar4] 已基于 [gb2312] 编码 URL编码为:/%B7%FE%CE%F1%C6%F7.rar4
+# 中文编码模式: 路径列表中的元素[/服务器.rar4] 已基于 [gbk] 编码 URL编码为:/%B7%FE%CE%F1%C6%F7.rar4
 
 # 是否对所有最终PATH开启URL编码模式,解决中文路径乱码问题
 ENCODE_ALL_PATH = True
@@ -42,9 +45,9 @@ ENCODE_ALL_PATH = True
 ENCODE_CHINESE_ONLY = True  # True # False
 ##################################################################
 # 在配置文件中配置默认目标文件等参数 比cmd输入参数优先级低 一般作为默认参数使用
-# config.target = None
-# config.target_file = None
-####################程序基本配置开始##################################
+config.target = None
+config.target_file = "target.txt"  # 当没有输入目标时,默认加载该文件,可日常使用
+###################程序基本配置开始##################################
 # 是否对符合URL格式的目标直接开启目标URL可访问性判断
 ACCESS_TEST_URL = True
 
@@ -109,7 +112,7 @@ FREQUENCY_MAX_DIRECT = 999
 
 # 读取COMBIN目录下字典时的频率阈值
 FREQUENCY_MIN_COMBIN = 1
-FREQUENCY_MAX_COMBIN = 99
+FREQUENCY_MAX_COMBIN = 999
 
 # 指定path和频率的分隔符,如果每一行的内容为/xxx/xxx  frequency==10,那么切割符为'frequency=='
 SEPARATOR = 'frequency=='
@@ -122,18 +125,21 @@ ANNOTATION = '#'
 # 替换字符列表-不再需要手动指定－从文件名和文件内容中自动提取键值对
 # 自动读取base目录所有文件并进行自动赋值
 
-# 因变量替换对应表,初值为空,后根据URL变量自动填充替换
-# replace_dict = {"%DOMAIN%": [], "%PATH%": [] }
+# 全局变量,存储基本变量替换字典 #此处可设置其他默认值
+BASE_VAR_REPLACE_DICT = {"%BLANK%": ['']}
+
+# 因变量替换对应表,初值为空,后根据URL变量自动填充替换  #此处可设置其他默认值
+DEPEND_VAR_REPLACE_DICT = {"%%DOMAIN%%": [], "%%PATH%%": []}
 # %%DOMAIN%% 在URL中,域名因变量列表所代表的字符串
 # %%PATH%% 在URL中,路径因变量列表所代表的字符串
-# 由于需要动态改变,因此时在代码内部实现,
+# 由于需要动态改变,内容实际在代码内部实现,
 
 # 域名变量如果是IP是否需要忽略
 IGNORE_IP_FORMAT = True
 
 # 存储自定义变量单词,会自动加入到%%DOMAIN%% 和%%PATH%% 中
+# CUSTOME_REPLACE_VAR = ['admin', 'product', 'wwwroot', 'www', '网站']
 CUSTOME_REPLACE_VAR = []
-
 # 是否在每个因变量内追加自定义变量
 APPEND_CUSTOM_VAR = True
 
@@ -157,24 +163,37 @@ REMOVE_NOT_PATH_SYMBOL = True
 # 是否替换路径中的多个//为一个/
 REMOVE_MULTI_SLASHES = True
 
+# 去除URL[. /]结尾列表与开关
+REMOVE_SYMBOL_LIST = ['.','/']
+REMOVE_END_SYMBOL_SWITCH = False
+
+# URL路径全部小写
+PATH_LOWERCASE_SWITCH = False
+
+# 为每个路径添加自定义前缀
+CUSTOM_PREFIX_LIST = ['/admin']
+CUSTOM_PREFIX_SWITCH = False
+
+
 # 命中文件保存路径
-hit_ext_path = dir_base_var + '/' + 'HIT_EXT' + dict_file_suffix
-hit_direct_path = dir_direct_path + '/' + 'HIT_DIRECT' + dict_file_suffix
-hit_folder_path = dir_combin_folder + '/' + 'HIT_FLODER' + dict_file_suffix
-hit_files_path = dir_combin_files + '/' + 'HIT_FILE' + dict_file_suffix
+HIT_EXT_PATH = dir_base_var + '/' + 'HIT_EXT' + '.hit'
+HIT_DIRECT_PATH = dir_direct_path + '/' + 'HIT_DIRECT' + '.hit'
+HIT_FOLDER_PATH = dir_combin_folder + '/' + 'HIT_FLODER' + '.hit'
+HIT_FILES_PATH = dir_combin_files + '/' + 'HIT_FILE' + '.hit'
 
 # 是否保存命中结果到HIT_XXX文件
 SAVE_HIT_RESULT = True  # False # True
+
+# 命中结果文件追加模式
+# True,计算频率后覆盖写入、后期写入时内存占用大,磁盘占用小,读取效率高
+# False 直接追加命中记录、后期写入时内存占用小,磁盘占用大,读取效率低
+HIT_OVERWRITE_MODE = False
 ####################无需进行处理的初始变量赋值开始###########################
-# 代码中会自动添加基本变量替换关键字
-# #不需要手动填写因变量关键字,但是手动实现因变量函数
+# 代码中会自动添加变量替换关键字
 ALL_REPLACE_KEY = []
 
 # 全局变量,用于存储请求所有已经访问过的目标URL
 ALL_ACCESSED_URL = []
-
-# 全局变量,存储基本变量替换字典
-BASE_VAR_REPLACE_DICT = {}
 ####################HTTP请求相关默认配置开始##########################
 # 默认请求方法
 config.http_method = "get"

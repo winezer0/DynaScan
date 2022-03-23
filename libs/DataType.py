@@ -5,6 +5,8 @@
 Copyright (c) 2006-2019 sqlmap developers (http://sqlmap.org/)
 See the file_name 'LICENSE' for copying permission
 """
+import sys
+sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
 import copy
 import types
@@ -105,3 +107,13 @@ class InjectionDict(AttribDict):
         self.dbms = None
         self.dbms_version = None
         self.os = None
+
+
+# module paths
+paths = AttribDict()
+
+# config
+config = AttribDict()
+
+data = AttribDict()
+

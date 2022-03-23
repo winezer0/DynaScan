@@ -1,16 +1,14 @@
 #!/usr/bin/env python
 # encoding: utf-8
+import sys
+sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
 import argparse
 # 获取版本号,并返回版本号字符串
 from setting import version
 
-
 # 获取版本号,并返回版本号字符串
 def get_version():
-    """
-    获取版本号,并返回版本号字符串
-    """
     return '[*] 当前的工具版本号为: {} !!!'.format(version)
 
 
@@ -41,8 +39,7 @@ class ParserCmd(object):
         parser.add_argument("-u", dest="target", type=str, default=None,  # 发布时需要改为 default=None
                             help="指定扫描目标URL, Example: http://www.baidu.com")
 
-        parser.add_argument("-f", dest="target_file", type=str, default=None,
-                            # default='target.txt' 发布时需要改为 default=None
+        parser.add_argument("-f", dest="target_file", type=str, default=None, # 发布时需要改为 default=None
                             help="指定扫描目标URL文件, Example: target.txt")
 
         parser.add_argument("-p", dest="proxy", type=str, default=None,

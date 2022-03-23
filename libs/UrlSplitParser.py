@@ -3,6 +3,7 @@
 
 # URL处理对象
 import sys
+sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
 sys.path.append("../")
 from tldextract import extract, TLDExtract

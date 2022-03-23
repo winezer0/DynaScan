@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+import sys
+sys.dont_write_bytecode = True  # 设置不生成pyc文件
 import re
 import string
 from datetime import *
