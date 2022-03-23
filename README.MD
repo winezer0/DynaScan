@@ -26,20 +26,26 @@
 20220323 多线程检测HOST协议,发现大批量时原来的实在时太慢,极大加快大批量目标的处理，修改大量空结果处理逻辑
 20220323 修复大量BUG,自动适应控制台编码(gbk|utf8等)输出,无法输出的进行UTF-8的URL编码
 20220323 添加空字符表示串 %BLANK%  BASE_VAR_REPLACE_DICT = {"%BLANK%": ['']}
+
 20220323 添加URL结尾去除开关 REMOVE_END_SYMBOL = False  REMOVE_SYMBOL_LIST = ['.','/']
 20220323 添加路径全部小写功能 ALL_PATH_LOWERCASE = False
 20220323 添加路径添加自定义前缀列表功能 CUSTOM_PREFIX_LIST = ['/admin']  CUSTOM_PREFIX_SWITCH = False
+
+20220323 添加指定结果文件是否按目标分割开关  WRITE_RESULT_DIFF_SWITCH = False
+20220323 添加结果文件和日志文件是否添加程序启动时间戳开关  FILE_RUN_TIME_SWITCH = False
+
+20220323 添加保留指定后缀的URL目标功能 STORE_SPECIFY_EXT_SWITCH = True STORE_SPECIFY_EXT_LIST = ['zip','xxx']
+20220323 添加移除指定后缀的URL目标功能 DELETE_SPECIFY_EXT_SWITCH = False DELETE_SPECIFY_EXT_LIST = ['jsp']
+20220323 当保留指定后缀和移除指定后缀同时存在时,先进行指定后缀URL保留,后进行指定后缀URL排除, 建议一次扫描仅开启一个开关 
+
+20220323 添加排除已扫描URL目标的功能，如果记录文件中已有这个URL,就跳过扫描。默认EXCLUDE_VISITED_TARGET_SWITCH = True
 ```
 
 ### 0.2、TODO
 
 ```
 必选
-感谢 FR33D0M用户发现多个目标时会在命中文件时停顿
-希望有相同问题的用户可以联系我复现问题 感谢支持
-
-添加URL后缀指定功能
-添加URL后缀排除功能
+暂无
 
 日常
 新增常用的根目录敏感文件字典
@@ -47,6 +53,9 @@
 可选
 修改结构为队列结构,实现WAF禁止检测,自动暂停任务。
 考虑将字典固定到一个文件内,更好的进行命中添加。
+
+其他
+感谢 FR33D0M用户发现多个目标时会在命中文件时停顿,由于没有实际碰到,不好定位,希望有相同问题的用户可以联系我复现问题 感谢支持
 ```
 
 

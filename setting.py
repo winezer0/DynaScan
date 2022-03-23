@@ -64,14 +64,31 @@ MULTI_TARGET_PATH_MODE = False
 # 程序开始运行时间
 RUN_TIME = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
 
+# 是否将每一次批量扫描的扫描结果分别按照多个HOST_PORT进行拆分
+WRITE_RESULT_DIFF_SWITCH = False
+
+# 是否在结果文件和日志文件中添加程序启动时间,默认添加
+FILE_RUN_TIME_SWITCH = False
+
 # 设置日志输出文件路径 #目录不存在会自动创建
-info_log_file_path = BASE_DIR.joinpath("runlog/runlog_{time}_info.log".format(time=RUN_TIME))
-dbg_log_file_path = BASE_DIR.joinpath("runlog/runlog_{time}_debug.log".format(time=RUN_TIME))
-err_log_file_path = BASE_DIR.joinpath("runlog/runlog_{time}_error.log".format(time=RUN_TIME))
+if FILE_RUN_TIME_SWITCH:
+    log_file_path = str(BASE_DIR.joinpath("runtime/runtime_{time}_module.log")).format(time=RUN_TIME)
+else:
+    log_file_path = str(BASE_DIR.joinpath("runtime/runtime_module.log"))
+
+info_log_file_path = log_file_path.replace('module', 'info')
+dbg_log_file_path = log_file_path.replace('module', 'debug')
+err_log_file_path = log_file_path.replace('module', 'error')
+
+# 记录已完成扫描的目标 # 固定命名,不需要添加时间戳
+visited_target_file_path = str(BASE_DIR.joinpath("runtime/runtime_module.log")).replace('module', 'visited')
+# 扫描时是否排除已扫描的目标
+EXCLUDE_VISITED_TARGET_SWITCH = True
 
 # 设置输出结果文件目录
 result_dir_path = BASE_DIR.joinpath("result")
 if not os.path.exists(result_dir_path): os.makedirs(result_dir_path)
+
 
 # 字典来自文件列表 #从文件夹获得所有文件列表
 dir_base_var = 'dict/base_var'
@@ -182,12 +199,21 @@ HIT_FOLDER_PATH = dir_combin_folder + '/' + 'HIT_FLODER' + '.hit'
 HIT_FILES_PATH = dir_combin_files + '/' + 'HIT_FILE' + '.hit'
 
 # 是否保存命中结果到HIT_XXX文件
-SAVE_HIT_RESULT = True  # False # True
+SAVE_HIT_RESULT = True
 
 # 命中结果文件追加模式
 # True,计算频率后覆盖写入、后期写入时内存占用大,磁盘占用小,读取效率高
 # False 直接追加命中记录、后期写入时内存占用小,磁盘占用大,读取效率低
 HIT_OVERWRITE_MODE = False
+
+# 保留指定后缀的URL目标,注意:后缀不需要加[.]前缀
+STORE_SPECIFY_EXT_SWITCH = False
+STORE_SPECIFY_EXT_LIST = ['xxx']
+
+# 移除指定后缀的URL,注意:后缀不需要加[.]前缀
+DELETE_SPECIFY_EXT_SWITCH = False
+DELETE_SPECIFY_EXT_LIST = ['xxx']
+# 当保留指定后缀和移除指定后缀同时存在时,先进行指定后缀URL保留,后进行指定后缀URL排除, 建议一次扫描仅开启一个开关
 ####################无需进行处理的初始变量赋值开始###########################
 # 代码中会自动添加变量替换关键字
 ALL_REPLACE_KEY = []

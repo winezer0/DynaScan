@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 import sys
+
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
 import os
@@ -215,7 +216,8 @@ def read_file_to_list_de_weight(file_name, encoding='utf-8'):
 
 
 # 读取一个文件内容并返回结果字典 {"路径”:频率}
-def read_file_to_dict_with_frequency(file_name, encoding='utf-8', separator='frequency==', annotation='#', additional=True):
+def read_file_to_dict_with_frequency(file_name, encoding='utf-8', separator='frequency==', annotation='#',
+                                     additional=True):
     """
     读取文件内容并返回结果字典
     文件的每一行格式类似 path separator==10
@@ -294,7 +296,6 @@ def read_list_file_to_all(module, dir_path='.',
                           annotation='#',
                           additional=True, frequency=1,
                           logger=None):
-
     """
     read_list_file_to_dict_with_frequency_and_rule_parse_and_replace_base_var
     # 1、一次性读取多个文件,并叠加频率参数
@@ -307,15 +308,19 @@ def read_list_file_to_all(module, dir_path='.',
     frequency_list_ = []
 
     # 读取直接文件目录下的所有字典
-    frequency_dict_ = read_many_file_to_dict_with_frequency(dir_path, list_dir_file, separator=separator,annotation=annotation, additional=additional)
-    logger.debug("[*] 路径 {} 下所有字典文件 {} 内容读取结果: {} 条 详情: {}".format(dir_path, list_dir_file, len(frequency_dict_),frequency_dict_))
+    frequency_dict_ = read_many_file_to_dict_with_frequency(dir_path, list_dir_file, separator=separator,
+                                                            annotation=annotation, additional=additional)
+    logger.debug("[*] 路径 {} 下所有字典文件 {} 内容读取结果: {} 条 详情: {}".format(dir_path, list_dir_file, len(frequency_dict_),
+                                                                   frequency_dict_))
 
     # 如果字典读取结果为空,直接返回空列表
     if not frequency_dict_: return frequency_list_
 
     # 提取符合频率的键
     frequency_list_ = get_key_list_with_frequency(frequency_dict_, frequency=frequency)
-    logger.debug("[*] 路径 {} 下所有字典文件 {} 频率[{}]时筛选结果: {} 条 详情: {}".format(dir_path,list_dir_file,frequency,len(frequency_list_),frequency_list_))
+    logger.debug(
+        "[*] 路径 {} 下所有字典文件 {} 频率[{}]时筛选结果: {} 条 详情: {}".format(dir_path, list_dir_file, frequency, len(frequency_list_),
+                                                               frequency_list_))
 
     # 如果频率筛选结果为空,直接返回空列表
     if not frequency_list_: return frequency_list_
@@ -323,7 +328,8 @@ def read_list_file_to_all(module, dir_path='.',
     # 对直接规则字典列表里的元素进行规则解析 # 每一行字典解析顺序-规则解析,基本变量替换,因变量替换
     logger.info("[*] {}字典 元素 {{XX=XXX:XXXXX}}$ 规则解析渲染开始...".format(module))
     frequency_list_, render_count, run_time = rule_list_base_render(frequency_list_, logger)
-    logger.info("[+] {}字典 元素渲染完毕,剩余元素 {} 个,本次解析规则 {} 次, 耗时 {} 秒".format(module, len(frequency_list_),render_count, run_time))
+    logger.info(
+        "[+] {}字典 元素渲染完毕,剩余元素 {} 个,本次解析规则 {} 次, 耗时 {} 秒".format(module, len(frequency_list_), render_count, run_time))
     logger.debug("[*] {}字典 元素渲染后内容: {}".format(module, frequency_list_))
 
     # 如果基本变量字典为空,直接返回渲染后的结果
@@ -332,14 +338,16 @@ def read_list_file_to_all(module, dir_path='.',
     # 对直接规则字典列表里的元素进行基本变量替换 # 每一行字典解析顺序-规则解析,基本变量替换,因变量替换
     logger.info("[*] {}字典 元素 {} 变量替换开始...".format(module, replace_dict.keys()))
     frequency_list_, replace_count, run_time = replace_list_has_key_str(frequency_list_, replace_dict)
-    logger.info("[+] {}字典 元素 {} 变量替换完毕,剩余元素 {} 个,本次替换 {} 次, 耗时 {} 秒".format(module, replace_dict.keys(), len(frequency_list_),replace_count, run_time))
+    logger.info(
+        "[+] {}字典 元素 {} 变量替换完毕,剩余元素 {} 个,本次替换 {} 次, 耗时 {} 秒".format(module, replace_dict.keys(), len(frequency_list_),
+                                                                    replace_count, run_time))
     logger.debug("[*] {}字典 元素 {} 变量替换后内容: {}".format(module, replace_dict.keys(), frequency_list_))
     return frequency_list_
 
 
 # 读取多个字典文件、进行规则解析、进行基本变量替换
-def read_many_file_to_all(module, dir_path='.',dict_file_suffix='.lst',replace_dict={},separator='frequency==',
-                          annotation='#',additional=True,frequency=1,logger=None):
+def read_many_file_to_all(module, dir_path='.', dict_file_suffix='.lst', replace_dict={}, separator='frequency==',
+                          annotation='#', additional=True, frequency=1, logger=None):
     """
     read_many_file_to_dict_with_frequency_and_rule_parse_and_replace_base_var
     # 1、获取目录下存在的文件名列表
@@ -355,10 +363,10 @@ def read_many_file_to_all(module, dir_path='.',dict_file_suffix='.lst',replace_d
     logger.info("[*] 路径 {} 下存在 {} 字典: {}".format(dir_path, module, list_dir_file))
 
     # 读取文件列表中的内容,并进行频率筛选
-    frequency_list_ = read_list_file_to_all(module,dir_path=dir_path,list_dir_file=list_dir_file,
-                                            replace_dict=replace_dict,separator=separator,
-                                            annotation=annotation,additional=additional,
-                                            frequency=frequency,logger=logger)
+    frequency_list_ = read_list_file_to_all(module, dir_path=dir_path, list_dir_file=list_dir_file,
+                                            replace_dict=replace_dict, separator=separator,
+                                            annotation=annotation, additional=additional,
+                                            frequency=frequency, logger=logger)
 
     return frequency_list_
 
@@ -534,13 +542,15 @@ def replace_multi_slashes(list_):
     new_list_ = list(set(new_list_))
     return new_list_
 
+
 # 对列表中的所有URL去除指定结尾字符并去重
-def url_remove_end_symbol(list_, remove_symbol_list = ['.','/']):
+def url_remove_end_symbol(list_, remove_symbol_list=['.', '/']):
     new_list_ = []
     for str_ in list_:
         new_list_.append(str_.rstrip(''.join(remove_symbol_list)))
     new_list_ = list(set(new_list_))
     return new_list_
+
 
 # 对列表中的所有URL小写处理并去重
 def url_path_lowercase(list_):
@@ -580,6 +590,9 @@ def list_in_str(list=[], string=""):
     return flag
 
 
+# 添加URL后缀排除功能
+# DELETE_SPECIFY_EXT = []
+# 保留文件中指定后缀的URL
 ############URL解析处理相关###############
 # 从URL中获取域名相关的单词列表
 def get_domain_words(url, ignore_ip_format=True, sysbol_replace_dict={}, remove_not_path_symbol=True,
@@ -655,9 +668,52 @@ def get_domain_words(url, ignore_ip_format=True, sysbol_replace_dict={}, remove_
 
 # 获取URL的脚本语言后缀
 def get_url_extion(url):
+    """
+    url = 'http://www.baidu.com' # 没有后缀,返回None
+    url = 'http://www.baidu.com/xxx' # 没有后缀, 返回None
+    url = 'http://www.baidu.com/xxx.xxx'  # 有后缀,返回 xxx
+    """
     parser_obj = UrlSplitParser(urlparse(url))
     extion = parser_obj.get_extion()
     return extion
+
+
+# 移除指定后缀列表的内容
+def store_specify_ext(url_list_, ext_list_):
+    new_url_list_ = []
+    if ext_list_:
+        try:
+            for url in url_list_:
+                ext = get_url_extion(url)
+                # 对于没有后缀的扩展也保留
+                if not ext: new_url_list_.append(url)
+                # 如果URL后缀不在排除列表内,就保留这个URL,
+                elif ext not in ext_list_: new_url_list_.append(url)
+        except Exception as error:
+            print("[-] 获取后缀进行列表匹配时发生错误!!! Error: {}".format(error))
+            new_url_list_ = url_list_
+    else:
+        new_url_list_ = url_list_
+    return new_url_list_
+
+
+# 保留指定后缀的URL目标
+def delete_specify_ext(url_list_, ext_list_):
+    new_url_list_ = []
+    if ext_list_:
+        try:
+            for url in url_list_:
+                ext = get_url_extion(url)
+                # 对于没有后缀的扩展也保留
+                if not ext: new_url_list_.append(url)
+                # 如果URL后缀在EXT列表内,也保留这个URL
+                elif ext in ext_list_: new_url_list_.append(url)
+        except Exception as error:
+            print("[-] 获取后缀进行列表匹配时发生错误!!! Error: {}".format(error))
+            new_url_list_ = url_list_
+    else:
+        new_url_list_ = url_list_
+    return new_url_list_
 
 
 # 获取URL目录单词和参数单词列表
@@ -784,7 +840,7 @@ def list_to_re_str(replace_list, bracket=True):
 
 # 将URL转换为原始规则
 def url_to_raw_rule(url_list=[], BASE_VAR_REPLACE_DICT={}, DEPEND_VAR_REPLACE_DICT={}):
-    result_add_dict = {"add_to_base": [], "add_to_direct": [],"add_to_combin_folders": [], "add_to_combin_files": []}
+    result_add_dict = {"add_to_base": [], "add_to_direct": [], "add_to_combin_folders": [], "add_to_combin_files": []}
 
     for url_str in url_list:
         # 提取路径
@@ -827,40 +883,49 @@ def url_to_raw_rule(url_list=[], BASE_VAR_REPLACE_DICT={}, DEPEND_VAR_REPLACE_DI
 
 
 # 将命中的结果写入到文件中
-def write_hit_result_to_file_with_frequency(file_name=None, result_list=[], logger =None, encoding='utf-8', separator='frequency==', additional=True,hit_overwrite_mode = True):
+def write_hit_result_to_file_with_frequency(file_name=None, result_list=[], logger=None, encoding='utf-8',
+                                            separator='frequency==', additional=True, hit_overwrite_mode=True):
     if not hit_overwrite_mode:
-        logger.info("[+] 简单追加记录 HIT_OVERWRITE_MODE == {} 文件: {} 内容: {}".format(hit_overwrite_mode,file_name,result_list))
+        logger.info(
+            "[+] 简单追加记录 HIT_OVERWRITE_MODE == {} 文件: {} 内容: {}".format(hit_overwrite_mode, file_name, result_list))
         # 需要对命中字典进行频率计算后写入使用w+,不需要计算时,可以直接追加
         with open(file_name, 'a+', encoding=encoding) as f_obj:
             for path in result_list:
                 result_str = "{path}     {separator}{frequency}".format(path=path, separator=separator, frequency=1)
-                f_obj.write(result_str+'\n')
+                f_obj.write(result_str + '\n')
                 logger.debug("[+] 成功往文件 {} 中追加命中记录: {}".format(file_name, result_str))
             f_obj.close()
     else:
-        logger.info("[+] 追加频率重写 HIT_OVERWRITE_MODE == {} 文件: {} 内容: {}".format(hit_overwrite_mode,file_name,result_list))
+        logger.info(
+            "[+] 追加频率重写 HIT_OVERWRITE_MODE == {} 文件: {} 内容: {}".format(hit_overwrite_mode, file_name, result_list))
         # 存储最终的频率字典
         result_dict = {}
         # 先读取以前的命中文件文件内容
         if file_is_exist(file_name):
-            result_dict = read_file_to_dict_with_frequency(file_name, encoding=encoding, separator=separator, additional=additional)
+            result_dict = read_file_to_dict_with_frequency(file_name, encoding=encoding, separator=separator,
+                                                           additional=additional)
         # 遍历命中结果列表对结果列表进行添加
         for path in result_list:
-            if path in result_dict: result_dict[path] = result_dict[path] + 1
-            else: result_dict[path] = 1
+            if path in result_dict:
+                result_dict[path] = result_dict[path] + 1
+            else:
+                result_dict[path] = 1
         # 将结果字典写入文件
         # 需要对命中字典进行频率计算后写入使用w+,不需要计算时,可以直接追加
         with open(file_name, 'w+', encoding=encoding) as f_obj:
             for path, frequency in result_dict.items():
-                result_str = "{path}     {separator}{frequency}".format(path=path, separator=separator, frequency=frequency)
-                f_obj.write(result_str+'\n')
+                result_str = "{path}     {separator}{frequency}".format(path=path, separator=separator,
+                                                                        frequency=frequency)
+                f_obj.write(result_str + '\n')
                 logger.debug("[+] 成功往文件 {} 中覆写命中记录: {}".format(file_name, result_str))
             f_obj.close()
     return True
 
 
 # 自动解析命中结果,并将命中结果写入到文件中
-def auto_analyse_hit_result_and_write_file(url_list, BASE_VAR_REPLACE_DICT, DEPEND_VAR_REPLACE_DICT, hit_ext_path, hit_direct_path, hit_folder_path, hit_files_path, logger,hit_overwrite_mode):
+def auto_analyse_hit_result_and_write_file(url_list, BASE_VAR_REPLACE_DICT, DEPEND_VAR_REPLACE_DICT, hit_ext_path,
+                                           hit_direct_path, hit_folder_path, hit_files_path, logger,
+                                           hit_overwrite_mode):
     # 自动将命中结果写入到文件中
     try:
         result_add_dict = url_to_raw_rule(url_list, BASE_VAR_REPLACE_DICT, DEPEND_VAR_REPLACE_DICT)
@@ -879,9 +944,9 @@ def auto_analyse_hit_result_and_write_file(url_list, BASE_VAR_REPLACE_DICT, DEPE
             for key, value in result_add_dict.items():
                 if value:
                     logger.info("[+] 正在往文件 {} 中写入命中结果 {}".format(vars()[key], value))
-                    write_hit_result_to_file_with_frequency(file_name=vars()[key], result_list=value,logger=logger,hit_overwrite_mode=hit_overwrite_mode)
+                    write_hit_result_to_file_with_frequency(file_name=vars()[key], result_list=value, logger=logger,
+                                                            hit_overwrite_mode=hit_overwrite_mode)
             return True
         except Exception as error:
             logger.error("[!] 解析结果写入过程发生错误: {}".format(error))
             return False
-#######################################

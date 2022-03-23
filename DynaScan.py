@@ -2,6 +2,7 @@
 # encoding: utf-8
 import re
 import sys
+
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
 from libs.utils_dict.BaseKeyReplace import replace_list_has_key_str
@@ -14,7 +15,8 @@ from libs.ToolUtils import get_relative_file_name, file_is_exist, three_tuple_in
     combine_folder_list_and_files_list, get_domain_words, get_path_words, remove_list_none_render_value, \
     url_path_chinese_encode, url_path_url_encode, combine_one_target_and_path_list, get_segments, \
     combine_target_list_and_path_list, auto_analyse_hit_result_and_write_file, replace_multi_slashes, \
-    read_list_file_to_all, url_remove_end_symbol, url_path_lowercase  # 获取目录下的所有文件名
+    read_list_file_to_all, url_remove_end_symbol, url_path_lowercase, store_specify_ext, \
+    delete_specify_ext  # 获取目录下的所有文件名
 from libs.ToolUtils import read_file_to_list_de_weight  # 获取文件内容数组
 from libs.ToolUtils import remove_dict_none_value_key  # 去除字典中空值的键值对
 from libs.ToolUtils import get_host_port  # 从URL中自动获取域名信息相关列表和路径信息相关列表
@@ -129,31 +131,39 @@ def handle_real_result_dict(real_path_result_dict={}, logger=None, exclude_statu
             # 以目标host:port.replace(":",_)作为作为域名相关的结果文件名
             host_port_str = get_host_port(target).replace(":", "_")
             result_dir_str = str(result_dir_path).replace("\\", "/")
-            # now_time = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
-            logger.info("[*] 当前目标 {} 结果文件保存路径: {}/{}_{}_XXX.txt...".format(target, result_dir_str,
-                                                                           host_port_str, RUN_TIME))
+
+            if WRITE_RESULT_DIFF_SWITCH:
+                if FILE_RUN_TIME_SWITCH:
+                    result_path = "{}/{}_module_{}.csv".format(result_dir_str, host_port_str, RUN_TIME)
+                else:
+                    result_path = "{}/{}_module.csv".format(result_dir_str, host_port_str)
+                logger.info("[*] 当前目标 {} 结果区分保存,结果路径: {}".format(target, result_path))
+            else:
+                if FILE_RUN_TIME_SWITCH:
+                    result_path = "{}/module_{}.csv".format(result_dir_str, RUN_TIME)
+                else:
+                    result_path = "{}/module.csv".format(result_dir_str)
+                logger.info("[*] 当前目标 {} 结果统一保存,结果路径: {}".format(target, result_path))
 
             # 构造常规的结果文件
-            result_file_path = "{dir}/{file}_{time}_result.txt".format(dir=result_dir_str, file=host_port_str,
-                                                                       time=RUN_TIME)
+            result_file_path = result_path.replace('module', 'result')
+            result_file_path_open = open(result_file_path, "a+", encoding="utf-8")
+
             # 构造被过滤的结果文件名
-            ignore_file_path = "{dir}/{file}_{time}_ignore.txt".format(dir=result_dir_str, file=host_port_str,
-                                                                       time=RUN_TIME)
+            ignore_file_path = result_path.replace('module', 'ignore')
+            ignore_file_path_open = open(ignore_file_path, "a+", encoding="utf-8")
+
             # 构造需要手动重试的结果文件名
-            manual_file_path = "{dir}/{file}_{time}_manual.txt".format(dir=result_dir_str, file=host_port_str,
-                                                                       time=RUN_TIME)
+            manual_file_path = result_path.replace('module', 'manual')
+            manual_file_path_open = open(manual_file_path, "a+", encoding="utf-8")
 
             # 构造需要发生错误的结果文件名,(编码错误,)
-            error_file_path = "{dir}/{file}_{time}_error.txt".format(dir=result_dir_str,
-                                                                     file=host_port_str,
-                                                                     time=RUN_TIME)
-
-            # file_path_list = [result_file_path,ignore_file_path,manual_file_path,error_file_path]
-            result_file_path_open = open(result_file_path, "a+", encoding="utf-8")
-            ignore_file_path_open = open(ignore_file_path, "a+", encoding="utf-8")
-            manual_file_path_open = open(manual_file_path, "a+", encoding="utf-8")
+            error_file_path = result_path.replace('module', 'error')
             error_file_path_open = open(error_file_path, "a+", encoding="utf-8")
-            list_file_path_open = [result_file_path_open, ignore_file_path_open,manual_file_path_open, error_file_path_open]
+
+            # 组合列表,用于快速关闭所有的文件
+            list_file_path_open = [result_file_path_open, ignore_file_path_open, manual_file_path_open,
+                                   error_file_path_open]
 
             for tuple in real_path_result_dict[target]:
                 # 定义结果元组导出格式 #修改结果格式,需要修改格式串的数量
@@ -262,10 +272,10 @@ def attempt_add_proto_and_access(list_all_target, logger):
     if none_proto_head_host:
         if not ACCESS_ADD_PROTO_HEAD:
             # 简单的处理方式,为每个HOST:PORT添加http协议头
-            new_list_all_target.append("http://{}".format(target))
-            logger.info("[*] ACCESS_ADD_PROTO_HEAD == {} 未开启协议头访问识别模式,简单添加目标 {} URL http://{}".format(ACCESS_ADD_PROTO_HEAD,target, target))
+            logger.info("[*] 协议头访问识别模式开关: {},仅添加http协议头,目标列表 {}".format(ACCESS_ADD_PROTO_HEAD, target))
+            for target in none_proto_head_host: new_list_all_target.append("http://{}".format(target))
         else:
-            logger.info("[*] ACCESS_ADD_PROTO_HEAD == {} 已开启协议头访问识别模式,即将对目标 {} 进行http协议及https协议检测...".format(ACCESS_ADD_PROTO_HEAD,target))
+            logger.info("[*] 协议头访问识别模式开关: {},即将进行URL协议检测,目标列表 {}".format(ACCESS_ADD_PROTO_HEAD, target))
             need_access_url_list = []
             for target in none_proto_head_host:
                 need_access_url_list.append("http://{}".format(target))
@@ -302,7 +312,7 @@ def attempt_add_proto_and_access(list_all_target, logger):
                     if host_port in muilt_target_proto_result_dict.keys():
                         muilt_target_proto_result_dict[host_port].append(tuple)
                     else:
-                        muilt_target_proto_result_dict[host_port]=[tuple]
+                        muilt_target_proto_result_dict[host_port] = [tuple]
                 logger.info("[*] 响应结果字典:{}".format(muilt_target_proto_result_dict))
 
                 # 对拆分的结果进行遍历比较
@@ -315,19 +325,25 @@ def attempt_add_proto_and_access(list_all_target, logger):
                         url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
                         if resp_status > 0:
                             # http和https结果都相同同时,就添加一个http://xxxxj即可
-                            logger.info("[*] 当前目标 {} 使用两个协议进行访问测试时结果相同,响应状态码为 {} ,本次将添加URL http://{}".format(target, resp_status,target))
+                            logger.info("[*] 当前目标 {} 使用两个协议进行访问测试时结果相同,响应状态码为 {} ,本次将添加URL http://{}".format(target,
+                                                                                                             resp_status,
+                                                                                                             target))
                             new_list_all_target.append(url)
                         else:
-                            logger.error("[-] 当前目标 {} 使用两个协议进行访问测试时结果相同,但响应状态码 {} ,本次目标将被过滤...".format(target, resp_status))
+                            logger.error(
+                                "[-] 当前目标 {} 使用两个协议进行访问测试时结果相同,但响应状态码 {} ,本次目标将被过滤...".format(target, resp_status))
                     else:
                         # 两个协议的访问结果不相同
                         for tuple in target_proto_result_list:
                             url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
                             if resp_status > 0:
-                                logger.info("[*] 当前目标 {} 使用两个协议进行访问测试时结果不相同,URL {} 状态码为 {} ,将被添加...".format(target, url,resp_status))
+                                logger.info("[*] 当前目标 {} 使用两个协议进行访问测试时结果不相同,URL {} 状态码为 {} ,将被添加...".format(target, url,
+                                                                                                            resp_status))
                                 new_list_all_target.append(url)
                             else:
-                                logger.error("[-] 当前目标 {} 使用两个协议进行访问测试时结果不相同,URL {} 状态码为 {} ,将被过滤...".format(target, url,resp_status))
+                                logger.error(
+                                    "[-] 当前目标 {} 使用两个协议进行访问测试时结果不相同,URL {} 状态码为 {} ,将被过滤...".format(target, url,
+                                                                                                    resp_status))
     return new_list_all_target
 
 
@@ -390,10 +406,13 @@ def controller():
     if APPEND_HIT_EXT and file_is_exist(HIT_EXT_PATH):
         # 读取命中扩展字典文件
         frequency_dict_hit = read_file_to_dict_with_frequency(HIT_EXT_PATH, separator=SEPARATOR, additional=ADDITIONAL)
-        logger.debug("[*] BASE目录中历史命中记录文件 {} 内容读取结果: {} 条 详情: {}".format(HIT_EXT_PATH, len(frequency_dict_hit), frequency_dict_hit))
+        logger.debug("[*] BASE目录中历史命中记录文件 {} 内容读取结果: {} 条 详情: {}".format(HIT_EXT_PATH, len(frequency_dict_hit),
+                                                                         frequency_dict_hit))
         # 提取符合频率的键
         frequency_list_hit = get_key_list_with_frequency(frequency_dict_hit, frequency=FREQUENCY_MIN_HIT)
-        logger.debug("[*] BASE目录中历史命中记录文件 {} 频率[{}]时筛选结果: {} 条,详情: {}".format(HIT_EXT_PATH, FREQUENCY_MIN_HIT, len(frequency_list_hit), frequency_list_hit))
+        logger.debug("[*] BASE目录中历史命中记录文件 {} 频率[{}]时筛选结果: {} 条,详情: {}".format(HIT_EXT_PATH, FREQUENCY_MIN_HIT,
+                                                                              len(frequency_list_hit),
+                                                                              frequency_list_hit))
         # 当开启命中扩展追加时,就不需要将命中后缀作为一个单独的替换关键字。
         hit_ext_name = HIT_EXT_PATH.rsplit('/', 1)[-1]
         if hit_ext_name in list_dir_base_file: list_dir_base_file.remove(hit_ext_name)
@@ -403,10 +422,15 @@ def controller():
         # 从文件名中删除字典后缀,两边加上%%作为基本替换字典的键
         var_str = '%{}%'.format(file_name.rsplit(dict_file_suffix, 1)[0])
         # 读取字典内容时,进行频率筛选，返回超过频率阈值的行
-        frequency_dict_ = read_file_to_dict_with_frequency(dir_base_var + '/' + file_name, separator=SEPARATOR,annotation=ANNOTATION, additional=ADDITIONAL)
-        logger.debug("[*] BASE目录中常规替换字典文件 {} 内容读取结果: {} 条 详情: {}".format(dir_base_var + '/' + file_name, len(frequency_dict_),frequency_dict_))
+        frequency_dict_ = read_file_to_dict_with_frequency(dir_base_var + '/' + file_name, separator=SEPARATOR,
+                                                           annotation=ANNOTATION, additional=ADDITIONAL)
+        logger.debug(
+            "[*] BASE目录中常规替换字典文件 {} 内容读取结果: {} 条 详情: {}".format(dir_base_var + '/' + file_name, len(frequency_dict_),
+                                                                frequency_dict_))
         frequency_list_ = get_key_list_with_frequency(frequency_dict_, frequency=FREQUENCY_MIN_BASE)
-        logger.debug("[*] BASE目录中常规替换字典文件 {} 频率[{}]时筛选结果: {} 条 详情: {}".format(dir_base_var + '/' + file_name,FREQUENCY_MIN_BASE,len(frequency_list_),frequency_list_))
+        logger.debug(
+            "[*] BASE目录中常规替换字典文件 {} 频率[{}]时筛选结果: {} 条 详情: {}".format(dir_base_var + '/' + file_name, FREQUENCY_MIN_BASE,
+                                                                     len(frequency_list_), frequency_list_))
 
         # 将命中扩展追加到所有基本键值对中
         if APPEND_HIT_EXT and frequency_list_hit: frequency_list_.extend(frequency_list_hit)
@@ -439,10 +463,14 @@ def controller():
         if SPECIFY_DIRECT_DICT:
             # 读取 DIRECT 目录的指定名称的字典文件
             logger.error("[+] 已开启 DIRECT 目录下的指定字典文件读取 {}".format(SPECIFY_DIRECT_DICT))
-            direct_path_frequency_list_ = read_list_file_to_all(module, dir_direct_path, SPECIFY_DIRECT_DICT,BASE_VAR_REPLACE_DICT, SEPARATOR, ANNOTATION,ADDITIONAL, FREQUENCY_MIN_COMBIN, logger)
+            direct_path_frequency_list_ = read_list_file_to_all(module, dir_direct_path, SPECIFY_DIRECT_DICT,
+                                                                BASE_VAR_REPLACE_DICT, SEPARATOR, ANNOTATION,
+                                                                ADDITIONAL, FREQUENCY_MIN_COMBIN, logger)
         else:
             # 读取 DIRECT 目录的所有字典文件
-            direct_path_frequency_list_ = read_many_file_to_all(module, dir_direct_path, dict_file_suffix,BASE_VAR_REPLACE_DICT, SEPARATOR, ANNOTATION,ADDITIONAL, FREQUENCY_MIN_COMBIN, logger)
+            direct_path_frequency_list_ = read_many_file_to_all(module, dir_direct_path, dict_file_suffix,
+                                                                BASE_VAR_REPLACE_DICT, SEPARATOR, ANNOTATION,
+                                                                ADDITIONAL, FREQUENCY_MIN_COMBIN, logger)
         logger.info("==================================================")
     else:
         logger.error("[-] 已关闭 DIRECT 目录下的字典文件读取...")
@@ -480,8 +508,12 @@ def controller():
         logger.info("==================================================")
 
         # 5、合并笛卡尔积组合-目录和笛卡尔积组合-文件的结果
-        combin_folder_files_list, run_time = combine_folder_list_and_files_list(combin_folder_frequency_list_,combin_files_frequency_list_)
-        logger.info("[*] 笛卡尔积组合-目录(元素{}个) * 文件(元素{}个) 组合结果: 当前元素 {} 个, 耗时 {} s".format(len(combin_folder_frequency_list_),len(combin_files_frequency_list_),len(combin_folder_files_list), run_time))
+        combin_folder_files_list, run_time = combine_folder_list_and_files_list(combin_folder_frequency_list_,
+                                                                                combin_files_frequency_list_)
+        logger.info(
+            "[*] 笛卡尔积组合-目录(元素{}个) * 文件(元素{}个) 组合结果: 当前元素 {} 个, 耗时 {} s".format(len(combin_folder_frequency_list_),
+                                                                               len(combin_files_frequency_list_),
+                                                                               len(combin_folder_files_list), run_time))
         logger.info("==================================================")
     else:
         logger.error("[-] 已关闭 COMBIN-FOLDER 和 COMBIN-FILES 目录下的字典文件读取,本次不存在任何结果...")
@@ -493,7 +525,9 @@ def controller():
     list_all_fuzz_path.extend(combin_folder_files_list)
     list_all_fuzz_path = list(set(list_all_fuzz_path))
     if list_all_fuzz_path:
-        logger.info("[*] 合并直接路径列表(元素{}个) 及 笛卡尔积组合列表(元素{}个): 当前元素 {} 个".format(len(direct_path_frequency_list_),len(combin_folder_files_list),len(list_all_fuzz_path)))
+        logger.info("[*] 合并直接路径列表(元素{}个) 及 笛卡尔积组合列表(元素{}个): 当前元素 {} 个".format(len(direct_path_frequency_list_),
+                                                                              len(combin_folder_files_list),
+                                                                              len(list_all_fuzz_path)))
         logger.debug("[*] 合并后所有路径元素内容: {} ".format(list_all_fuzz_path))
     else:
         # 如果没有任何字典,直接跳出循环
@@ -508,11 +542,21 @@ def controller():
 
     # 对所有目标进行分析和二次渲染,然后拼接URL进行处理
     for target in list_all_target:
-        logger.info("[+] 当前目标 {} 开始进行因变量规则提取、替换...".format(target))
+        if EXCLUDE_VISITED_TARGET_SWITCH and file_is_exist(visited_target_file_path):
+            visited_target_list = read_file_to_list_de_weight(visited_target_file_path, encoding='utf-8')
+            if target in visited_target_list:
+                logger.error("[-] 当前目标 {} 已在访问记录文件内,不再进行访问,可通过删除记录文件或关闭功能开关解决".format(target))
+                logger.info("==================================================")
+                continue
 
+        logger.info("[+] 当前目标 {} 开始进行因变量规则提取、替换...".format(target))
         # 基于URL解析出因变量,再和初步处理的list_all_fuzz_path再次组合替换生成新的URL字典列表
-        domain_var_list = get_domain_words(target, ignore_ip_format=IGNORE_IP_FORMAT,sysbol_replace_dict=DOMAIN_SYSBOL_REPLACE_DICT,remove_not_path_symbol=REMOVE_NOT_PATH_SYMBOL,not_path_symbol=NOT_PATH_SYMBOL)
-        path_var_list = get_path_words(target, sysbol_replace_dict=PATH_SYSBOL_REPLACE_DICT,remove_not_path_symbol=REMOVE_NOT_PATH_SYMBOL, not_path_symbol=NOT_PATH_SYMBOL)
+        domain_var_list = get_domain_words(target, ignore_ip_format=IGNORE_IP_FORMAT,
+                                           sysbol_replace_dict=DOMAIN_SYSBOL_REPLACE_DICT,
+                                           remove_not_path_symbol=REMOVE_NOT_PATH_SYMBOL,
+                                           not_path_symbol=NOT_PATH_SYMBOL)
+        path_var_list = get_path_words(target, sysbol_replace_dict=PATH_SYSBOL_REPLACE_DICT,
+                                       remove_not_path_symbol=REMOVE_NOT_PATH_SYMBOL, not_path_symbol=NOT_PATH_SYMBOL)
 
         # 将因变量加入因变量替换字典
         DEPEND_VAR_REPLACE_DICT = {"%%DOMAIN%%": domain_var_list, "%%PATH%%": path_var_list}
@@ -522,7 +566,8 @@ def controller():
 
         # 如果开启了自定义替换变量,就在每个因变量的值内添加自定义变量
         if APPEND_CUSTOM_VAR and CUSTOME_REPLACE_VAR:
-            logger.info("[*] 当前目标 {} 因变量字典结果{} 需要追加自定义因变量 {}".format(target,DEPEND_VAR_REPLACE_DICT,CUSTOME_REPLACE_VAR))
+            logger.info(
+                "[*] 当前目标 {} 因变量字典结果{} 需要追加自定义因变量 {}".format(target, DEPEND_VAR_REPLACE_DICT, CUSTOME_REPLACE_VAR))
             for key in DEPEND_VAR_REPLACE_DICT.keys():
                 DEPEND_VAR_REPLACE_DICT[key].extend(CUSTOME_REPLACE_VAR)
 
@@ -535,13 +580,16 @@ def controller():
             list_one_target_url_path = list_all_fuzz_path
             logger.error("[+] 当前目标 {} 没有解析出任何因变量,本次跳过因变量替换...".format(target))
         else:
-            list_one_target_url_path, replace_count, run_time = replace_list_has_key_str(list_all_fuzz_path, DEPEND_VAR_REPLACE_DICT)
-            logger.info("[+] 当前目标 {} 因变量替换结束,本次解析规则 {} 次, 耗时 {} 秒 ,当前元素 {} 个".format(target, replace_count, run_time,len(list_one_target_url_path)))
+            list_one_target_url_path, replace_count, run_time = replace_list_has_key_str(list_all_fuzz_path,
+                                                                                         DEPEND_VAR_REPLACE_DICT)
+            logger.info("[+] 当前目标 {} 因变量替换结束,本次解析规则 {} 次, 耗时 {} 秒 ,当前元素 {} 个".format(target, replace_count, run_time,
+                                                                                     len(list_one_target_url_path)))
         logger.info("==================================================")
 
         # 剔除没有被成功替换的关键字变量的路径 #任何时候都会存在没有被替换的变量
         logger.info("[*] 目标 {} 开始剔除路径列表中存在变量的路径 原有字典 [{}]条...".format(target, len(list_one_target_url_path)))
-        list_one_target_url_path = remove_list_none_render_value(list_one_target_url_path, ALL_REPLACE_KEY, logger=logger)
+        list_one_target_url_path = remove_list_none_render_value(list_one_target_url_path, ALL_REPLACE_KEY,
+                                                                 logger=logger)
         logger.info("[*] 目标 {} 完成剔除路径列表中存在变量的路径 当前字典 [{}]条...".format(target, len(list_one_target_url_path)))
         logger.info("==================================================")
 
@@ -561,11 +609,12 @@ def controller():
             logger.info("[*] 当前目标 {} 已开启多个[/]转为单[/]处理,当前元素 {}个".format(target, len(list_one_target_url_path)))
             logger.info("==================================================")
 
-
         # 是否开启结尾字符列表去除
         if REMOVE_END_SYMBOL_SWITCH:
-            list_one_target_url_path = url_remove_end_symbol(list_one_target_url_path, remove_symbol_list=REMOVE_SYMBOL_LIST)
-            logger.info("[*] 当前目标 {} 已开启结尾字符 {} 删除,当前元素 {}个".format(target,REMOVE_SYMBOL_LIST, len(list_one_target_url_path)))
+            list_one_target_url_path = url_remove_end_symbol(list_one_target_url_path,
+                                                             remove_symbol_list=REMOVE_SYMBOL_LIST)
+            logger.info(
+                "[*] 当前目标 {} 已开启结尾字符 {} 删除,当前元素 {}个".format(target, REMOVE_SYMBOL_LIST, len(list_one_target_url_path)))
             logger.info("==================================================")
 
         if PATH_LOWERCASE_SWITCH:
@@ -632,6 +681,20 @@ def controller():
         logger.debug("[*] 当前目标 {} 通过智能合并目标及规则字典最终生成URL结果:{}".format(target, target_url_path_list))
         logger.info("==================================================")
 
+        # 保留指定后缀的URL目标 # store_specify_ext(url_list_, ext_list_)
+        if STORE_SPECIFY_EXT_SWITCH and STORE_SPECIFY_EXT_LIST:
+            target_url_path_list = store_specify_ext(target_url_path_list, STORE_SPECIFY_EXT_LIST)
+            logger.error("[*] 当前目标 {} 已开启保存指定后缀 {} 功能,最终提取URL数量:[{}]个".format(target, STORE_SPECIFY_EXT_LIST,
+                                                                              len(target_url_path_list)))
+            logger.info("==================================================")
+
+        # 移除指定后缀列表的内容 # delete_specify_ext(url_list_, ext_list_)
+        if DELETE_SPECIFY_EXT_SWITCH and DELETE_SPECIFY_EXT_LIST:
+            target_url_path_list = delete_specify_ext(target_url_path_list, DELETE_SPECIFY_EXT_LIST)
+            logger.error("[*] 当前目标 {} 已开启移除指定后缀 {} 功能,最终提取URL数量:[{}]个".format(target, DELETE_SPECIFY_EXT_LIST,
+                                                                              len(target_url_path_list)))
+            logger.info("==================================================")
+
         # 是否开启测试模式处理,只获取目标生成的100个URL进行测试
         if TEST_MODE_HANDLE:
             target_url_path_list = target_url_path_list[:100]
@@ -683,7 +746,10 @@ def controller():
             if write_tuple_result:
                 logger.info("[+] 当前目标 {} 开始将命中的结果 {} 写入到命中文件中...".format(target, write_tuple_result))
                 write_url_list = [tuple[0] for tuple in write_tuple_result]
-                write_flag = auto_analyse_hit_result_and_write_file(write_url_list, BASE_VAR_REPLACE_DICT, DEPEND_VAR_REPLACE_DICT, HIT_EXT_PATH, HIT_DIRECT_PATH, HIT_FOLDER_PATH, HIT_FILES_PATH, logger,HIT_OVERWRITE_MODE)
+                write_flag = auto_analyse_hit_result_and_write_file(write_url_list, BASE_VAR_REPLACE_DICT,
+                                                                    DEPEND_VAR_REPLACE_DICT, HIT_EXT_PATH,
+                                                                    HIT_DIRECT_PATH, HIT_FOLDER_PATH, HIT_FILES_PATH,
+                                                                    logger, HIT_OVERWRITE_MODE)
                 if not write_flag:
                     logger.error("[!] 当前目标 {} 命中结果写入时发生错误...".format(target))
             else:
@@ -691,6 +757,10 @@ def controller():
         else:
             logger.error("[-] 当前目标 {} 已关闭命中结果保存功能...".format(target))
         logger.info("==================================================")
+        with open(visited_target_file_path, 'a+', encoding='utf-8') as file_open:
+            file_open.write(target + '\n')
+            logger.info("[+] 当前目标 {} 已写入已访问URL记录文件 {}".format(target, visited_target_file_path))
+            logger.info("==================================================")
 
     # 程序整体运行结束的时间
     program_end_time = time.time()

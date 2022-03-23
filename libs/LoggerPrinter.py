@@ -31,9 +31,9 @@ def set_logger(info_log_file_path=None, err_log_file_path=None, dbg_log_file_pat
     # 设置显示INFO到文件
     logger.add(info_log_file_path, format=logger_format_writer, rotation="100 MB", level="INFO", enqueue=True, encoding="utf-8", errors="ignore")
     # 设置显示DEBUG到文件
-    logger.add(dbg_log_file_path, format=logger_format_writer, rotation="100 MB", level="DEBUG", enqueue=True, encoding="utf-8",errors="ignore")
+    logger.add(dbg_log_file_path, format=logger_format_writer, rotation="100 MB", level="DEBUG", enqueue=True, encoding="utf-8", errors="ignore")
     # 设置显示ERROR到文件
-    logger.add(err_log_file_path, format=logger_format_writer, rotation="100 MB", level="ERROR", enqueue=True, encoding="utf-8",errors="ignore")
+    logger.add(err_log_file_path, format=logger_format_writer, rotation="100 MB", level="ERROR", enqueue=True, encoding="utf-8", errors="ignore")
 
     # 根据输入的debug参数指定窗口输出的日志信息级别,不执行语句会导致没有控制台页面输出
     logger_format_show_info= "[<blue>{time:HH:mm:ss}</blue>] <level>{message}</level>"
