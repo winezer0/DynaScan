@@ -241,6 +241,17 @@ def attempt_add_proto_and_access(list_all_target, logger):
     logger.info("[*] 目标列表中带有协议头的目标: {}".format(have_proto_head_host))
     logger.info("[*] 目标列表中没有协议头的目标: {}".format(none_proto_head_host))
 
+    # 排除URL目标中已访问过的URL
+    if EXCLUDE_VISITED_TARGET_SWITCH:
+        tmp_have_proto_head_host = []
+        for target in have_proto_head_host:
+            if target in VISITED_TARGET_LIST:
+                logger.error("[-] 当前目标 {} 已在访问记录文件内,不再进行访问测试,可通过删除记录文件或关闭功能开关解决".format(target))
+            else:
+                tmp_have_proto_head_host.append(target)
+        else:
+            have_proto_head_host = tmp_have_proto_head_host
+
     # 对have_proto_head_host里面的目标进行处理
     if have_proto_head_host:
         if not ACCESS_TEST_URL:
@@ -351,6 +362,10 @@ def attempt_add_proto_and_access(list_all_target, logger):
 def controller():
     # 程序开始运行时间
     program_start_time = time.time()
+
+    # 读取命中记录文件
+    if file_is_exist(visited_target_file_path):
+        VISITED_TARGET_LIST = read_file_to_list_de_weight(visited_target_file_path, encoding='utf-8')
 
     # 解析命令行参数
     args = ParserCmd().init()
@@ -542,9 +557,9 @@ def controller():
 
     # 对所有目标进行分析和二次渲染,然后拼接URL进行处理
     for target in list_all_target:
-        if EXCLUDE_VISITED_TARGET_SWITCH and file_is_exist(visited_target_file_path):
-            visited_target_list = read_file_to_list_de_weight(visited_target_file_path, encoding='utf-8')
-            if target in visited_target_list:
+        # 排除已访问过的URL
+        if EXCLUDE_VISITED_TARGET_SWITCH:
+            if target in VISITED_TARGET_LIST:
                 logger.error("[-] 当前目标 {} 已在访问记录文件内,不再进行访问,可通过删除记录文件或关闭功能开关解决".format(target))
                 logger.info("==================================================")
                 continue

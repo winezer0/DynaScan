@@ -82,8 +82,11 @@ err_log_file_path = log_file_path.replace('module', 'error')
 
 # 记录已完成扫描的目标 # 固定命名,不需要添加时间戳
 visited_target_file_path = str(BASE_DIR.joinpath("runtime/runtime_module.log")).replace('module', 'visited')
+VISITED_TARGET_LIST = []
+
 # 扫描时是否排除已扫描的目标
 EXCLUDE_VISITED_TARGET_SWITCH = True
+
 
 # 设置输出结果文件目录
 result_dir_path = BASE_DIR.joinpath("result")
