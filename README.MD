@@ -45,7 +45,7 @@
 20220323 添加移除指定后缀的URL目标功能 DELETE_SPECIFY_EXT_SWITCH = False DELETE_SPECIFY_EXT_LIST = ['jsp']
 20220323 当保留指定后缀和移除指定后缀同时存在时,先进行指定后缀URL保留,后进行指定后缀URL排除, 建议一次扫描仅开启一个开关 
 
-20220323 添加排除已扫描URL目标的功能，如果记录文件中已有这个URL,就跳过扫描。默认EXCLUDE_VISITED_TARGET_SWITCH = True
+20220323 添加排除已扫描URL目标的功能，如果记录文件中已有这个URL,就跳过扫描。默认EXCLUDE_VISITED_TARGET_SWITCH = True,对于HOST-Port形式的目标会先进行多线程协议探测。只有经过完整的路径探测的目标才会加入记录文件，如果担心目标没有扫到,可以多扫几次。
 ```
 
 ### 0.2、TODO
