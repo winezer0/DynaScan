@@ -9,34 +9,21 @@ from libs.utils_dict.BaseKeyReplace import replace_list_has_key_str
 from libs.utils_dict.BaseRuleParser import rule_list_base_render
 
 from libs.HttpRequests import requests_plus
-from libs.ToolUtils import get_relative_file_name, file_is_exist, three_tuple_index_value_equal, \
-    two_tuple_list_value_equal, read_file_to_dict_with_frequency, \
-    get_key_list_with_frequency, read_many_file_to_all, \
-    combine_folder_list_and_files_list, get_domain_words, get_path_words, remove_list_none_render_value, \
-    url_path_chinese_encode, url_path_url_encode, combine_one_target_and_path_list, get_segments, \
-    combine_target_list_and_path_list, auto_analyse_hit_result_and_write_file, replace_multi_slashes, \
-    read_list_file_to_all, url_remove_end_symbol, url_path_lowercase, store_specify_ext, \
-    delete_specify_ext  # 获取目录下的所有文件名
-from libs.ToolUtils import read_file_to_list_de_weight  # 获取文件内容数组
+from libs.ToolUtils import get_relative_file_name, three_tuple_index_value_equal, store_specify_ext, delete_specify_ext, \
+    two_tuple_list_value_equal, read_file_to_dict_with_frequency, get_key_list_with_frequency, read_many_file_to_all, combine_folder_list_and_files_list, \
+    get_domain_words, get_path_words, remove_list_none_render_value, url_path_chinese_encode, url_path_url_encode, combine_one_target_and_path_list, get_segments, \
+    combine_target_list_and_path_list, auto_analyse_hit_result_and_write_file, replace_multi_slashes, read_list_file_to_all, url_remove_end_symbol, url_path_lowercase
 from libs.ToolUtils import remove_dict_none_value_key  # 去除字典中空值的键值对
 from libs.ToolUtils import get_host_port  # 从URL中自动获取域名信息相关列表和路径信息相关列表
 from setting import *  # setting.py中的变量,包括config字典
 from libs.InputParse import ParserCmd  # 用于解析用户输入参数的模块
-
-# 需要添加有颜色的结果输出,便于区分错误结果
-# from colorama import init, Fore
-# init(autoreset=True)
-# 改用logger模块进行复杂颜色输出,可同时输出到文件
 from libs.LoggerPrinter import set_logger
-
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 # 进行多线程的URL访问测试
-def multi_threaded_requests_url(url_path_list, threads_count=10, proxies={}, cookies=None, headers=None, timeout=2,
-                                stream=False, verify=False, allow_redirects=True,
-                                dynamic_host_header=True, dynamic_refer_header=True,
-                                retry_times=3, logger=None, encode='utf-8', encode_all_path=True):
+def multi_threaded_requests_url(url_path_list, threads_count=10, proxies={}, cookies=None, headers=None, timeout=2, stream=False, verify=False, allow_redirects=True,
+                                dynamic_host_header=True, dynamic_refer_header=True, retry_times=3, logger=None, encode='utf-8', encode_all_path=True):
     """
     # 对URL列表进行访问测试,输出返回响应结果
     # 创建一个最大容纳数量为threads_count的线程池,然后进行访问操作
@@ -49,10 +36,8 @@ def multi_threaded_requests_url(url_path_list, threads_count=10, proxies={}, coo
     with ThreadPoolExecutor(max_workers=threads_count) as pool:
         all_task = []
         for url in url_path_list:
-            task = pool.submit(requests_plus, method=config.http_method, url=url, proxies=proxies, cookies=cookies,
-                               headers=headers, timeout=timeout, stream=stream, verify=verify,
-                               allow_redirects=allow_redirects,
-                               dynamic_host_header=dynamic_host_header, dynamic_refer_header=dynamic_refer_header,
+            task = pool.submit(requests_plus, method=config.http_method, url=url, proxies=proxies, cookies=cookies, headers=headers, timeout=timeout, stream=stream,
+                               verify=verify, allow_redirects=allow_redirects, dynamic_host_header=dynamic_host_header, dynamic_refer_header=dynamic_refer_header,
                                retry_times=retry_times, logger=logger, encode=encode, encode_all_path=encode_all_path)
             all_task.append(task)
 
@@ -60,7 +45,6 @@ def multi_threaded_requests_url(url_path_list, threads_count=10, proxies={}, coo
         for future in as_completed(all_task):
             url_access_result_list.append(future.result())
             # future.result()格式为元组
-            # result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
             # url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = future.result()
             # 取消线程结果输出,在请求内部进行输出
             # logger.debug("[+] 线程 {} 返回结果:{}".format(future, future.result()))
@@ -81,8 +65,7 @@ def handle_test_result_dict(test_path_result_dict={}, filter_moudle_default_valu
 
         # 结果元组对应变量名序列
         # result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
-        result_moudle_name_list = ["url", "resp_status", "resp_content_length", "resp_text_size", "resp_text_title",
-                                   "resp_text_hash", "resp_bytes_head"]
+        result_moudle_name_list = ["url", "resp_status", "resp_content_length", "resp_text_size", "resp_text_title", "resp_text_hash", "resp_bytes_head"]
 
         # 需要被筛选的项目对应变量名序列
         # filter_moudle_name_list = filter_moudle_default_value_dict.keys()
@@ -105,21 +88,16 @@ def handle_test_result_dict(test_path_result_dict={}, filter_moudle_default_valu
 
 
 # 把判断筛选结果的函数组合到一起
-def filter_dynamic(module_name, module_index, module_none_value_list, test_path_result_dict, dynamic_exclude_dict,
-                   target, logger):
+def filter_dynamic(module_name, module_index, module_none_value_list, test_path_result_dict, dynamic_exclude_dict, target, logger):
     if three_tuple_index_value_equal(test_path_result_dict[target], module_index):
         if test_path_result_dict[target][0][module_index] not in module_none_value_list:
-            logger.info("[+] 当前目标 {} 可以通过 {} 筛选，不存在路径对应值应该为:[{}]".format(target, module_name,
-                                                                         test_path_result_dict[target][1][
-                                                                             module_index]))
+            logger.info("[+] 当前目标 {} 可以通过 {} 筛选，不存在路径对应值应该为:[{}]".format(target, module_name, test_path_result_dict[target][1][module_index]))
             dynamic_exclude_dict[target][module_name] = test_path_result_dict[target][1][module_index]
     return dynamic_exclude_dict
 
 
 # 处理拆分结果列表 并写入文件
-def handle_real_result_dict(real_path_result_dict={}, logger=None, exclude_status=[], exclude_regexp='',
-                            dynamic_exclude_dict={}, exclude_dynamic_switch=True,
-                            filter_moudle_default_value_dict={}):
+def handle_real_result_dict(real_path_result_dict={}, logger=None, exclude_status=[], exclude_regexp='', dynamic_exclude_dict={}, exclude_dynamic_switch=True, filter_moudle_default_value_dict={}):
     # 保存所有被写入的结果列表,用于统计等
     all_write_result = []
     # 所有目标测试结果列表不为空
@@ -162,8 +140,7 @@ def handle_real_result_dict(real_path_result_dict={}, logger=None, exclude_statu
             error_file_path_open = open(error_file_path, "a+", encoding="utf-8")
 
             # 组合列表,用于快速关闭所有的文件
-            list_file_path_open = [result_file_path_open, ignore_file_path_open, manual_file_path_open,
-                                   error_file_path_open]
+            list_file_path_open = [result_file_path_open, ignore_file_path_open, manual_file_path_open, error_file_path_open]
 
             for tuple in real_path_result_dict[target]:
                 # 定义结果元组导出格式 #修改结果格式,需要修改格式串的数量
@@ -182,16 +159,13 @@ def handle_real_result_dict(real_path_result_dict={}, logger=None, exclude_statu
                     error_file_path_open.write(tuple_result_format % tuple)
                 elif resp_status in exclude_status:
                     # 状态码为在排除列表内,就输出到忽略文件夹
-                    logger.debug(
-                        "[-] 当前目标 {} resp_status {} 在 排除列表 {} 内,因此本请求结果忽略".format(url, resp_status, exclude_status))
+                    logger.debug("[-] 当前目标 {} resp_status {} 在 排除列表 {} 内,因此本请求结果忽略".format(url, resp_status, exclude_status))
                     ignore_file_path_open.write(tuple_result_format % tuple)
                 elif resp_text_title not in filter_moudle_default_value_dict["resp_text_title"] and re.match(
                         exclude_regexp, resp_text_title, re.IGNORECASE):
                     # 标题内容被排除正则匹配,就输出到忽略文件夹
-                    logger.error(
-                        "[-] 当前目标 {} resp_text_title {} 被排除正则匹配,因此本请求结果忽略".format(url, resp_text_title, exclude_regexp))
+                    logger.error("[-] 当前目标 {} resp_text_title {} 被排除正则匹配,因此本请求结果忽略".format(url, resp_text_title, exclude_regexp))
                     ignore_file_path_open.write(tuple_result_format % tuple)
-
                 elif exclude_dynamic_switch and dynamic_exclude_dict.__contains__(target):
                     # 需要被匹配的变量名字符串列表,用于根据key来动态生成变量
                     # match_list = ["resp_content_length", "resp_text_size", "resp_text_title", "resp_text_hash","resp_bytes_head"]
@@ -201,8 +175,7 @@ def handle_real_result_dict(real_path_result_dict={}, logger=None, exclude_statu
                         # 尝试使用动态字符串转变量名
                         dynamic_var_name = vars()[filter_key]
                         if dynamic_var_name == filter_key_value:
-                            logger.debug("[-] 当前目标 {} {} {} == {} 因此本请求结果忽略".format(url, filter_key, dynamic_var_name,
-                                                                                    filter_key_value))
+                            logger.debug("[-] 当前目标 {} {} {} == {} 因此本请求结果忽略".format(url, filter_key, dynamic_var_name, filter_key_value))
                             ignore_file_path_open.write(tuple_result_format % tuple)
                             break
                     else:
@@ -227,12 +200,34 @@ def handle_real_result_dict(real_path_result_dict={}, logger=None, exclude_statu
     return all_write_result
 
 
+# 排除已经在访问列表中的项目
+def removes_the_url_from_the_visited_list(have_proto_head_host, visited_target_list, logger):
+    tmp_have_proto_head_host = []
+    for target in have_proto_head_host:
+        if target in visited_target_list:
+            logger.error("[-] 当前目标 {} 已在访问记录内,不再进行访问测试,可通过删除记录文件或关闭功能开关解决".format(target))
+        else:
+            tmp_have_proto_head_host.append(target)
+    else:
+        have_proto_head_host = tmp_have_proto_head_host
+    return have_proto_head_host
+
+
 # 判断输入的URL列表是否添加协议头,及是否能够访问
 def attempt_add_proto_and_access(list_all_target, logger):
+    # 1、对所有没有协议头的目标添加协议头。
+    # 2、结果去重
+    # 3、URL排除
+    # 4、对所有剩余的URL进行处理
+    # 4.1 如果没有开启访问测试,就直接返回URL列表
+    # 4.2 如果开启访问测试就继续访问
+    # 4.3 对访问结果进行筛选
+
     logger.info("[*] 开始对所有目标进行URL格式判断,并进行HTTP访问性判断...")
-    have_proto_head_host = []  # 存储有http头的目标
+    have_proto_head_host = []  # 先存储有http头的目标,后续将URL追加进去
     none_proto_head_host = []  # 存储没有http头的目标
-    new_list_all_target = []  # 存储最终的URL列表
+
+    # 目标熟悉判断
     for target in list_all_target:
         if target.startswith("http://") or target.startswith("https://"):
             have_proto_head_host.append(target)
@@ -241,38 +236,39 @@ def attempt_add_proto_and_access(list_all_target, logger):
     logger.info("[*] 目标列表中带有协议头的目标 {}个: {}".format(len(have_proto_head_host), have_proto_head_host))
     logger.info("[*] 目标列表中没有协议头的目标 {}个: {}".format(len(none_proto_head_host), none_proto_head_host))
 
+    # 对none_proto_head_host里面的目标进行格式处理
+    if none_proto_head_host:
+        need_access_url_list = []
+        for target in none_proto_head_host:
+            have_proto_head_host.append("http://{}".format(target))
+            have_proto_head_host.append("https://{}".format(target))
+
+    # 对所有URL目标进行去重处理
+    have_proto_head_host = list(set(have_proto_head_host))
+    logger.info("[*] 所有目标格式化后剩余目标 {}个: {}".format(len(have_proto_head_host), have_proto_head_host))
+
     # 排除URL目标中已访问过的URL
     if EXCLUDE_VISITED_TARGET_SWITCH:
-        logger.info("[*] 已开启对带有协议头的目标进行已访问URL筛选, 对于不带有协议头的目标将在进行完协议头检测后进行筛选...")
-        tmp_have_proto_head_host = []
-        for target in have_proto_head_host:
-            if target in VISITED_TARGET_LIST:
-                logger.error("[-] 当前目标 {} 已在访问记录文件内,不再进行访问测试,可通过删除记录文件或关闭功能开关解决".format(target))
-            else:
-                tmp_have_proto_head_host.append(target)
-        else:
-            have_proto_head_host = tmp_have_proto_head_host
-            logger.info("[*] 目标列表中剩余带有协议头的目标 {}个: {}".format(len(have_proto_head_host), have_proto_head_host))
+        logger.info("[*] 已开启已访问URL筛选,当前正在筛选格式化后的目标列表...")
+        have_proto_head_host = removes_the_url_from_the_visited_list(have_proto_head_host, VISITED_TARGET_LIST, logger)
+        logger.info("[*] 所有目标进行已访问URL筛选剩余目标 {}个: {}".format(len(have_proto_head_host), have_proto_head_host))
 
-    # 对have_proto_head_host里面的目标进行处理
-    if have_proto_head_host:
-        if not ACCESS_TEST_URL:
-            # 不访问URl,不进行测试直接加入结果列表
-            logger.info("[-] ACCESS_TEST_URL已关闭,不进行初步访问测试 {}".format(have_proto_head_host))
-            new_list_all_target.extend(have_proto_head_host)
-        else:
-            # 访问URl,如果可以访问就加入结果列表
-            logger.info("[+] ACCESS_TEST_URL已开启,正在对目标列表进行初步访问测试 {}".format(have_proto_head_host))
-            target_proto_result_list = multi_threaded_requests_url(have_proto_head_host,
-                                                                   threads_count=config.threads_count,
-                                                                   proxies=config.proxies, cookies=COOKIES,
-                                                                   headers=HEADERS, timeout=5,
-                                                                   stream=HTTP_STREAM, verify=ALLOW_SSL_VERIFY,
-                                                                   allow_redirects=ALLOW_REDIRECTS,
-                                                                   dynamic_host_header=DYNAMIC_HOST_HEADER,
-                                                                   dynamic_refer_header=DYNAMIC_REFER_HEADER,
-                                                                   retry_times=RETRY_TIMES, logger=logger,
-                                                                   encode_all_path=ENCODE_ALL_PATH)
+    # 存储最终的URL列表
+    new_list_all_target = []
+    if not ACCESS_ADD_PROTO_HEAD:
+        # 不对URL进行访问追加,而是直接进行追加。
+        logger.info("[*] 协议头访问识别模式开关: {},添加http与https目标 {}个: 列表 {}".format(ACCESS_ADD_PROTO_HEAD, len(have_proto_head_host), have_proto_head_host))
+        new_list_all_target.extend(have_proto_head_host)
+    else:
+        # 对URL进行访问测试,通过访问测试的项目才追加到最终目标内
+        logger.info("[*] 协议头访问识别模式开关: {},即将进行URL访问检测,目标 {}个: 列表 {}".format(ACCESS_ADD_PROTO_HEAD, len(have_proto_head_host), have_proto_head_host))
+        target_proto_result_list = multi_threaded_requests_url(have_proto_head_host, threads_count=config.threads_count, proxies=config.proxies, cookies=COOKIES,
+                                                               headers=HEADERS, timeout=5, stream=HTTP_STREAM, verify=ALLOW_SSL_VERIFY, allow_redirects=ALLOW_REDIRECTS,
+                                                               dynamic_host_header=DYNAMIC_HOST_HEADER, dynamic_refer_header=DYNAMIC_REFER_HEADER,
+                                                               retry_times=RETRY_TIMES, logger=logger, encode_all_path=ENCODE_ALL_PATH)
+        if not SMART_ADD_PROTO_HEAD:
+            # 简单的判断模式,URL能够访问就加入列表
+            logger.info("[*] 当前使用响应状态码模式,对访问结果进行筛选,简单判断最终协议头...")
             for tuple in target_proto_result_list:
                 url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
                 if resp_status > 0:
@@ -280,89 +276,55 @@ def attempt_add_proto_and_access(list_all_target, logger):
                     new_list_all_target.append(url)
                 else:
                     logger.error("[*] 当前目标 {} 即将被忽略 响应结果 {} ".format(url, tuple))
-
-    # 对none_proto_head_host里面的目标进行处理 #需要修改为多线程检测+批量结果处理,不然太慢了
-    if none_proto_head_host:
-        if not ACCESS_ADD_PROTO_HEAD:
-            # 简单的处理方式,为每个HOST:PORT添加http协议头
-            logger.info("[*] 协议头访问识别模式开关: {},直接添加http与https协议头,目标列表 {}".format(ACCESS_ADD_PROTO_HEAD, target))
-            for target in none_proto_head_host:
-                new_list_all_target.append("http://{}".format(target))
-                new_list_all_target.append("https://{}".format(target))
         else:
-            logger.info("[*] 协议头访问识别模式开关: {},即将进行URL协议检测,目标列表 {}".format(ACCESS_ADD_PROTO_HEAD, target))
-            need_access_url_list = []
-            for target in none_proto_head_host:
-                need_access_url_list.append("http://{}".format(target))
-                need_access_url_list.append("https://{}".format(target))
-            need_access_url_list = list(set(need_access_url_list))
-            target_proto_result_list = multi_threaded_requests_url(need_access_url_list,
-                                                                   threads_count=config.threads_count,
-                                                                   proxies=config.proxies, cookies=COOKIES,
-                                                                   headers=HEADERS, timeout=5,
-                                                                   stream=HTTP_STREAM, verify=ALLOW_SSL_VERIFY,
-                                                                   allow_redirects=ALLOW_REDIRECTS,
-                                                                   dynamic_host_header=DYNAMIC_HOST_HEADER,
-                                                                   dynamic_refer_header=DYNAMIC_REFER_HEADER,
-                                                                   retry_times=RETRY_TIMES, logger=logger,
-                                                                   encode_all_path=ENCODE_ALL_PATH)
-            if not SMART_ADD_PROTO_HEAD:
-                # 简单的判断模式,URL能够访问就加入列表
-                logger.info("[*] 当前使用响应状态码模式,对访问结果进行筛选,简单判断最终协议头...")
-                for tuple in target_proto_result_list:
-                    url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
-                    if resp_status > 0:
-                        logger.info("[*] 当前目标 {} 即将被添加 响应结果 {} ".format(url, tuple))
-                        new_list_all_target.append(url)
-                    else:
-                        logger.error("[*] 当前目标 {} 即将被忽略 响应结果 {} ".format(url, tuple))
-            else:
-                # 复杂的判断模式
-                logger.info("[*] 当前使用响应结果比较模式,对访问结果进行筛选,严格判断最终协议头...")
-                # 先拆分结果列表的URL,相同HOST的分为一个组
-                muilt_target_proto_result_dict = {}  # 多目标协议结果字典{"host":[(结果1),(结果2),(不应该有结果3)]}
-                for tuple in target_proto_result_list:
-                    url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
-                    host_port = url.split("://", 1)[-1]
-                    if host_port in muilt_target_proto_result_dict.keys():
-                        muilt_target_proto_result_dict[host_port].append(tuple)
-                    else:
-                        muilt_target_proto_result_dict[host_port] = [tuple]
-                logger.info("[*] 响应结果字典:{}".format(muilt_target_proto_result_dict))
+            # 复杂的判断模式
+            logger.info("[*] 当前使用响应结果比较模式,对访问结果进行筛选,严格判断最终协议头...")
+            # 先拆分结果列表的URL,相同HOST的分为一个组
+            muilt_target_proto_result_dict = {}  # 多目标协议结果字典{"host":[(结果1),(结果2),(不应该有结果3)]}
+            for tuple in target_proto_result_list:
+                url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
+                host_port = url.split("://", 1)[-1]
+                if host_port in muilt_target_proto_result_dict.keys():
+                    muilt_target_proto_result_dict[host_port].append(tuple)
+                else:
+                    muilt_target_proto_result_dict[host_port] = [tuple]
+            logger.info("[*] 响应结果字典:{}".format(muilt_target_proto_result_dict))
 
-                # 对拆分的结果进行遍历比较
-                for target, target_proto_result_list in muilt_target_proto_result_dict.items():
+            # 对拆分的结果进行遍历比较
+            for target, target_proto_result_list in muilt_target_proto_result_dict.items():
+                # 如果只有一个结果就说明被排除了一个,此时直接加入最终列表,
+                if len(target_proto_result_list) == 1:
+                    url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = target_proto_result_list[0]
+                    if resp_status > 0:
+                        logger.info("[*] 当前目标 {} 仅剩余1个URL访问结果,响应状态码为 {} ,本次将添加URL {}".format(target, resp_status, url))
+                        new_list_all_target.append(url)
+                # 如果目标存在两个结果,说明http和https都没有被排除,
+                elif len(target_proto_result_list) >= 2:
                     # 是否除了URL,其他所有的返回内容都相同,如果是的话,仅返回http协议即可
                     if two_tuple_list_value_equal(target_proto_result_list):
                         # 两个协议的访问结果相同
-                        tuple = target_proto_result_list[0]
-                        tuple_result_format = "%s," * len(tuple) + "\n"
-                        url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
+                        # tuple = target_proto_result_list[0]
+                        # tuple_result_format = "%s," * len(tuple) + "\n"
+                        # url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
+                        url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = target_proto_result_list[0]
                         if resp_status > 0:
-                            # http和https结果都相同同时,就添加一个http://xxxxj即可
-                            logger.info("[*] 当前目标 {} 使用两个协议进行访问测试时结果相同,响应状态码为 {} ,本次将添加URL http://{}".format(target,
-                                                                                                             resp_status,
-                                                                                                             target))
+                            logger.info("[*] 当前目标 {} 使用两个协议进行访问测试时结果相同,响应状态码为 {} ,本次将添加 http://{}".format(target, resp_status, target))
                             new_list_all_target.append(url)
                         else:
-                            logger.error(
-                                "[-] 当前目标 {} 使用两个协议进行访问测试时结果相同,但响应状态码 {} ,本次目标将被过滤...".format(target, resp_status))
+                            logger.error("[-] 当前目标 {} 使用两个协议进行访问测试时结果相同,但响应状态码 {} ,本次目标将被过滤...".format(target, resp_status))
                     else:
                         # 两个协议的访问结果不相同
                         for tuple in target_proto_result_list:
                             url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
                             if resp_status > 0:
-                                logger.info("[*] 当前目标 {} 使用两个协议进行访问测试时结果不相同,URL {} 状态码为 {} ,将被添加...".format(target, url,
-                                                                                                            resp_status))
+                                logger.info("[*] 当前目标 {} 使用两个协议进行访问测试时结果不相同,URL {} 状态码为 {} ,将被添加...".format(target, url, resp_status))
                                 new_list_all_target.append(url)
                             else:
-                                logger.error(
-                                    "[-] 当前目标 {} 使用两个协议进行访问测试时结果不相同,URL {} 状态码为 {} ,将被过滤...".format(target, url,
-                                                                                                    resp_status))
+                                logger.error("[-] 当前目标 {} 使用两个协议进行访问测试时结果不相同,URL {} 状态码为 {} ,将被过滤...".format(target, url, resp_status))
     return new_list_all_target
 
 
-# 程序运行主体
+# 主要的函数逻辑,注意本函数内的变量不是全局变量
 def controller():
     # 程序开始运行时间
     program_start_time = time.time()
@@ -421,13 +383,10 @@ def controller():
     if APPEND_HIT_EXT and file_is_exist(HIT_EXT_PATH):
         # 读取命中扩展字典文件
         frequency_dict_hit = read_file_to_dict_with_frequency(HIT_EXT_PATH, separator=SEPARATOR, additional=ADDITIONAL)
-        logger.debug("[*] BASE目录中历史命中记录文件 {} 内容读取结果: {} 条 详情: {}".format(HIT_EXT_PATH, len(frequency_dict_hit),
-                                                                         frequency_dict_hit))
+        logger.debug("[*] BASE目录中历史命中记录文件 {} 内容读取结果: {} 条 详情: {}".format(HIT_EXT_PATH, len(frequency_dict_hit), frequency_dict_hit))
         # 提取符合频率的键
         frequency_list_hit = get_key_list_with_frequency(frequency_dict_hit, frequency=FREQUENCY_MIN_HIT)
-        logger.debug("[*] BASE目录中历史命中记录文件 {} 频率[{}]时筛选结果: {} 条,详情: {}".format(HIT_EXT_PATH, FREQUENCY_MIN_HIT,
-                                                                              len(frequency_list_hit),
-                                                                              frequency_list_hit))
+        logger.debug("[*] BASE目录中历史命中记录文件 {} 频率[{}]时筛选结果: {} 条,详情: {}".format(HIT_EXT_PATH, FREQUENCY_MIN_HIT, len(frequency_list_hit), frequency_list_hit))
         # 当开启命中扩展追加时,就不需要将命中后缀作为一个单独的替换关键字。
         hit_ext_name = HIT_EXT_PATH.rsplit('/', 1)[-1]
         if hit_ext_name in list_dir_base_file: list_dir_base_file.remove(hit_ext_name)
@@ -437,15 +396,10 @@ def controller():
         # 从文件名中删除字典后缀,两边加上%%作为基本替换字典的键
         var_str = '%{}%'.format(file_name.rsplit(dict_file_suffix, 1)[0])
         # 读取字典内容时,进行频率筛选，返回超过频率阈值的行
-        frequency_dict_ = read_file_to_dict_with_frequency(dir_base_var + '/' + file_name, separator=SEPARATOR,
-                                                           annotation=ANNOTATION, additional=ADDITIONAL)
-        logger.debug(
-            "[*] BASE目录中常规替换字典文件 {} 内容读取结果: {} 条 详情: {}".format(dir_base_var + '/' + file_name, len(frequency_dict_),
-                                                                frequency_dict_))
+        frequency_dict_ = read_file_to_dict_with_frequency(dir_base_var + '/' + file_name, separator=SEPARATOR, annotation=ANNOTATION, additional=ADDITIONAL)
+        logger.debug("[*] BASE目录中常规替换字典文件 {} 内容读取结果: {} 条 详情: {}".format(dir_base_var + '/' + file_name, len(frequency_dict_), frequency_dict_))
         frequency_list_ = get_key_list_with_frequency(frequency_dict_, frequency=FREQUENCY_MIN_BASE)
-        logger.debug(
-            "[*] BASE目录中常规替换字典文件 {} 频率[{}]时筛选结果: {} 条 详情: {}".format(dir_base_var + '/' + file_name, FREQUENCY_MIN_BASE,
-                                                                     len(frequency_list_), frequency_list_))
+        logger.debug("[*] BASE目录中常规替换字典文件 {} 频率[{}]时筛选结果: {} 条 详情: {}".format(dir_base_var + '/' + file_name, FREQUENCY_MIN_BASE, len(frequency_list_), frequency_list_))
 
         # 将命中扩展追加到所有基本键值对中
         if APPEND_HIT_EXT and frequency_list_hit: frequency_list_.extend(frequency_list_hit)
@@ -478,14 +432,10 @@ def controller():
         if SPECIFY_DIRECT_DICT:
             # 读取 DIRECT 目录的指定名称的字典文件
             logger.error("[+] 已开启 DIRECT 目录下的指定字典文件读取 {}".format(SPECIFY_DIRECT_DICT))
-            direct_path_frequency_list_ = read_list_file_to_all(module, dir_direct_path, SPECIFY_DIRECT_DICT,
-                                                                BASE_VAR_REPLACE_DICT, SEPARATOR, ANNOTATION,
-                                                                ADDITIONAL, FREQUENCY_MIN_COMBIN, logger)
+            direct_path_frequency_list_ = read_list_file_to_all(module, dir_direct_path, SPECIFY_DIRECT_DICT, BASE_VAR_REPLACE_DICT, SEPARATOR, ANNOTATION, ADDITIONAL, FREQUENCY_MIN_COMBIN, logger)
         else:
             # 读取 DIRECT 目录的所有字典文件
-            direct_path_frequency_list_ = read_many_file_to_all(module, dir_direct_path, dict_file_suffix,
-                                                                BASE_VAR_REPLACE_DICT, SEPARATOR, ANNOTATION,
-                                                                ADDITIONAL, FREQUENCY_MIN_COMBIN, logger)
+            direct_path_frequency_list_ = read_many_file_to_all(module, dir_direct_path, dict_file_suffix, BASE_VAR_REPLACE_DICT, SEPARATOR, ANNOTATION, ADDITIONAL, FREQUENCY_MIN_COMBIN, logger)
         logger.info("==================================================")
     else:
         logger.error("[-] 已关闭 DIRECT 目录下的字典文件读取...")
@@ -500,35 +450,24 @@ def controller():
         module = '笛卡尔积组合-目录'
         if SPECIFY_COMBIN_FOLDER_DICT:
             logger.error("[+] 已开启 COMBIN-FOLDER 目录下的指定字典文件读取 {}".format(SPECIFY_COMBIN_FOLDER_DICT))
-            combin_folder_frequency_list_ = read_list_file_to_all(module, dir_combin_folder, SPECIFY_COMBIN_FOLDER_DICT,
-                                                                  BASE_VAR_REPLACE_DICT, SEPARATOR, ANNOTATION,
-                                                                  ADDITIONAL, FREQUENCY_MIN_COMBIN, logger)
+            combin_folder_frequency_list_ = read_list_file_to_all(module, dir_combin_folder, SPECIFY_COMBIN_FOLDER_DICT, BASE_VAR_REPLACE_DICT, SEPARATOR, ANNOTATION, ADDITIONAL, FREQUENCY_MIN_COMBIN, logger)
         else:
-            combin_folder_frequency_list_ = read_many_file_to_all(module, dir_combin_folder, dict_file_suffix,
-                                                                  BASE_VAR_REPLACE_DICT, SEPARATOR, ANNOTATION,
-                                                                  ADDITIONAL, FREQUENCY_MIN_COMBIN, logger)
+            combin_folder_frequency_list_ = read_many_file_to_all(module, dir_combin_folder, dict_file_suffix, BASE_VAR_REPLACE_DICT, SEPARATOR, ANNOTATION, ADDITIONAL, FREQUENCY_MIN_COMBIN, logger)
         logger.info("==================================================")
 
         # 4、读取笛卡尔积组合字典-文件,并进行规则解析+基本变量替换
         module = '笛卡尔积组合-文件'
         if SPECIFY_COMBIN_FILES_DICT:
             logger.error("[+] 已开启 COMBIN-FILES 目录下的指定字典文件读取 {}".format(SPECIFY_COMBIN_FILES_DICT))
-            combin_files_frequency_list_ = read_list_file_to_all(module, dir_combin_files, dict_file_suffix,
-                                                                 BASE_VAR_REPLACE_DICT, SEPARATOR, ANNOTATION,
-                                                                 ADDITIONAL, FREQUENCY_MIN_COMBIN, logger)
+            combin_files_frequency_list_ = read_list_file_to_all(module, dir_combin_files, dict_file_suffix, BASE_VAR_REPLACE_DICT, SEPARATOR, ANNOTATION, ADDITIONAL, FREQUENCY_MIN_COMBIN, logger)
         else:
-            combin_files_frequency_list_ = read_many_file_to_all(module, dir_combin_files, dict_file_suffix,
-                                                                 BASE_VAR_REPLACE_DICT, SEPARATOR, ANNOTATION,
-                                                                 ADDITIONAL, FREQUENCY_MIN_COMBIN, logger)
+            combin_files_frequency_list_ = read_many_file_to_all(module, dir_combin_files, dict_file_suffix, BASE_VAR_REPLACE_DICT, SEPARATOR, ANNOTATION, ADDITIONAL, FREQUENCY_MIN_COMBIN, logger)
         logger.info("==================================================")
 
         # 5、合并笛卡尔积组合-目录和笛卡尔积组合-文件的结果
-        combin_folder_files_list, run_time = combine_folder_list_and_files_list(combin_folder_frequency_list_,
-                                                                                combin_files_frequency_list_)
+        combin_folder_files_list, run_time = combine_folder_list_and_files_list(combin_folder_frequency_list_, combin_files_frequency_list_)
         logger.info(
-            "[*] 笛卡尔积组合-目录(元素{}个) * 文件(元素{}个) 组合结果: 当前元素 {} 个, 耗时 {} s".format(len(combin_folder_frequency_list_),
-                                                                               len(combin_files_frequency_list_),
-                                                                               len(combin_folder_files_list), run_time))
+            "[*] 笛卡尔积组合-目录(元素{}个) * 文件(元素{}个) 组合结果: 当前元素 {} 个, 耗时 {} s".format(len(combin_folder_frequency_list_), len(combin_files_frequency_list_), len(combin_folder_files_list), run_time))
         logger.info("==================================================")
     else:
         logger.error("[-] 已关闭 COMBIN-FOLDER 和 COMBIN-FILES 目录下的字典文件读取,本次不存在任何结果...")
@@ -540,9 +479,7 @@ def controller():
     list_all_fuzz_path.extend(combin_folder_files_list)
     list_all_fuzz_path = list(set(list_all_fuzz_path))
     if list_all_fuzz_path:
-        logger.info("[*] 合并直接路径列表(元素{}个) 及 笛卡尔积组合列表(元素{}个): 当前元素 {} 个".format(len(direct_path_frequency_list_),
-                                                                              len(combin_folder_files_list),
-                                                                              len(list_all_fuzz_path)))
+        logger.info("[*] 合并直接路径列表(元素{}个) 及 笛卡尔积组合列表(元素{}个): 当前元素 {} 个".format(len(direct_path_frequency_list_), len(combin_folder_files_list), len(list_all_fuzz_path)))
         logger.debug("[*] 合并后所有路径元素内容: {} ".format(list_all_fuzz_path))
     else:
         # 如果没有任何字典,直接跳出循环
@@ -558,7 +495,7 @@ def controller():
     # 对所有目标进行分析和二次渲染,然后拼接URL进行处理
     for target in list_all_target:
         # 输出当前扫描进度
-        logger.info("[+] 当前目标 {} 扫描任务进度 {}/{}...".format(target, list_all_target.index(target)+1, len(list_all_target)))
+        logger.info("[+] 当前目标 {} 扫描任务进度 {}/{}...".format(target, list_all_target.index(target) + 1, len(list_all_target)))
         logger.info("==================================================")
 
         # 排除已访问过的URL
@@ -570,12 +507,9 @@ def controller():
 
         logger.info("[+] 当前目标 {} 开始进行因变量规则提取、替换...".format(target))
         # 基于URL解析出因变量,再和初步处理的list_all_fuzz_path再次组合替换生成新的URL字典列表
-        domain_var_list = get_domain_words(target, ignore_ip_format=IGNORE_IP_FORMAT,
-                                           sysbol_replace_dict=DOMAIN_SYSBOL_REPLACE_DICT,
-                                           remove_not_path_symbol=REMOVE_NOT_PATH_SYMBOL,
+        domain_var_list = get_domain_words(target, ignore_ip_format=IGNORE_IP_FORMAT, sysbol_replace_dict=DOMAIN_SYSBOL_REPLACE_DICT, remove_not_path_symbol=REMOVE_NOT_PATH_SYMBOL,
                                            not_path_symbol=NOT_PATH_SYMBOL)
-        path_var_list = get_path_words(target, sysbol_replace_dict=PATH_SYSBOL_REPLACE_DICT,
-                                       remove_not_path_symbol=REMOVE_NOT_PATH_SYMBOL, not_path_symbol=NOT_PATH_SYMBOL)
+        path_var_list = get_path_words(target, sysbol_replace_dict=PATH_SYSBOL_REPLACE_DICT, remove_not_path_symbol=REMOVE_NOT_PATH_SYMBOL, not_path_symbol=NOT_PATH_SYMBOL)
 
         # 将因变量加入因变量替换字典
         DEPEND_VAR_REPLACE_DICT = {"%%DOMAIN%%": domain_var_list, "%%PATH%%": path_var_list}
@@ -585,8 +519,7 @@ def controller():
 
         # 如果开启了自定义替换变量,就在每个因变量的值内添加自定义变量
         if APPEND_CUSTOM_VAR and CUSTOME_REPLACE_VAR:
-            logger.info(
-                "[*] 当前目标 {} 因变量字典结果{} 需要追加自定义因变量 {}".format(target, DEPEND_VAR_REPLACE_DICT, CUSTOME_REPLACE_VAR))
+            logger.info("[*] 当前目标 {} 因变量字典结果{} 需要追加自定义因变量 {}".format(target, DEPEND_VAR_REPLACE_DICT, CUSTOME_REPLACE_VAR))
             for key in DEPEND_VAR_REPLACE_DICT.keys():
                 DEPEND_VAR_REPLACE_DICT[key].extend(CUSTOME_REPLACE_VAR)
 
@@ -599,16 +532,13 @@ def controller():
             list_one_target_url_path = list_all_fuzz_path
             logger.error("[+] 当前目标 {} 没有解析出任何因变量,本次跳过因变量替换...".format(target))
         else:
-            list_one_target_url_path, replace_count, run_time = replace_list_has_key_str(list_all_fuzz_path,
-                                                                                         DEPEND_VAR_REPLACE_DICT)
-            logger.info("[+] 当前目标 {} 因变量替换结束,本次解析规则 {} 次, 耗时 {} 秒 ,当前元素 {} 个".format(target, replace_count, run_time,
-                                                                                     len(list_one_target_url_path)))
+            list_one_target_url_path, replace_count, run_time = replace_list_has_key_str(list_all_fuzz_path, DEPEND_VAR_REPLACE_DICT)
+            logger.info("[+] 当前目标 {} 因变量替换结束,本次解析规则 {} 次, 耗时 {} 秒 ,当前元素 {} 个".format(target, replace_count, run_time, len(list_one_target_url_path)))
         logger.info("==================================================")
 
         # 剔除没有被成功替换的关键字变量的路径 #任何时候都会存在没有被替换的变量
         logger.info("[*] 目标 {} 开始剔除路径列表中存在变量的路径 原有字典 [{}]条...".format(target, len(list_one_target_url_path)))
-        list_one_target_url_path = remove_list_none_render_value(list_one_target_url_path, ALL_REPLACE_KEY,
-                                                                 logger=logger)
+        list_one_target_url_path = remove_list_none_render_value(list_one_target_url_path, ALL_REPLACE_KEY, logger=logger)
         logger.info("[*] 目标 {} 完成剔除路径列表中存在变量的路径 当前字典 [{}]条...".format(target, len(list_one_target_url_path)))
         logger.info("==================================================")
 
@@ -630,8 +560,7 @@ def controller():
 
         # 是否开启结尾字符列表去除
         if REMOVE_END_SYMBOL_SWITCH:
-            list_one_target_url_path = url_remove_end_symbol(list_one_target_url_path,
-                                                             remove_symbol_list=REMOVE_SYMBOL_LIST)
+            list_one_target_url_path = url_remove_end_symbol(list_one_target_url_path, remove_symbol_list=REMOVE_SYMBOL_LIST)
             logger.info(
                 "[*] 当前目标 {} 已开启结尾字符 {} 删除,当前元素 {}个".format(target, REMOVE_SYMBOL_LIST, len(list_one_target_url_path)))
             logger.info("==================================================")
@@ -657,28 +586,20 @@ def controller():
         test_url_path_list = combine_one_target_and_path_list(target, TEST_PATH_LIST)
 
         # 访问测试路径列表,返回测试结果
-        test_path_result_dict[target] = multi_threaded_requests_url(test_url_path_list,
-                                                                    threads_count=config.threads_count,
-                                                                    proxies=config.proxies, cookies=COOKIES,
-                                                                    headers=HEADERS, timeout=HTTP_TIMEOUT,
-                                                                    stream=HTTP_STREAM, verify=ALLOW_SSL_VERIFY,
-                                                                    allow_redirects=ALLOW_REDIRECTS,
-                                                                    dynamic_host_header=DYNAMIC_HOST_HEADER,
-                                                                    dynamic_refer_header=DYNAMIC_REFER_HEADER,
-                                                                    retry_times=RETRY_TIMES, logger=logger,
-                                                                    encode_all_path=ENCODE_ALL_PATH)
+        test_path_result_dict[target] = multi_threaded_requests_url(test_url_path_list, threads_count=config.threads_count, proxies=config.proxies, cookies=COOKIES,
+                                                                    headers=HEADERS, timeout=HTTP_TIMEOUT, stream=HTTP_STREAM, verify=ALLOW_SSL_VERIFY,
+                                                                    allow_redirects=ALLOW_REDIRECTS, dynamic_host_header=DYNAMIC_HOST_HEADER, dynamic_refer_header=DYNAMIC_REFER_HEADER,
+                                                                    retry_times=RETRY_TIMES, logger=logger, encode_all_path=ENCODE_ALL_PATH)
 
         # 提取测试路径响应结果对比项
         # 确定各个URL的对比参数 #dynamic_exclusion_dictionary存储对比参数
         # {"target":{"resp_content_length":"xxx","resp_text_size":"xxx","resp_bytes_head":"xxx"}}
         dynamic_exclude_dict = handle_test_result_dict(test_path_result_dict, FILTER_MOUDLE_DEFAULT_VALUE_DICT, logger)
-        logger.info("[+] 当前目标 {} 所有测试URL访问结果筛选完毕 动态结果排除字典内容 [{}]".format(target,
-                                                                         dynamic_exclude_dict if dynamic_exclude_dict else "无"))
+        logger.info("[+] 当前目标 {} 所有测试URL访问结果筛选完毕 动态结果排除字典内容 [{}]".format(target, dynamic_exclude_dict if dynamic_exclude_dict else "无"))
 
         # 针对每个目标的最终字典开始进行请求处理的结束时间
         test_executor_end_time = time.time()
-        logger.info("[*] 当前目标 {} 的所有测试路径URL进程访问完毕,过程耗时[{}]...".format(target,
-                                                                      test_executor_end_time - test_executor_start_time))
+        logger.info("[*] 当前目标 {} 的所有测试路径URL进程访问完毕,过程耗时[{}]...".format(target, test_executor_end_time - test_executor_start_time))
         logger.info("==================================================")
 
         # 是否对URL路径进行分解,分解模式下一个多目录层级的URL能够变成多个目标
@@ -686,12 +607,10 @@ def controller():
         # 是否开启多目标模式,多目标模式下一个目标会根据目标目录层级拆分为多个目标
         if MULTI_TARGET_PATH_MODE:
             target_url_list = get_segments(target)
-            logger.info(
-                "[*] 当前目标 {} 正处于多目标模式,扩展生成目标URL {} 个 :{} ".format(target, len(target_url_list), target_url_list))
+            logger.info("[*] 当前目标 {} 正处于多目标模式,扩展生成目标URL {} 个 :{} ".format(target, len(target_url_list), target_url_list))
         else:
             target_url_list.append(target)
-            logger.info(
-                "[*] 当前目标 {} 正处于单目标模式,扩展生成目标URL {} 个 :{} ".format(target, len(target_url_list), target_url_list))
+            logger.info("[*] 当前目标 {} 正处于单目标模式,扩展生成目标URL {} 个 :{} ".format(target, len(target_url_list), target_url_list))
         logger.info("==================================================")
 
         # 组合URL列表和动态路径列表
@@ -703,8 +622,7 @@ def controller():
         # 保留指定后缀的URL目标 # store_specify_ext(url_list_, ext_list_)
         if STORE_SPECIFY_EXT_SWITCH and STORE_SPECIFY_EXT_LIST:
             target_url_path_list = store_specify_ext(target_url_path_list, STORE_SPECIFY_EXT_LIST)
-            logger.error("[*] 当前目标 {} 已开启保存指定后缀 {} 功能,最终提取URL数量:[{}]个".format(target, STORE_SPECIFY_EXT_LIST,
-                                                                              len(target_url_path_list)))
+            logger.error("[*] 当前目标 {} 已开启保存指定后缀 {} 功能,最终提取URL数量:[{}]个".format(target, STORE_SPECIFY_EXT_LIST, len(target_url_path_list)))
             logger.info("==================================================")
 
         # 移除指定后缀列表的内容 # delete_specify_ext(url_list_, ext_list_)
@@ -740,35 +658,25 @@ def controller():
         # 存储URL请求函数的返回结果 real_path_result_dict = { "target":["http://x.x.x.x",] }
         real_path_result_dict[target] = []
         # 对URL列表进行访问测试,返回响应结果列表
-        real_path_result_dict[target] = multi_threaded_requests_url(target_url_path_list,
-                                                                    threads_count=config.threads_count,
-                                                                    proxies=config.proxies, cookies=COOKIES,
-                                                                    headers=HEADERS, timeout=HTTP_TIMEOUT,
-                                                                    stream=HTTP_STREAM, verify=ALLOW_SSL_VERIFY,
-                                                                    allow_redirects=ALLOW_REDIRECTS,
-                                                                    dynamic_host_header=DYNAMIC_HOST_HEADER,
-                                                                    dynamic_refer_header=DYNAMIC_REFER_HEADER,
-                                                                    retry_times=RETRY_TIMES, logger=logger,
-                                                                    encode_all_path=ENCODE_ALL_PATH)
+        real_path_result_dict[target] = multi_threaded_requests_url(target_url_path_list, threads_count=config.threads_count, proxies=config.proxies, cookies=COOKIES,
+                                                                    headers=HEADERS, timeout=HTTP_TIMEOUT, stream=HTTP_STREAM, verify=ALLOW_SSL_VERIFY,
+                                                                    allow_redirects=ALLOW_REDIRECTS, dynamic_host_header=DYNAMIC_HOST_HEADER, dynamic_refer_header=DYNAMIC_REFER_HEADER,
+                                                                    retry_times=RETRY_TIMES, logger=logger, encode_all_path=ENCODE_ALL_PATH)
         logger.info("==================================================")
         # 针对每个目标进行请求处理的结束时间
         target_exec_end_time = time.time()
         logger.info("[*] 当前目标 {} 所有URL进程访问完毕,过程耗时[{}]...".format(target, target_exec_end_time - target_exec_start_time))
         logger.info("==================================================")
         logger.info("[+] 当前目标 {} 开始处理所有URL访问测试结果 结果自动筛选分类中...".format(target))
-        write_tuple_result = handle_real_result_dict(real_path_result_dict, logger, EXCLUDE_STATUS, EXCLUDE_REGEXP,
-                                                     dynamic_exclude_dict, EXCLUDE_DYNAMIC_SWITCH,
-                                                     FILTER_MOUDLE_DEFAULT_VALUE_DICT)
+        write_tuple_result = handle_real_result_dict(real_path_result_dict, logger, EXCLUDE_STATUS, EXCLUDE_REGEXP, dynamic_exclude_dict, EXCLUDE_DYNAMIC_SWITCH, FILTER_MOUDLE_DEFAULT_VALUE_DICT)
         logger.info("==================================================")
         if SAVE_HIT_RESULT:
             logger.info("[+] 当前目标 {} 已开启命中结果保存...".format(target))
             if write_tuple_result:
                 logger.info("[+] 当前目标 {} 开始将命中的结果 {} 写入到命中文件中...".format(target, write_tuple_result))
                 write_url_list = [tuple[0] for tuple in write_tuple_result]
-                write_flag = auto_analyse_hit_result_and_write_file(write_url_list, BASE_VAR_REPLACE_DICT,
-                                                                    DEPEND_VAR_REPLACE_DICT, HIT_EXT_PATH,
-                                                                    HIT_DIRECT_PATH, HIT_FOLDER_PATH, HIT_FILES_PATH,
-                                                                    logger, HIT_OVERWRITE_MODE)
+                write_flag = auto_analyse_hit_result_and_write_file(write_url_list, BASE_VAR_REPLACE_DICT, DEPEND_VAR_REPLACE_DICT, HIT_EXT_PATH, HIT_DIRECT_PATH, HIT_FOLDER_PATH, HIT_FILES_PATH, logger,
+                                                                    HIT_OVERWRITE_MODE)
                 if not write_flag:
                     logger.error("[!] 当前目标 {} 命中结果写入时发生错误...".format(target))
             else:

@@ -43,9 +43,8 @@ def handle_error(url, common_error_list, module, error, logger):
         logger.error("[-] 当前目标 {} OTHERS ERROR ON Acquire {}: {}".format(url, module, error))
 
 
-def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False, proxies=None, headers=None,
-                  verify=False, allow_redirects=False, dynamic_host_header=True, dynamic_refer_header=True,
-                  retry_times=0, logger=None, encode='utf-8', encode_all_path=True):
+def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False, proxies=None, headers=None, verify=False, allow_redirects=False,
+                  dynamic_host_header=True, dynamic_refer_header=True, retry_times=0, logger=None, encode='utf-8', encode_all_path=True):
     if not headers:
         headers = {
             'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)',
@@ -104,11 +103,8 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
                     logger.error("[-] 当前目标 {} 即将修改请求头为默认头后进行重试!!!".format(url))
 
                 logger.debug("[-] 当前目标 {} 开始进行倒数第 {} 次重试,(HTTP_TIMEOUT = HTTP_TIMEOUT * 1.5)...".format(url, retry_times))
-                result = requests_plus(method=method, url=url, proxies=proxies, cookies=cookies, headers=headers,
-                                       timeout=timeout * 1.5, verify=verify, allow_redirects=allow_redirects,
-                                       dynamic_host_header=dynamic_host_header,
-                                       dynamic_refer_header=dynamic_refer_header,
-                                       retry_times=retry_times - 1, logger=logger, encode=encode)
+                result = requests_plus(method=method, url=url, proxies=proxies, cookies=cookies, headers=headers,timeout=timeout * 1.5, verify=verify, allow_redirects=allow_redirects,
+                                       dynamic_host_header=dynamic_host_header, dynamic_refer_header=dynamic_refer_header, retry_times=retry_times - 1, logger=logger, encode=encode)
             else:
                 # 如果重试次数为小于0,返回固定结果-1
                 result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
@@ -225,7 +221,6 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
             # 如果没有开启编码所有路径的选项,就可以考虑单独对URL解码
             # 仅对没有编码的情况进行解码,如果GB2312编码了，但是UTF8解码会报错的。
             url = urllib.parse.unquote(url, encoding=encode)  # 解码为/备份.zip成功
-        #############################################################
         """
         result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
         logger.debug("[*] 当前目标 {} 请求返回结果集合:{}".format(url, result))

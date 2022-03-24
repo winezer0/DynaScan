@@ -216,8 +216,7 @@ def read_file_to_list_de_weight(file_name, encoding='utf-8'):
 
 
 # 读取一个文件内容并返回结果字典 {"路径”:频率}
-def read_file_to_dict_with_frequency(file_name, encoding='utf-8', separator='frequency==', annotation='#',
-                                     additional=True):
+def read_file_to_dict_with_frequency(file_name, encoding='utf-8', separator='frequency==', annotation='#', additional=True):
     """
     读取文件内容并返回结果字典
     文件的每一行格式类似 path separator==10
@@ -259,8 +258,7 @@ def read_file_to_dict_with_frequency(file_name, encoding='utf-8', separator='fre
 
 
 # 读取多个文件内容并返回结果字典 {"路径”:频率}
-def read_many_file_to_dict_with_frequency(base_dir='.', list_dir_base_file=[], separator='frequency==', annotation='#',
-                                          additional=True):  # 存储所有字典及其对应键值对
+def read_many_file_to_dict_with_frequency(base_dir='.', list_dir_base_file=[], separator='frequency==', annotation='#', additional=True):  # 存储所有字典及其对应键值对
     # 存储所有字典及其对应键值对
     frequency_dict_ = {}
     # 实现多个文件的分步读取,但是频率叠加
@@ -289,13 +287,7 @@ def get_key_list_with_frequency(frequency_dict={}, frequency=1, frequency_max=99
 
 ########字典列表处理相关######################
 # 读取字典文件列表、进行规则解析、进行基本变量替换
-def read_list_file_to_all(module, dir_path='.',
-                          list_dir_file=[],
-                          replace_dict={},
-                          separator='frequency==',
-                          annotation='#',
-                          additional=True, frequency=1,
-                          logger=None):
+def read_list_file_to_all(module, dir_path='.', list_dir_file=[], replace_dict={}, separator='frequency==', annotation='#', additional=True, frequency=1, logger=None):
     """
     read_list_file_to_dict_with_frequency_and_rule_parse_and_replace_base_var
     # 1、一次性读取多个文件,并叠加频率参数
@@ -346,8 +338,7 @@ def read_list_file_to_all(module, dir_path='.',
 
 
 # 读取多个字典文件、进行规则解析、进行基本变量替换
-def read_many_file_to_all(module, dir_path='.', dict_file_suffix='.lst', replace_dict={}, separator='frequency==',
-                          annotation='#', additional=True, frequency=1, logger=None):
+def read_many_file_to_all(module, dir_path='.', dict_file_suffix='.lst', replace_dict={}, separator='frequency==', annotation='#', additional=True, frequency=1, logger=None):
     """
     read_many_file_to_dict_with_frequency_and_rule_parse_and_replace_base_var
     # 1、获取目录下存在的文件名列表
@@ -595,8 +586,7 @@ def list_in_str(list=[], string=""):
 # 保留文件中指定后缀的URL
 ############URL解析处理相关###############
 # 从URL中获取域名相关的单词列表
-def get_domain_words(url, ignore_ip_format=True, sysbol_replace_dict={}, remove_not_path_symbol=True,
-                     not_path_symbol=[':']):
+def get_domain_words(url, ignore_ip_format=True, sysbol_replace_dict={}, remove_not_path_symbol=True, not_path_symbol=[':']):
     """
     从URL中获取域名相关的单词
     print(get_basedomain('http://www.baidu.com/xxx.aspx?p=123'))  # ['www.baidu.com', 'baidu.com', 'baidu']
@@ -686,9 +676,11 @@ def store_specify_ext(url_list_, ext_list_):
             for url in url_list_:
                 ext = get_url_extion(url)
                 # 对于没有后缀的扩展也保留
-                if not ext: new_url_list_.append(url)
+                if not ext:
+                    new_url_list_.append(url)
                 # 如果URL后缀不在排除列表内,就保留这个URL,
-                elif ext not in ext_list_: new_url_list_.append(url)
+                elif ext not in ext_list_:
+                    new_url_list_.append(url)
         except Exception as error:
             print("[-] 获取后缀进行列表匹配时发生错误!!! Error: {}".format(error))
             new_url_list_ = url_list_
@@ -705,9 +697,11 @@ def delete_specify_ext(url_list_, ext_list_):
             for url in url_list_:
                 ext = get_url_extion(url)
                 # 对于没有后缀的扩展也保留
-                if not ext: new_url_list_.append(url)
+                if not ext:
+                    new_url_list_.append(url)
                 # 如果URL后缀在EXT列表内,也保留这个URL
-                elif ext in ext_list_: new_url_list_.append(url)
+                elif ext in ext_list_:
+                    new_url_list_.append(url)
         except Exception as error:
             print("[-] 获取后缀进行列表匹配时发生错误!!! Error: {}".format(error))
             new_url_list_ = url_list_
@@ -883,8 +877,7 @@ def url_to_raw_rule(url_list=[], BASE_VAR_REPLACE_DICT={}, DEPEND_VAR_REPLACE_DI
 
 
 # 将命中的结果写入到文件中
-def write_hit_result_to_file_with_frequency(file_name=None, result_list=[], logger=None, encoding='utf-8',
-                                            separator='frequency==', additional=True, hit_overwrite_mode=True):
+def write_hit_result_to_file_with_frequency(file_name=None, result_list=[], logger=None, encoding='utf-8', separator='frequency==', additional=True, hit_overwrite_mode=True):
     if not hit_overwrite_mode:
         logger.info(
             "[+] 简单追加记录 HIT_OVERWRITE_MODE == {} 文件: {} 内容: {}".format(hit_overwrite_mode, file_name, result_list))
@@ -923,9 +916,7 @@ def write_hit_result_to_file_with_frequency(file_name=None, result_list=[], logg
 
 
 # 自动解析命中结果,并将命中结果写入到文件中
-def auto_analyse_hit_result_and_write_file(url_list, BASE_VAR_REPLACE_DICT, DEPEND_VAR_REPLACE_DICT, hit_ext_path,
-                                           hit_direct_path, hit_folder_path, hit_files_path, logger,
-                                           hit_overwrite_mode):
+def auto_analyse_hit_result_and_write_file(url_list, BASE_VAR_REPLACE_DICT, DEPEND_VAR_REPLACE_DICT, hit_ext_path, hit_direct_path, hit_folder_path, hit_files_path, logger, hit_overwrite_mode):
     # 自动将命中结果写入到文件中
     try:
         result_add_dict = url_to_raw_rule(url_list, BASE_VAR_REPLACE_DICT, DEPEND_VAR_REPLACE_DICT)

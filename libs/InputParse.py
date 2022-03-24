@@ -31,25 +31,17 @@ class ParserCmd(object):
                           \r  
                           """
 
-        parser = argparse.ArgumentParser(
-            formatter_class=argparse.RawDescriptionHelpFormatter,  # 使 example 支持换行
-            add_help=True,
-        )
+        parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, add_help=True,)
         parser.epilog = example.format(shell_name=parser.prog, version=version)
-        parser.add_argument("-u", dest="target", type=str, default=None,  # 发布时需要改为 default=None
-                            help="指定扫描目标URL, Example: http://www.baidu.com")
+        parser.add_argument("-u", dest="target", type=str, default=None, help="指定扫描目标URL, Example: http://www.baidu.com")
 
-        parser.add_argument("-f", dest="target_file", type=str, default=None, # 发布时需要改为 default=None
-                            help="指定扫描目标URL文件, Example: target.txt")
+        parser.add_argument("-f", dest="target_file", type=str, default=None, help="指定扫描目标URL文件, Example: target.txt")
 
-        parser.add_argument("-p", dest="proxy", type=str, default=None,
-                            help="指定请求时使用的HTTPS或SOCKS5的代理, Example: http://127.0.0.1:8080 or socks5://127.0.0.1:1080")
+        parser.add_argument("-p", dest="proxy", type=str, default=None, help="指定请求时使用的HTTPS或SOCKS5的代理, Example: http://127.0.0.1:8080 or socks5://127.0.0.1:1080")
 
-        parser.add_argument("-t", dest="threads_count", type=int, default=None,
-                            help="指定多线程池的最大线程数")
+        parser.add_argument("-t", dest="threads_count", type=int, default=None, help="指定多线程池的最大线程数")
 
-        parser.add_argument("-d", dest="debug", default=False, action="store_true",  # 发布时需要改为 default=False
-                            help="显示程序运行时的所有调试信息,默认关闭")
+        parser.add_argument("-d", dest="debug", default=False, action="store_true", help="显示程序运行时的所有调试信息,默认关闭")
 
         parser.add_argument("-v", "--version", action="version", version=get_version(), help="显示程序当前版本号")
         return parser
