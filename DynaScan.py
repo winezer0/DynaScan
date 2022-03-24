@@ -205,7 +205,7 @@ def removes_the_url_from_the_visited_list(have_proto_head_host, visited_target_l
     tmp_have_proto_head_host = []
     for target in have_proto_head_host:
         if target in visited_target_list:
-            logger.error("[-] 当前目标 {} 已在访问记录内,不再进行访问测试,可通过删除记录文件或关闭功能开关解决".format(target))
+            logger.debug("[-] 当前目标 {} 已在访问记录内,不再进行访问测试,可通过删除记录文件或关闭功能开关解决".format(target))
         else:
             tmp_have_proto_head_host.append(target)
     else:
@@ -233,8 +233,8 @@ def attempt_add_proto_and_access(list_all_target, logger):
             have_proto_head_host.append(target)
         else:
             none_proto_head_host.append(target)
-    logger.info("[*] 目标列表中带有协议头的目标 {}个: {}".format(len(have_proto_head_host), have_proto_head_host))
-    logger.info("[*] 目标列表中没有协议头的目标 {}个: {}".format(len(none_proto_head_host), none_proto_head_host))
+    logger.info("[*] 目标列表中带有协议头的目标 {}个 {}".format(len(have_proto_head_host), have_proto_head_host))
+    logger.info("[*] 目标列表中没有协议头的目标 {}个 {}".format(len(none_proto_head_host), none_proto_head_host))
 
     # 对none_proto_head_host里面的目标进行格式处理
     if none_proto_head_host:
@@ -245,23 +245,31 @@ def attempt_add_proto_and_access(list_all_target, logger):
 
     # 对所有URL目标进行去重处理
     have_proto_head_host = list(set(have_proto_head_host))
-    logger.info("[*] 所有目标格式化后剩余目标 {}个: {}".format(len(have_proto_head_host), have_proto_head_host))
+    logger.info("[*] 所有目标格式化后剩余目标 {}个 {}".format(len(have_proto_head_host), have_proto_head_host))
 
     # 排除URL目标中已访问过的URL
-    if EXCLUDE_VISITED_TARGET_SWITCH:
-        logger.info("[*] 已开启已访问URL筛选,当前正在筛选格式化后的目标列表...")
-        have_proto_head_host = removes_the_url_from_the_visited_list(have_proto_head_host, VISITED_TARGET_LIST, logger)
-        logger.info("[*] 所有目标进行已访问URL筛选剩余目标 {}个: {}".format(len(have_proto_head_host), have_proto_head_host))
+    if EXCLUDE_ACCESSIBLE_VISITED_RECORD:
+        logger.info("[*] 已开启可访问的已测试URL筛选,当前正在筛选格式化后的目标列表...")
+        have_proto_head_host = removes_the_url_from_the_visited_list(have_proto_head_host, ACCESSIBLE_VISITED_TARGET_LIST, logger)
+        logger.info("[*] 所有目标进行可访问的已测试URL筛选后剩余目标 {}个 {}".format(len(have_proto_head_host), have_proto_head_host))
+
+    if EXCLUDE_INACCESSIBLE_VISITED_RECORD:
+        logger.info("[*] 已开启不可访问的已测试URL筛选,当前正在筛选格式化后的目标列表...")
+        have_proto_head_host = removes_the_url_from_the_visited_list(have_proto_head_host, INACCESSIBLE_VISITED_TARGET_LIST, logger)
+        logger.info("[*] 所有目标进行不可访问的已测试URL筛选后剩余目标 {}个 {}".format(len(have_proto_head_host), have_proto_head_host))
 
     # 存储最终的URL列表
     new_list_all_target = []
+    # 存储最终的不可访问的URL列表
+    inaccessible_all_target = []
+
     if not ACCESS_ADD_PROTO_HEAD:
         # 不对URL进行访问追加,而是直接进行追加。
-        logger.info("[*] 协议头访问识别模式开关: {},添加http与https目标 {}个: 列表 {}".format(ACCESS_ADD_PROTO_HEAD, len(have_proto_head_host), have_proto_head_host))
+        logger.info("[*] 协议头访问识别模式开关: {},添加http与https目标 {}个 {}".format(ACCESS_ADD_PROTO_HEAD, len(have_proto_head_host), have_proto_head_host))
         new_list_all_target.extend(have_proto_head_host)
     else:
         # 对URL进行访问测试,通过访问测试的项目才追加到最终目标内
-        logger.info("[*] 协议头访问识别模式开关: {},即将进行URL访问检测,目标 {}个: 列表 {}".format(ACCESS_ADD_PROTO_HEAD, len(have_proto_head_host), have_proto_head_host))
+        logger.info("[*] 协议头访问识别模式开关: {}, 即将进行URL访问检测请等待... 目标 {}个 {}".format(ACCESS_ADD_PROTO_HEAD, len(have_proto_head_host), have_proto_head_host))
         target_proto_result_list = multi_threaded_requests_url(have_proto_head_host, threads_count=config.threads_count, proxies=config.proxies, cookies=COOKIES,
                                                                headers=HEADERS, timeout=5, stream=HTTP_STREAM, verify=ALLOW_SSL_VERIFY, allow_redirects=ALLOW_REDIRECTS,
                                                                dynamic_host_header=DYNAMIC_HOST_HEADER, dynamic_refer_header=DYNAMIC_REFER_HEADER,
@@ -272,13 +280,15 @@ def attempt_add_proto_and_access(list_all_target, logger):
             for tuple in target_proto_result_list:
                 url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
                 if resp_status > 0:
-                    logger.info("[*] 当前目标 {} 即将被添加 响应结果 {} ".format(url, tuple))
+                    logger.info("[*] 当前目标 {} 即将被添加...  响应结果 {} ".format(url, tuple[1:]))
                     new_list_all_target.append(url)
                 else:
-                    logger.error("[*] 当前目标 {} 即将被忽略 响应结果 {} ".format(url, tuple))
+                    logger.error("[-] 当前目标 {} 即将被忽略... 响应结果 {} ".format(url, tuple[1:]))
+                    inaccessible_all_target.append(url)
         else:
             # 复杂的判断模式
             logger.info("[*] 当前使用响应结果比较模式,对访问结果进行筛选,严格判断最终协议头...")
+
             # 先拆分结果列表的URL,相同HOST的分为一个组
             muilt_target_proto_result_dict = {}  # 多目标协议结果字典{"host":[(结果1),(结果2),(不应该有结果3)]}
             for tuple in target_proto_result_list:
@@ -288,39 +298,56 @@ def attempt_add_proto_and_access(list_all_target, logger):
                     muilt_target_proto_result_dict[host_port].append(tuple)
                 else:
                     muilt_target_proto_result_dict[host_port] = [tuple]
-            logger.info("[*] 响应结果字典:{}".format(muilt_target_proto_result_dict))
+            logger.info("[*] 响应结果拆分后字典:{}".format(muilt_target_proto_result_dict))
 
             # 对拆分的结果进行遍历比较
             for target, target_proto_result_list in muilt_target_proto_result_dict.items():
                 # 如果只有一个结果就说明被排除了一个,此时直接加入最终列表,
                 if len(target_proto_result_list) == 1:
-                    url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = target_proto_result_list[0]
+                    tuple = target_proto_result_list[0]
+                    url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
                     if resp_status > 0:
-                        logger.info("[*] 当前目标 {} 仅剩余1个URL访问结果,响应状态码为 {} ,本次将添加URL {}".format(target, resp_status, url))
+                        logger.info("[*] 当前目标 {} 响应状态码 {} 即将被添加 响应结果 {}".format(url, resp_status, tuple[1:]))
                         new_list_all_target.append(url)
+                    else:
+                        logger.error("[*] 当前目标 {} 响应状态码 {} 即将被忽略 响应结果 {}".format(url, resp_status, tuple[1:]))
+                        inaccessible_all_target.append(url)
+
                 # 如果目标存在两个结果,说明http和https都没有被排除,
                 elif len(target_proto_result_list) >= 2:
                     # 是否除了URL,其他所有的返回内容都相同,如果是的话,仅返回http协议即可
                     if two_tuple_list_value_equal(target_proto_result_list):
                         # 两个协议的访问结果相同
-                        # tuple = target_proto_result_list[0]
+                        tuple = target_proto_result_list[0]
                         # tuple_result_format = "%s," * len(tuple) + "\n"
                         # url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
-                        url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = target_proto_result_list[0]
+                        url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
                         if resp_status > 0:
-                            logger.info("[*] 当前目标 {} 使用两个协议进行访问测试时结果相同,响应状态码为 {} ,本次将添加 http://{}".format(target, resp_status, target))
+                            url = "http://{}".format(target)
+                            logger.info("[*] 当前目标 {} 使用两个协议进行访问测试时结果相同,响应状态码为 {} ,即将添加 {}".format(target, resp_status, url))
                             new_list_all_target.append(url)
                         else:
-                            logger.error("[-] 当前目标 {} 使用两个协议进行访问测试时结果相同,但响应状态码 {} ,本次目标将被过滤...".format(target, resp_status))
+                            logger.error("[-] 当前目标 {} 使用两个协议进行访问测试时结果相同,且响应状态码 {} ,即将忽略 响应结果{}".format(target, resp_status, tuple[1:]))
+                            for tuple in target_proto_result_list:
+                                url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
+                                inaccessible_all_target.append(url)
                     else:
                         # 两个协议的访问结果不相同
                         for tuple in target_proto_result_list:
                             url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple
                             if resp_status > 0:
-                                logger.info("[*] 当前目标 {} 使用两个协议进行访问测试时结果不相同,URL {} 状态码为 {} ,将被添加...".format(target, url, resp_status))
+                                logger.info("[*] 当前目标 {} 使用两个协议进行访问测试时结果不同, {} 状态码为 {} ,将被添加...".format(target, url, resp_status))
                                 new_list_all_target.append(url)
                             else:
-                                logger.error("[-] 当前目标 {} 使用两个协议进行访问测试时结果不相同,URL {} 状态码为 {} ,将被过滤...".format(target, url, resp_status))
+                                logger.error("[-] 当前目标 {} 使用两个协议进行访问测试时结果不同, {} 状态码为 {} ,将被过滤 响应结果 {}".format(target, url, resp_status, tuple))
+                                inaccessible_all_target.append(url)
+    # 记录不可访问的URL
+    if inaccessible_all_target:
+        with open(inaccessible_target_visited_record_file, 'a+', encoding='utf-8') as file_open:
+            for inaccessible_url in inaccessible_all_target:
+                file_open.write(inaccessible_url + '\n')
+        logger.error("[+] 所有不可访问URL目标 即将写入不可访问的已访问URL记录文件 {} 元素 {}个 {}".format(inaccessible_target_visited_record_file, len(inaccessible_all_target), inaccessible_all_target))
+
     return new_list_all_target
 
 
@@ -362,12 +389,12 @@ def controller():
         logger.error("[-] 未输入任何有效目标,即将退出程序...")
         sys.exit()
     else:
-        logger.info("[*] 所有初步输入目标 {}个: {}".format(len(list_all_target), list_all_target))
+        logger.info("[*] 所有初步输入目标 {}个 {}".format(len(list_all_target), list_all_target))
         # 尝试对输入的目标进行初次过滤、添加协议头、访问测试等处理
         # 临时注释,加快调试时间
         list_all_target = attempt_add_proto_and_access(list_all_target, logger)
         list_all_target = list(set(list_all_target))
-        logger.info("[+] 所有有效输入目标 {}个: {}".format(len(list_all_target), list_all_target))
+        logger.info("[+] 所有有效输入目标 {}个 {}".format(len(list_all_target), list_all_target))
     logger.info("==================================================")
     # 初次字典规则替换渲染开始时间
     render_1_start_time = time.time()
@@ -404,7 +431,7 @@ def controller():
         # 将命中扩展追加到所有基本键值对中
         if APPEND_HIT_EXT and frequency_list_hit: frequency_list_.extend(frequency_list_hit)
         if frequency_list_: BASE_VAR_REPLACE_DICT[var_str] = frequency_list_
-        logger.info("[*] 基本替换变量 {} 有效替换元素 {} 个 详情: {}".format(var_str, len(frequency_list_), frequency_list_))
+        logger.info("[*] 基本替换变量 {} 有效替换元素 {} 个 {}".format(var_str, len(frequency_list_), frequency_list_))
     logger.info("==================================================")
     # 将基本变量关键字加入全局替换关键字列表,用于最后检测请求URL是否没有替换成功
     ALL_REPLACE_KEY.extend(BASE_VAR_REPLACE_DICT.keys())
@@ -499,8 +526,8 @@ def controller():
         logger.info("==================================================")
 
         # 排除已访问过的URL
-        if EXCLUDE_VISITED_TARGET_SWITCH:
-            if target in VISITED_TARGET_LIST:
+        if EXCLUDE_ACCESSIBLE_VISITED_RECORD:
+            if target in ACCESSIBLE_VISITED_TARGET_LIST:
                 logger.error("[-] 当前目标 {} 已在访问记录文件内,不再进行访问,可通过删除记录文件或关闭功能开关解决".format(target))
                 logger.info("==================================================")
                 continue
@@ -607,10 +634,10 @@ def controller():
         # 是否开启多目标模式,多目标模式下一个目标会根据目标目录层级拆分为多个目标
         if MULTI_TARGET_PATH_MODE:
             target_url_list = get_segments(target)
-            logger.info("[*] 当前目标 {} 正处于多目标模式,扩展生成目标URL {} 个 :{} ".format(target, len(target_url_list), target_url_list))
+            logger.info("[*] 当前目标 {} 正处于多目标模式,扩展生成目标URL {} 个 {} ".format(target, len(target_url_list), target_url_list))
         else:
             target_url_list.append(target)
-            logger.info("[*] 当前目标 {} 正处于单目标模式,扩展生成目标URL {} 个 :{} ".format(target, len(target_url_list), target_url_list))
+            logger.info("[*] 当前目标 {} 正处于单目标模式,扩展生成目标URL {} 个 {} ".format(target, len(target_url_list), target_url_list))
         logger.info("==================================================")
 
         # 组合URL列表和动态路径列表
@@ -684,9 +711,9 @@ def controller():
         else:
             logger.error("[-] 当前目标 {} 已关闭命中结果保存功能...".format(target))
         logger.info("==================================================")
-        with open(visited_target_file_path, 'a+', encoding='utf-8') as file_open:
+        with open(accessible_target_visited_record_file, 'a+', encoding='utf-8') as file_open:
             file_open.write(target + '\n')
-            logger.info("[+] 当前目标 {} 已写入已访问URL记录文件 {}".format(target, visited_target_file_path))
+            logger.info("[+] 当前目标 {} 已写入已访问URL记录文件 {}".format(target, accessible_target_visited_record_file))
             logger.info("==================================================")
 
     # 程序整体运行结束的时间

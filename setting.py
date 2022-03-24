@@ -26,7 +26,7 @@ config.debug = False  # True False
 TEST_MODE_HANDLE = False  # True False
 ##################################################################
 # 版本号配置
-version = "Ver 0.1.2 2022-03-23 12:00"
+version = "Ver 0.1.3 2022-03-25 03:09"
 ##################################################################
 # 中文路径、特殊字符会以列表内的编码作为基础编码，再进行URL编码
 ALL_BASE_ENCODE = ['utf-8', 'gbk']
@@ -81,14 +81,24 @@ dbg_log_file_path = log_file_path.replace('module', 'debug')
 err_log_file_path = log_file_path.replace('module', 'error')
 
 # 记录已完成扫描的目标 # 固定命名,不需要添加时间戳
-visited_target_file_path = str(BASE_DIR.joinpath("runtime/runtime_module.log")).replace('module', 'visited')
+# 可访问目标已访问记录
+accessible_target_visited_record_file = str(BASE_DIR.joinpath("runtime/runtime_module.log")).replace('module', 'visited_accessible')
+# 不可访问目标已访问记录
+inaccessible_target_visited_record_file = str(BASE_DIR.joinpath("runtime/runtime_module.log")).replace('module', 'visited_inaccessible')
 
-# 扫描时是否排除已扫描的目标
-EXCLUDE_VISITED_TARGET_SWITCH = True
-VISITED_TARGET_LIST = []
+# 扫描时是否排除可访问目标的测试记录
+EXCLUDE_ACCESSIBLE_VISITED_RECORD = True
+ACCESSIBLE_VISITED_TARGET_LIST = []
 # 读取命中记录文件
-if EXCLUDE_VISITED_TARGET_SWITCH and file_is_exist(visited_target_file_path):
-    VISITED_TARGET_LIST = read_file_to_list_de_weight(visited_target_file_path, encoding='utf-8')
+if EXCLUDE_ACCESSIBLE_VISITED_RECORD and file_is_exist(accessible_target_visited_record_file):
+    ACCESSIBLE_VISITED_TARGET_LIST = read_file_to_list_de_weight(accessible_target_visited_record_file, encoding='utf-8')
+
+# 扫描时是否排除不可访问目标的测试记录
+EXCLUDE_INACCESSIBLE_VISITED_RECORD = True
+INACCESSIBLE_VISITED_TARGET_LIST = []
+# 读取命中记录文件
+if EXCLUDE_INACCESSIBLE_VISITED_RECORD and file_is_exist(inaccessible_target_visited_record_file):
+    INACCESSIBLE_VISITED_TARGET_LIST = read_file_to_list_de_weight(inaccessible_target_visited_record_file, encoding='utf-8')
 
 # 设置输出结果文件目录
 result_dir_path = BASE_DIR.joinpath("result")
