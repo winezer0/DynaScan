@@ -13,7 +13,7 @@ import time
 from libs.DataType import config
 # 使用config存储主要的设置用户变量更加优雅,注意使用config存储logger后会导致不能用logger打印config,由于死循环调用的问题
 # 所有需要用户输入的变量[就是说cmd直接解析的参数,非直接解析的参数不需要加],需要添加config.作为前缀,
-from libs.ToolUtils import get_random_str
+from libs.ToolUtils import get_random_str, file_is_exist, read_file_to_list_de_weight
 
 ##################################################################
 # 获取setting.py脚本所在路径作为的基本路径
@@ -82,11 +82,13 @@ err_log_file_path = log_file_path.replace('module', 'error')
 
 # 记录已完成扫描的目标 # 固定命名,不需要添加时间戳
 visited_target_file_path = str(BASE_DIR.joinpath("runtime/runtime_module.log")).replace('module', 'visited')
-VISITED_TARGET_LIST = []
 
 # 扫描时是否排除已扫描的目标
 EXCLUDE_VISITED_TARGET_SWITCH = True
-
+VISITED_TARGET_LIST = []
+# 读取命中记录文件
+if EXCLUDE_VISITED_TARGET_SWITCH and file_is_exist(visited_target_file_path):
+    VISITED_TARGET_LIST = read_file_to_list_de_weight(visited_target_file_path, encoding='utf-8')
 
 # 设置输出结果文件目录
 result_dir_path = BASE_DIR.joinpath("result")

@@ -238,11 +238,12 @@ def attempt_add_proto_and_access(list_all_target, logger):
             have_proto_head_host.append(target)
         else:
             none_proto_head_host.append(target)
-    logger.info("[*] 目标列表中带有协议头的目标: {}".format(have_proto_head_host))
-    logger.info("[*] 目标列表中没有协议头的目标: {}".format(none_proto_head_host))
+    logger.info("[*] 目标列表中带有协议头的目标 {}个: {}".format(len(have_proto_head_host), have_proto_head_host))
+    logger.info("[*] 目标列表中没有协议头的目标 {}个: {}".format(len(none_proto_head_host), none_proto_head_host))
 
     # 排除URL目标中已访问过的URL
     if EXCLUDE_VISITED_TARGET_SWITCH:
+        logger.info("[*] 已开启对带有协议头的目标进行已访问URL筛选, 对于不带有协议头的目标将在进行完协议头检测后进行筛选...")
         tmp_have_proto_head_host = []
         for target in have_proto_head_host:
             if target in VISITED_TARGET_LIST:
@@ -251,6 +252,7 @@ def attempt_add_proto_and_access(list_all_target, logger):
                 tmp_have_proto_head_host.append(target)
         else:
             have_proto_head_host = tmp_have_proto_head_host
+            logger.info("[*] 目标列表中剩余带有协议头的目标 {}个: {}".format(len(have_proto_head_host), have_proto_head_host))
 
     # 对have_proto_head_host里面的目标进行处理
     if have_proto_head_host:
@@ -283,8 +285,10 @@ def attempt_add_proto_and_access(list_all_target, logger):
     if none_proto_head_host:
         if not ACCESS_ADD_PROTO_HEAD:
             # 简单的处理方式,为每个HOST:PORT添加http协议头
-            logger.info("[*] 协议头访问识别模式开关: {},仅添加http协议头,目标列表 {}".format(ACCESS_ADD_PROTO_HEAD, target))
-            for target in none_proto_head_host: new_list_all_target.append("http://{}".format(target))
+            logger.info("[*] 协议头访问识别模式开关: {},直接添加http与https协议头,目标列表 {}".format(ACCESS_ADD_PROTO_HEAD, target))
+            for target in none_proto_head_host:
+                new_list_all_target.append("http://{}".format(target))
+                new_list_all_target.append("https://{}".format(target))
         else:
             logger.info("[*] 协议头访问识别模式开关: {},即将进行URL协议检测,目标列表 {}".format(ACCESS_ADD_PROTO_HEAD, target))
             need_access_url_list = []
@@ -363,10 +367,6 @@ def controller():
     # 程序开始运行时间
     program_start_time = time.time()
 
-    # 读取命中记录文件
-    if file_is_exist(visited_target_file_path):
-        VISITED_TARGET_LIST = read_file_to_list_de_weight(visited_target_file_path, encoding='utf-8')
-
     # 解析命令行参数
     args = ParserCmd().init()
 
@@ -400,12 +400,12 @@ def controller():
         logger.error("[-] 未输入任何有效目标,即将退出程序...")
         sys.exit()
     else:
-        logger.info("[*] 所有初步输入目标: {}".format(list_all_target))
+        logger.info("[*] 所有初步输入目标 {}个: {}".format(len(list_all_target), list_all_target))
         # 尝试对输入的目标进行初次过滤、添加协议头、访问测试等处理
         # 临时注释,加快调试时间
         list_all_target = attempt_add_proto_and_access(list_all_target, logger)
         list_all_target = list(set(list_all_target))
-        logger.info("[+] 所有有效输入目标: {}".format(list_all_target))
+        logger.info("[+] 所有有效输入目标 {}个: {}".format(len(list_all_target), list_all_target))
     logger.info("==================================================")
     # 初次字典规则替换渲染开始时间
     render_1_start_time = time.time()
