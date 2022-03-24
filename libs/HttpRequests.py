@@ -101,7 +101,7 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
             if retry_times > 0:
                 if "Exceeded 30 redirects" in str(error):
                     headers = None
-                    logger.error("[-] 当前目标 {} 即将修改请求头为默认头后进行重试{}!!!".format(url))
+                    logger.error("[-] 当前目标 {} 即将修改请求头为默认头后进行重试!!!".format(url))
 
                 logger.debug("[-] 当前目标 {} 开始进行倒数第 {} 次重试,(HTTP_TIMEOUT = HTTP_TIMEOUT * 1.5)...".format(url, retry_times))
                 result = requests_plus(method=method, url=url, proxies=proxies, cookies=cookies, headers=headers,
