@@ -558,7 +558,7 @@ def controller():
     # 对所有目标进行分析和二次渲染,然后拼接URL进行处理
     for target in list_all_target:
         # 输出当前扫描进度
-        logger.info("[+] 当前目标 {} 扫描任务进度 {}/{}...".format(target, list_all_target.index(target),len(list_all_target)))
+        logger.info("[+] 当前目标 {} 扫描任务进度 {}/{}...".format(target, list_all_target.index(target)+1, len(list_all_target)))
         logger.info("==================================================")
 
         # 排除已访问过的URL
