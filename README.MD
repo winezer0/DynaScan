@@ -2,7 +2,9 @@
 
 # DynaScan 戴拿 ) 
 
- (dynamic Weak File Scanner 动态敏感文件扫描器 -- NOVESEC)
+ dynamic Weak File Scanner 动态敏感文件扫描器 -- NOVESEC
+
+本工具整体架构已迭代完毕,如果您有自己的字典文件,那现在就开始使用吧!!!
 
 ## 0、前提摘要
 
