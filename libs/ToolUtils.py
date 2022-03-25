@@ -154,7 +154,7 @@ def get_absolute_file_name(file_dir, ext=''):
         """
         print(root) #当前目录路径
         print(dirs) #当前路径下所有子目录
-        print(combin_files) #当前路径下所有非目录子文件
+        print(group_files) #当前路径下所有非目录子文件
         """
         for file in files:
             if file.endswith(ext):
@@ -172,7 +172,7 @@ def get_relative_file_name(file_dir, ext=''):
         """
         print(root) #当前目录路径
         print(dirs) #当前路径下所有子目录
-        print(combin_files) #当前路径下所有非目录子文件
+        print(group_files) #当前路径下所有非目录子文件
         """
         for file in files:
             if file.endswith(ext):
@@ -364,26 +364,26 @@ def read_many_file_to_all(module, dir_path='.', dict_file_suffix='.lst', replace
 
 ########字典合并相关######################
 # 合并folders目录字典列表和files目录字典列表,返回结果和时间
-def combine_folder_list_and_files_list(folder_list, files_list):
+def group_folder_list_and_files_list(folder_list, files_list):
     # 记录开始替换的时间
     start_time = time.time()
 
-    combin_folder_files_list = []
+    group_folder_files_list = []
     folder_list = list(set(folder_list))
     files_list = list(set(files_list))
     for folders in folder_list:
         for files in files_list:
             folders = folders if folders.startswith('/') else '/' + folders
             files = files if files.startswith('/') else '/' + files
-            combin_folder_files_list.append(folders.rsplit('/', 1)[0] + files)
-    combin_folder_files_list = list(set(combin_folder_files_list))
+            group_folder_files_list.append(folders.rsplit('/', 1)[0] + files)
+    group_folder_files_list = list(set(group_folder_files_list))
     end_time = time.time()
     run_time = end_time - start_time
-    return combin_folder_files_list, run_time
+    return group_folder_files_list, run_time
 
 
 # 组合URL列表和动态路径列表
-def combine_target_list_and_path_list(target_url_list, url_path_list):
+def group_target_list_and_path_list(target_url_list, url_path_list):
     target_url_path_list = []
     for target in target_url_list:
         for url_path in url_path_list:
@@ -394,7 +394,7 @@ def combine_target_list_and_path_list(target_url_list, url_path_list):
 
 
 # 组合URL和目标和路径
-def combine_one_target_and_path_list(target, path_list):
+def group_one_target_and_path_list(target, path_list):
     url_path_list = []
     for url_path in path_list:
         url_path = url_path if url_path.startswith('/') else '/' + url_path
@@ -834,7 +834,7 @@ def list_to_re_str(replace_list, bracket=True):
 
 # 将URL转换为原始规则
 def url_to_raw_rule(url_list=[], BASE_VAR_REPLACE_DICT={}, DEPEND_VAR_REPLACE_DICT={}):
-    result_add_dict = {"add_to_base": [], "add_to_direct": [], "add_to_combin_folders": [], "add_to_combin_files": []}
+    result_add_dict = {"add_to_base": [], "add_to_direct": [], "add_to_group_folders": [], "add_to_group_files": []}
 
     for url_str in url_list:
         # 提取路径
@@ -868,10 +868,10 @@ def url_to_raw_rule(url_list=[], BASE_VAR_REPLACE_DICT={}, DEPEND_VAR_REPLACE_DI
         if url_path.strip('/'): result_add_dict["add_to_direct"].append(url_path)
 
         folders_path = '/' + url_path.rsplit("/", 1)[0].rsplit("/", 1)[-1]
-        if folders_path.strip('/'): result_add_dict["add_to_combin_folders"].append(folders_path)
+        if folders_path.strip('/'): result_add_dict["add_to_group_folders"].append(folders_path)
 
         file_path = '/' + url_path.rsplit("/", 1)[-1]
-        if file_path.strip('/'): result_add_dict["add_to_combin_files"].append(file_path)
+        if file_path.strip('/'): result_add_dict["add_to_group_files"].append(file_path)
 
     return result_add_dict
 
@@ -929,8 +929,8 @@ def auto_analyse_hit_result_and_write_file(url_list, BASE_VAR_REPLACE_DICT, DEPE
             # 设置写入文件的路径
             add_to_base = hit_ext_path
             add_to_direct = hit_direct_path
-            add_to_combin_folders = hit_folder_path
-            add_to_combin_files = hit_files_path
+            add_to_group_folders = hit_folder_path
+            add_to_group_files = hit_files_path
             # 开始将解析的命中结果写入结果文件
             for key, value in result_add_dict.items():
                 if value:

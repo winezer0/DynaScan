@@ -108,8 +108,8 @@ if not os.path.exists(result_dir_path): os.makedirs(result_dir_path)
 # 字典来自文件列表 #从文件夹获得所有文件列表
 dir_base_var = 'dict/base_var'
 dir_direct_path = 'dict/direct_path'
-dir_combin_folder = 'dict/combin_folder'
-dir_combin_files = 'dict/combin_files'
+dir_group_folder = 'dict/group_folder'
+dir_group_files = 'dict/group_files'
 
 # 字典文件后缀
 dict_file_suffix = '.lst'
@@ -120,12 +120,12 @@ DIRECT_DICT_MODE = True
 # 指定仅读取的 direct 目录指定的文件字典,,不再读取 direct 目录下的所有文件
 SPECIFY_DIRECT_DICT = []
 
-# 指定仅读取 combin-xxx目录指定的文件字典,不再读取 combin-xxx 目录下的所有文件
-SPECIFY_COMBIN_FOLDER_DICT = []
-SPECIFY_COMBIN_FILES_DICT = []
+# 指定仅读取 group-xxx目录指定的文件字典,不再读取 group-xxx 目录下的所有文件
+SPECIFY_GROUP_FOLDER_DICT = []
+SPECIFY_GROUP_FILES_DICT = []
 
-# 是否读取COMBIN-XX目录下的字典
-COMBIN_DICT_MODE = True
+# 是否读取GROUP-XX目录下的字典
+GROUP_DICT_MODE = True
 
 # 要提取的路径频率阈值，大于等于FREQUENCY_MIN 小于等于 FREQUENCY_MAX的字典会被提取
 # 读取命中的后缀文件时的频率阈值 # 由于后缀文件不好进行进一步的解析,所以加到每个后缀以后
@@ -142,9 +142,9 @@ FREQUENCY_MAX_BASE = 999
 FREQUENCY_MIN_DIRECT = 1
 FREQUENCY_MAX_DIRECT = 999
 
-# 读取COMBIN目录下字典时的频率阈值
-FREQUENCY_MIN_COMBIN = 1
-FREQUENCY_MAX_COMBIN = 999
+# 读取GROUP目录下字典时的频率阈值
+FREQUENCY_MIN_GROUP = 1
+FREQUENCY_MAX_GROUP = 999
 
 # 指定path和频率的分隔符,如果每一行的内容为/xxx/xxx  frequency==10,那么切割符为'frequency=='
 SEPARATOR = 'frequency=='
@@ -210,8 +210,8 @@ CUSTOM_PREFIX_SWITCH = False
 # 命中文件保存路径
 HIT_EXT_PATH = dir_base_var + '/' + 'HIT_EXT' + '.hit'
 HIT_DIRECT_PATH = dir_direct_path + '/' + 'HIT_DIRECT' + '.hit'
-HIT_FOLDER_PATH = dir_combin_folder + '/' + 'HIT_FLODER' + '.hit'
-HIT_FILES_PATH = dir_combin_files + '/' + 'HIT_FILE' + '.hit'
+HIT_FOLDER_PATH = dir_group_folder + '/' + 'HIT_FLODER' + '.hit'
+HIT_FILES_PATH = dir_group_files + '/' + 'HIT_FILE' + '.hit'
 
 # 是否保存命中结果到HIT_XXX文件
 SAVE_HIT_RESULT = True
@@ -322,7 +322,7 @@ def random_x_forwarded_for(condition=False):
 
 #######################################################################
 # 每个筛选的变量,需要被忽略的默认值和空置
-FILTER_MOUDLE_DEFAULT_VALUE_DICT = {
+FILTER_MODULE_DEFAULT_VALUE_DICT = {
     "resp_text_title": ["Null-Title", "Ignore-Title", "Blank-Title"],
     "resp_text_hash": ["Null-Text-Hash", "Ignore-Text-Hash"],
     "resp_content_length": [-1, 0],
@@ -353,7 +353,7 @@ HEADERS = {
 }
 ########################扩展的调用函数###################################
 # 自动创建文件字典目录
-list__ = [dir_base_var, dir_direct_path, dir_combin_folder, dir_combin_files]
+list__ = [dir_base_var, dir_direct_path, dir_group_folder, dir_group_files]
 for path in list__:
     if not os.path.exists(path):
         os.makedirs(path)

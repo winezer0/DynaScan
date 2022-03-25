@@ -199,7 +199,7 @@ runtime/runtime_visited.log  记录已完成扫描的目标，实现断点续传
 ## 3、字典目录结构
 
 ```
-1. 所有字典默认存放在dict目录,其目录下存在4个目录(base_var,direct_path,combin_folder,combin_files),存放不同类型的字典文件。
+1. 所有字典默认存放在dict目录,其目录下存在4个目录(base_var,direct_path,group_folder,group_files),存放不同类型的字典文件。
 2. 字典文件的后缀默认设置为【.lst】,默认只读取目录下该后缀的字典文件。(该参数在setting.py中可以自定义)
 3. 如有需求,后续可考虑使用sqlite存储字典数据库,但是手动修改目录会变得复杂.
 4、每一行字典支持追加 【frequency==XXX】 字段用于表明字典频率,用于阈值筛选来决定是否加载该路径。
