@@ -1,7 +1,6 @@
 ########### 通用文件###########
 /.htaccess 
-/robots.txt 
-
+/robots.txt
 /CHANGELOG.txt
 /INSTALL.txt
 /License.txt
