@@ -428,7 +428,7 @@ def remove_list_none_render_value(path_list, ALL_REPLACE_KEY, logger=None):
             for index in range(0, len(path_list)):
                 if replace_str in path_list[index]:
                     print_str = "[-] {} 中关键字[{}]没有被成功替换,正在剔除...".format(path_list[index], replace_str)
-                    logger.error(print_str) if logger else print(print_str)
+                    logger.debug(print_str) if logger else print(print_str)
                     path_list[index] = ""
         else:
             print_str = "[-] 关键字[{}]没有遵循%key%或%%key%%命名规则...".format(replace_str)
