@@ -3,6 +3,7 @@
 
 # 全局配置文件
 import sys
+
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
 import os
@@ -104,7 +105,6 @@ if EXCLUDE_INACCESSIBLE_VISITED_RECORD and file_is_exist(inaccessible_target_vis
 result_dir_path = BASE_DIR.joinpath("result")
 if not os.path.exists(result_dir_path): os.makedirs(result_dir_path)
 
-
 # 字典来自文件列表 #从文件夹获得所有文件列表
 dir_base_var = 'dict/base_var'
 dir_direct_path = 'dict/direct_path'
@@ -196,7 +196,7 @@ REMOVE_NOT_PATH_SYMBOL = True
 REMOVE_MULTI_SLASHES = True
 
 # 去除URL[. /]结尾列表与开关
-REMOVE_SYMBOL_LIST = ['.','/']
+REMOVE_SYMBOL_LIST = ['.', '/']
 REMOVE_END_SYMBOL_SWITCH = False
 
 # URL路径全部小写
@@ -205,7 +205,6 @@ PATH_LOWERCASE_SWITCH = False
 # 为每个路径添加自定义前缀
 CUSTOM_PREFIX_LIST = ['/admin']
 CUSTOM_PREFIX_SWITCH = False
-
 
 # 命中文件保存路径
 HIT_EXT_PATH = dir_base_var + '/' + 'HIT_EXT' + '.hit'
@@ -321,19 +320,21 @@ def random_x_forwarded_for(condition=False):
 
 
 #######################################################################
-# 每个筛选的变量,需要被忽略的默认值和空置
+# 每个自动动态筛选的变量,需要被忽略的默认值和空置
 FILTER_MODULE_DEFAULT_VALUE_DICT = {
     "resp_text_title": ["Null-Title", "Ignore-Title", "Blank-Title"],
     "resp_text_hash": ["Null-Text-Hash", "Ignore-Text-Hash"],
     "resp_content_length": [-1, 0],
     "resp_text_size": [-1, 0],
-    "resp_bytes_head": ["Null-Bytes", "Blank-Bytes"]}
+    "resp_bytes_head": ["Null-Bytes", "Blank-Bytes"],
+    "resp_redirect_url": ["Null-Redirect-Url", "Raw-Redirect-Url"],
+}
 
 # 判断URI不存在的状态码，多个以逗号隔开,符合该状态码的响应将不会写入结果文件
-EXCLUDE_STATUS = [404]
+EXCLUDE_STATUS = [404, 401, 403, 405, 406, 410, 500, 501, 502, 503]
 
 # 判断URI是否不存在的正则，如果页面标题存在如下定义的内容，将从Result结果中剔除到ignore结果中 #re.IGNORECASE 忽略大小写
-EXCLUDE_REGEXP = r"页面不存在|未找到|404|410|not[ -]found"
+EXCLUDE_REGEXP = r"页面不存在|未找到|not[ -]found|403|404|410"
 
 # 动态排除模式：测试访问不存在路径,用于筛选出不正确的结果
 # 动态判断404、假页面的 length、size、head、hash等多个属性来排除虚假页面

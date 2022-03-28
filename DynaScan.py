@@ -65,7 +65,7 @@ def handle_test_result_dict(test_path_result_dict={}, filter_module_default_valu
 
         # 结果元组对应变量名序列
         # result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
-        result_module_name_list = ["url", "resp_status", "resp_content_length", "resp_text_size", "resp_text_title", "resp_text_hash", "resp_bytes_head"]
+        result_module_name_list = ["url", "resp_status", "resp_content_length", "resp_text_size", "resp_text_title", "resp_text_hash", "resp_bytes_head", "resp_redirect_url"]
 
         # 需要被筛选的项目对应变量名序列
         # filter_module_name_list = filter_module_default_value_dict.keys()
@@ -79,8 +79,7 @@ def handle_test_result_dict(test_path_result_dict={}, filter_module_default_valu
             # ＃当所有测试路径的响应resp_text_title相同,并且不在module_none_value_list内 时，这个resp_content_length就能拿来作为不存在路径的参照
             module_index = result_module_name_list.index(module_name)  # module在结果列表内对应的反向序列
             module_none_value_list = filter_module_default_value_dict[module_name]
-            dynamic_exclude_dict = filter_dynamic(module_name, module_index, module_none_value_list,
-                                                  test_path_result_dict, dynamic_exclude_dict, target, logger)
+            dynamic_exclude_dict = filter_dynamic(module_name, module_index, module_none_value_list, test_path_result_dict, dynamic_exclude_dict, target, logger)
     # dynamic_exclusion_dictionary{'https://baike.baidu.com': {'resp_text_size': 4555}, 'http://www.baidu.com': {}}
     # 去除空值的字典中的
     remove_dict_none_value_key(dynamic_exclude_dict)
@@ -146,7 +145,7 @@ def handle_real_result_dict(real_path_result_dict={}, logger=None, exclude_statu
                 # 定义结果元组导出格式 #修改结果格式,需要修改格式串的数量
                 tuple_result_format = "%s," * len(tuple_) + "\n"
                 # 结果元组对应顺序 # result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_head, resp_bytes_head)
-                url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple_
+                url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url = tuple_
 
                 # 元组支持直接调用index返回对应结果 , resp_status = tuple_[1]
                 if resp_status == -1:
@@ -161,8 +160,7 @@ def handle_real_result_dict(real_path_result_dict={}, logger=None, exclude_statu
                     # 状态码为在排除列表内,就输出到忽略文件夹
                     logger.debug("[-] 当前目标 {} resp_status {} 在 排除列表 {} 内,因此本请求结果忽略".format(url, resp_status, exclude_status))
                     ignore_file_path_open.write(tuple_result_format % tuple_)
-                elif resp_text_title not in filter_module_default_value_dict["resp_text_title"] and re.match(
-                        exclude_regexp, resp_text_title, re.IGNORECASE):
+                elif resp_text_title not in filter_module_default_value_dict["resp_text_title"] and re.match(exclude_regexp, resp_text_title, re.IGNORECASE):
                     # 标题内容被排除正则匹配,就输出到忽略文件夹
                     logger.error("[-] 当前目标 {} resp_text_title {} 被排除正则匹配,因此本请求结果忽略".format(url, resp_text_title, exclude_regexp))
                     ignore_file_path_open.write(tuple_result_format % tuple_)
@@ -291,7 +289,7 @@ def attempt_add_proto_and_access(list_all_target, logger):
             # 先拆分结果列表的URL,相同HOST的分为一个组
             multi_target_proto_result_dict = {}  # 多目标协议结果字典{"host":[(结果1),(结果2),(不应该有结果3)]}
             for tuple_ in target_proto_result_list:
-                url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple_
+                url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url = tuple_
                 host_port = url.split("://", 1)[-1]
                 if host_port in multi_target_proto_result_dict.keys():
                     multi_target_proto_result_dict[host_port].append(tuple_)
@@ -304,7 +302,7 @@ def attempt_add_proto_and_access(list_all_target, logger):
                 # 如果只有一个结果就说明被排除了一个,此时直接加入最终列表,
                 if len(target_proto_result_list) == 1:
                     tuple_ = target_proto_result_list[0]
-                    url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple_
+                    url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url = tuple_
                     if resp_status > 0:
                         logger.info("[*] 当前目标 {} 响应状态码 {} 即将被添加 响应结果 {}".format(url, resp_status, tuple_[1:]))
                         new_list_all_target.append(url)
@@ -320,7 +318,7 @@ def attempt_add_proto_and_access(list_all_target, logger):
                         tuple_ = target_proto_result_list[0]
                         # tuple_result_format = "%s," * len(tuple_) + "\n"
                         # url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple_
-                        url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple_
+                        url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url = tuple_
                         if resp_status > 0:
                             url = "http://{}".format(target)
                             logger.info("[*] 当前目标 {} 使用两个协议进行访问测试时结果相同,响应状态码为 {} ,即将添加 {}".format(target, resp_status, url))
@@ -333,7 +331,7 @@ def attempt_add_proto_and_access(list_all_target, logger):
                     else:
                         # 两个协议的访问结果不相同
                         for tuple_ in target_proto_result_list:
-                            url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple_
+                            url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url = tuple_
                             if resp_status > 0:
                                 logger.info("[*] 当前目标 {} 使用两个协议进行访问测试时结果不同, {} 状态码为 {} ,将被添加...".format(target, url, resp_status))
                                 new_list_all_target.append(url)

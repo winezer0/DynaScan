@@ -2,6 +2,7 @@
 # encoding: utf-8
 import re
 import sys
+
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
 import urllib
@@ -63,9 +64,9 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
     resp_text_size = -1  # 赋值默认值
     resp_text_title = "Null-Title"  # 赋值默认值
     resp_text_hash = "Null-Text-Hash"  # 赋值默认值
-
+    resp_redirect_url = "Null-Redirect-Url"  # 赋值默认值
     try:
-        resp = requests.request(method=method, url=url, cookies=cookies, timeout=timeout, stream=stream,proxies=proxies, headers=headers, verify=verify, allow_redirects=allow_redirects)
+        resp = requests.request(method=method, url=url, cookies=cookies, timeout=timeout, stream=stream, proxies=proxies, headers=headers, verify=verify, allow_redirects=allow_redirects)
         resp_status = resp.status_code
     except Exception as error:
         # 当错误原因时一般需要重试的错误时,直接忽略输出,进行访问重试
@@ -83,16 +84,16 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
             if encode_all_path:
                 # 不需要重试的结果 设置resp_status标记为1,
                 resp_status = 1
-                result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
+                result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url)
                 logger.debug("[-] 当前目标 {} 中文数据编码错误,但是已经开启中文编码处理功能,忽略本次结果 {}!!!".format(url, result))
             else:
                 # 需要手动访问重试的结果
-                result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
+                result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url)
                 logger.error("[-] 当前目标 {} 中文数据编码错误,需要针对中文编码进行额外处理,返回固定结果 {}!!!".format(url, result))
         elif "No host supplied" in str(error):
             # 不需要重试的结果 设置resp_status标记为1,
             resp_status = 1
-            result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
+            result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url)
             logger.error("[-] 当前目标 {} 格式输入错误,忽略本次结果{}!!!".format(url, result))
         else:
             # 如果服务器没有响应,但是也有可能存在能访问的URL,因此不能简单以状态码判断结果
@@ -103,11 +104,11 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
                     logger.error("[-] 当前目标 {} 即将修改请求头为默认头后进行重试!!!".format(url))
 
                 logger.debug("[-] 当前目标 {} 开始进行倒数第 {} 次重试,(HTTP_TIMEOUT = HTTP_TIMEOUT * 1.5)...".format(url, retry_times))
-                result = requests_plus(method=method, url=url, proxies=proxies, cookies=cookies, headers=headers,timeout=timeout * 1.5, verify=verify, allow_redirects=allow_redirects,
+                result = requests_plus(method=method, url=url, proxies=proxies, cookies=cookies, headers=headers, timeout=timeout * 1.5, verify=verify, allow_redirects=allow_redirects,
                                        dynamic_host_header=dynamic_host_header, dynamic_refer_header=dynamic_refer_header, retry_times=retry_times - 1, logger=logger, encode=encode)
             else:
                 # 如果重试次数为小于0,返回固定结果-1
-                result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
+                result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url)
                 logger.error("[-] 当前目标 {} 剩余重试次数为0,返回固定结果{},需要后续手动进行验证...".format(url, result))
     else:
         # 当获取到响应结果时,获取三个响应关键匹配项目
@@ -145,7 +146,7 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
                 resp_text_size = len(resp_text)
             except Exception as error:
                 module = "resp_text_size"
-                common_error_list = ["content-encoding: gzip","Connection broken: IncompleteRead"]
+                common_error_list = ["content-encoding: gzip", "Connection broken: IncompleteRead"]
                 # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
                 # Received response with content-encoding: gzip, but failed to decode it. # 返回gzip不解压报错
                 # ('Connection broken: IncompleteRead(22 bytes read)', IncompleteRead(22 bytes read)) # 使用流模式导致不完全读取报错
@@ -207,12 +208,21 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
                     resp_text_hash = "Ignore-Text-Hash"
                 else:
                     resp_text_hash = hashlib.md5(resp.content).hexdigest()
-
             except Exception as error:
                 module = "resp_text_hash"
                 common_error_list = []  # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
                 handle_error(url, common_error_list, module, error, logger)
-
+        #############################################################
+        # 6、resp_redirect_url 获取重定向后的URL
+        try:
+            if url.strip() == resp_redirect_url.strip():
+                resp_redirect_url = "Raw-Redirect-Url"
+            else:
+                resp_redirect_url = resp.url.strip()
+        except Exception as error:
+            module = "resp_redirect_url"
+            common_error_list = []  # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
+            handle_error(url, common_error_list, module, error, logger)
         # 合并所有获取到的结果
         """
         # 获取编码后URL的真实URL 忽略本步骤,解码可能会导致报错 也没有必要获取
@@ -222,7 +232,7 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
             # 仅对没有编码的情况进行解码,如果GB2312编码了，但是UTF8解码会报错的。
             url = urllib.parse.unquote(url, encoding=encode)  # 解码为/备份.zip成功
         """
-        result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
+        result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url)
         logger.debug("[*] 当前目标 {} 请求返回结果集合:{}".format(url, result))
     return result
 
