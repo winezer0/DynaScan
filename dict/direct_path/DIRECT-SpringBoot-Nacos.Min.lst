@@ -1,0 +1,12 @@
+#注意下大部分企业的 nacos的url为 /v1/auth/users ，而不是  /nacos/v1/auth/users
+/{re=exrex:(|nacos|%DOMAIN%/nacos|%PATH%/nacos)}$	frequency==10
+/{re=exrex:(|nacos|%DOMAIN%/nacos|%PATH%/nacos)}$/index.html	frequency==1
+/{re=exrex:(|nacos|%DOMAIN%/nacos|%PATH%/nacos)}$/login.html	frequency==1
+/{re=exrex:(|nacos|%DOMAIN%/nacos|%PATH%/nacos)}$/config	frequency==2
+/{re=exrex:(|nacos|%DOMAIN%/nacos|%PATH%/nacos)}$/v1/auth/users	frequency==10
+/{re=exrex:(|nacos|%DOMAIN%/nacos|%PATH%/nacos)}$/v1/cs/configs	frequency==1
+/{re=exrex:(|nacos|%DOMAIN%/nacos|%PATH%/nacos)}$/v1/cs/configs?dataId=Misplaced	frequency==1
+/{re=exrex:(|nacos|%DOMAIN%/nacos|%PATH%/nacos)}$/v1/ns/instance	frequency==5
+/{re=exrex:(|nacos|%DOMAIN%/nacos|%PATH%/nacos)}$/v1/ns/instance?serviceName=springboot2-nacos-discovery	frequency==5
+/{re=exrex:(|nacos|%DOMAIN%/nacos|%PATH%/nacos)}$/v1/service/list?pageSize=123&groupname=default_group&encoding=utf-8	frequency==5
+/{re=exrex:(|nacos|%DOMAIN%/nacos|%PATH%/nacos)}$/v1/services/findOnes/api/v1/login	frequency=5
