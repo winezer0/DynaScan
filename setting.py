@@ -129,10 +129,10 @@ GROUP_DICT_MODE = True
 
 # 要提取的路径频率阈值，大于等于FREQUENCY_MIN 小于等于 FREQUENCY_MAX的字典会被提取
 # 读取命中的后缀文件时的频率阈值 # 由于后缀文件不好进行进一步的解析,所以加到每个后缀以后
-FREQUENCY_MIN_HIT = 1
+FREQUENCY_MIN_HIT = 10
 FREQUENCY_MAX_HIT = 999
 # 是否将历史命中扩展的值扩展到每一个基本变量中
-APPEND_HIT_EXT = True
+APPEND_HIT_EXT = False
 
 # 读取BASE目录下字典时的频率阈值
 FREQUENCY_MIN_BASE = 1

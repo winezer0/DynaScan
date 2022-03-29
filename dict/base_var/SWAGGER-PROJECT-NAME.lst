@@ -1,8 +1,0 @@
-swagger
-swagger-resources
-swagger-dubbo
-spring-security-rest
-spring-security-oauth-resource
-template
-%%DOMAIN%%
-%%PATH%%
