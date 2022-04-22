@@ -181,7 +181,7 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
                 # encode_content = req.content.decode(encoding, 'replace').encode('utf-8', 'replace')
                 # encode_content = resp.content.decode(resp.encoding, 'replace')  # 如果设置为replace，则会用?取代非法字符；
                 re_find_result_list = re.findall(r"<title.*?>(.+?)</title>", encode_content)
-                resp_text_title = resp_text_title = ",".join(re_find_result_list)
+                resp_text_title = ",".join(re_find_result_list)
                 # 解决所有系统下字符串无法编码输出的问题,比如windows下控制台gbk的情况下,不能gbk解码就是BUG
                 # logger.error("当前控制台输出编码为:{}".format(sys.stdout.encoding))
                 # 解决windows下韩文无法输出的问题,如果不能gbk解码就是window BUG
