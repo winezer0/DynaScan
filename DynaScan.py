@@ -45,7 +45,7 @@ def multi_threaded_requests_url(url_path_list, threads_count=10, proxies={}, coo
         for future in as_completed(all_task):
             url_access_result_list.append(future.result())
             # future.result()格式为元组
-            # url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = future.result()
+            # url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url = future.result()
             # 取消线程结果输出,在请求内部进行输出
             # logger.debug("[+] 线程 {} 返回结果:{}".format(future, future.result()))
     return url_access_result_list
@@ -64,7 +64,7 @@ def handle_test_result_dict(test_path_result_dict={}, filter_module_default_valu
         # ('http://127.0.0.1:8080/lmWE8cY.qr6/VSKFgL0.V2b/Syca58P.Cue', 404, 'Error response', 469, 469, 'Blank-Value')]
 
         # 结果元组对应变量名序列
-        # result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head)
+        # result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url)
         result_module_name_list = ["url", "resp_status", "resp_content_length", "resp_text_size", "resp_text_title", "resp_text_hash", "resp_bytes_head", "resp_redirect_url"]
 
         # 需要被筛选的项目对应变量名序列
@@ -144,7 +144,7 @@ def handle_real_result_dict(real_path_result_dict={}, logger=None, exclude_statu
             for tuple_ in real_path_result_dict[target]:
                 # 定义结果元组导出格式 #修改结果格式,需要修改格式串的数量
                 tuple_result_format = "%s," * len(tuple_) + "\n"
-                # 结果元组对应顺序 # result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_head, resp_bytes_head)
+                # 结果元组对应顺序 # result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_head, resp_bytes_head, resp_redirect_url)
                 url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url = tuple_
 
                 # 元组支持直接调用index返回对应结果 , resp_status = tuple_[1]
@@ -317,7 +317,7 @@ def attempt_add_proto_and_access(list_all_target, logger):
                         # 两个协议的访问结果相同
                         tuple_ = target_proto_result_list[0]
                         # tuple_result_format = "%s," * len(tuple_) + "\n"
-                        # url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple_
+                        # url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url = tuple_
                         url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url = tuple_
                         if resp_status > 0:
                             url = "http://{}".format(target)
@@ -326,7 +326,7 @@ def attempt_add_proto_and_access(list_all_target, logger):
                         else:
                             logger.error("[-] 当前目标 {} 使用两个协议进行访问测试时结果相同,且响应状态码 {} ,即将忽略 响应结果{}".format(target, resp_status, tuple_[1:]))
                             for tuple_ in target_proto_result_list:
-                                url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple_
+                                url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url = tuple_
                                 inaccessible_all_target.append(url)
                     else:
                         # 两个协议的访问结果不相同
