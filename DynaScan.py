@@ -275,7 +275,7 @@ def attempt_add_proto_and_access(list_all_target, logger):
             # 简单的判断模式,URL能够访问就加入列表
             logger.info("[*] 当前使用响应状态码模式,对访问结果进行筛选,简单判断最终协议头...")
             for tuple_ in target_proto_result_list:
-                url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head = tuple_
+                url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url = tuple_
                 if resp_status > 0:
                     logger.info("[*] 当前目标 {} 即将被添加...  响应结果 {} ".format(url, tuple_[1:]))
                     new_list_all_target.append(url)
