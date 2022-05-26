@@ -49,7 +49,6 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
     if not headers:
         headers = {
             'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)',
-            'Referer': '{}'.format(url),
             'Accept-Encoding': ''}
 
     # 需要动态添加host字段
