@@ -52,9 +52,9 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
             'Accept-Encoding': ''}
 
     # 需要动态添加host字段
-    if dynamic_host_header: headers["host"] = get_host_port(url)
+    if dynamic_host_header: headers["Host"] = get_host_port(url)
     # 需要动态添加refer字段
-    if dynamic_refer_header: headers["refer"] = url
+    if dynamic_refer_header: headers["Referer"] = url
     # 设置需要接受的参数的默认值 #如果返回结果是默认值,说明程序异常没有获取到
     resp_status = -1  # 赋值默认值
     resp_bytes_head = "Null-Bytes"  # 赋值默认值
