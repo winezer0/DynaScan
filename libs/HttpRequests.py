@@ -6,9 +6,9 @@ import sys
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
 import urllib
+import libs.requests as requests
 
 import chardet
-import requests
 import hashlib
 from libs.ToolUtils import get_host_port
 

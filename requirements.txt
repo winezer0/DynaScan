@@ -1,8 +1,8 @@
 pyfiglet
 chardet
-requests
 argparse
 loguru
 tldextract
 exrex
 sre_yield
+#requests
