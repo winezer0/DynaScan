@@ -63,7 +63,7 @@
 20220328 增加最后的请求URL (resp_redirect_url = resp.url.strip()),用于自动筛选和人工筛选。
 
 20220520 修复非智能请求头判断模式下，没有接受resp_redirect_url参数导致的错误。
-20220531 内置requests==2.22。0模块,解决requests==2.27.0时，相应chunk数据包报错问题。
+20220531 内置requests==2.22.0模块,解决requests==2.27.0时，相应chunk数据包报错问题。
 ```
 
 ### 0.4、TODO
