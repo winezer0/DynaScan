@@ -20,17 +20,23 @@ from libs.ToolUtils import get_random_str, file_is_exist, read_file_to_list_de_w
 # 获取setting.py脚本所在路径作为的基本路径
 BASE_DIR = pathlib.Path(__file__).parent.resolve()
 ##################################################################
-# 默认设置日志显示级别 # False 输出INFO级别信息 True 显示DEBUG级别信息
-config.debug = False  # True False
+# 是否显示DEBUG级别信息,默认False
+config.debug = False
 
-# 是否属于测试模式 # 测试模式每个目标URL只获取生成的前100个URL进行测试
-TEST_MODE_HANDLE = False  # True False
+# 是否属于测试模式,默认False
+TEST_MODE_HANDLE = False
+# 测试模式每个目标URL只获取生成的前100个URL进行测试,
 ##################################################################
 # 版本号配置
-version = "Ver 0.1.7 2022-05-31 10:48"
+version = "Ver 0.1.8 2022-06-01 10:43"
+##################################################################
+# 停止扫描阈值,默认True
+STOP_SCAN_SWITCH = True
+STOP_SCAN_NUM = 20
+# 如果非正常响应超过这个阈值, 就关闭多线程中的所有线程任务
 ##################################################################
 # 中文路径、特殊字符会以列表内的编码作为基础编码，再进行URL编码
-ALL_BASE_ENCODE = ['utf-8', 'gbk']
+ALL_BASE_ENCODE = ['utf-8']  # ['utf-8', 'gbk']
 # 注意:gb2312编码繁体中文可能报错,此时可使用gbk编码,GBK与G2312编码结果相同
 # 中文编码模式: 路径列表中的元素[/說明.txt] 已基于 [utf-8] 编码 URL编码为:/%E8%AA%AA%E6%98%8E.txt
 # 中文编码模式: 路径列表中的元素[/說明.txt] 已基于 [gbk] 编码 URL编码为:/%D5f%C3%F7.txt
@@ -42,25 +48,27 @@ ALL_BASE_ENCODE = ['utf-8', 'gbk']
 ENCODE_ALL_PATH = True
 
 # URL路径列表编码处理包含两种模式,一种是仅处理中文路径（使用正则匹配出中文）,一种是所有路径都会处理,所有特殊字符都会被编码,
-# 是否仅对包含中文的路径使用URL编码模式
-ENCODE_CHINESE_ONLY = True  # True # False
+# 是否仅对包含中文的路径使用URL编码模式,默认True
+ENCODE_CHINESE_ONLY = True
 ##################################################################
 # 在配置文件中配置默认目标文件等参数 比cmd输入参数优先级低 一般作为默认参数使用
 config.target = None
-config.target_file = "target.txt"  # 当没有输入目标时,默认加载该文件,可日常使用
+config.target_file = "target.txt"
+# 当没有输入目标时,默认加载该文件,可日常使用
 ###################程序基本配置开始##################################
-# 是否对符合URL格式的目标直接开启目标URL可访问性判断
+# 是否对符合URL格式的目标直接开启目标URL可访问性判断,默认True
 ACCESS_TEST_URL = True
 
-# 是否对HOST:PORT格式的目标进行URL访问模式,根据响应结果自动添加协议头
+# 是否对HOST:PORT格式的目标进行URL访问测试,根据响应结果自动添加协议头,默认True
 ACCESS_ADD_PROTO_HEAD = True
 
-# 是否URL访问模式的基础上,进一步判断不同协议的返回结果是否相同,最终确定是否添加https协议头
+# 是否URL访问模式的基础上,动态判断是否添加https协议头,默认True
 SMART_ADD_PROTO_HEAD = True
 
-# 是否开启多目标模式  # 对URL路径进行分解,一个目标能够变成多个目标,每多一个目标,请求URL就会多一倍
-# https://baike.baidu.com/item/DD/ 会被分解为 https://baike.baidu.com/item/DD/,https://baike.baidu.com/item/,https://baike.baidu.com/
-MULTI_TARGET_PATH_MODE = False
+# 是否开启多目标模式,默认True
+# 对URL路径进行分解,一个目标能够变成多个目标,每多一个目标,请求URL就会多一倍
+MULTI_TARGET_PATH_MODE = True
+# 示例：https://XXX/item/DD/ 会被分解为 https://XXX/item/DD/,https://XXX/item/,https://XXX/
 
 # 程序开始运行时间
 RUN_TIME = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
@@ -77,6 +85,7 @@ if FILE_RUN_TIME_SWITCH:
 else:
     log_file_path = str(BASE_DIR.joinpath("runtime/runtime_module.log"))
 
+
 info_log_file_path = log_file_path.replace('module', 'info')
 dbg_log_file_path = log_file_path.replace('module', 'debug')
 err_log_file_path = log_file_path.replace('module', 'error')
@@ -87,14 +96,14 @@ accessible_target_visited_record_file = str(BASE_DIR.joinpath("runtime/runtime_m
 # 不可访问目标已访问记录
 inaccessible_target_visited_record_file = str(BASE_DIR.joinpath("runtime/runtime_module.log")).replace('module', 'visited_inaccessible')
 
-# 扫描时是否排除可访问目标的测试记录
+# 扫描时是否排除可访问目标的测试记录,默认True
 EXCLUDE_ACCESSIBLE_VISITED_RECORD = True
 ACCESSIBLE_VISITED_TARGET_LIST = []
 # 读取命中记录文件
 if EXCLUDE_ACCESSIBLE_VISITED_RECORD and file_is_exist(accessible_target_visited_record_file):
     ACCESSIBLE_VISITED_TARGET_LIST = read_file_to_list_de_weight(accessible_target_visited_record_file, encoding='utf-8')
 
-# 扫描时是否排除不可访问目标的测试记录
+# 扫描时是否排除不可访问目标的测试记录,默认True
 EXCLUDE_INACCESSIBLE_VISITED_RECORD = True
 INACCESSIBLE_VISITED_TARGET_LIST = []
 # 读取命中记录文件
@@ -320,7 +329,7 @@ def random_x_forwarded_for(condition=False):
 
 
 #######################################################################
-# 每个自动动态筛选的变量,需要被忽略的默认值和空置
+# 每个自动动态筛选的变量,需要被忽略的默认值和空值
 FILTER_MODULE_DEFAULT_VALUE_DICT = {
     "resp_text_title": ["Null-Title", "Ignore-Title", "Blank-Title"],
     "resp_text_hash": ["Null-Text-Hash", "Ignore-Text-Hash"],

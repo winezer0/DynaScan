@@ -1,12 +1,12 @@
 #注意下大部分企业的 nacos的url为 /v1/auth/users ，而不是  /nacos/v1/auth/users
-/{re=exrex:(|%PROJECT-NACOS%)}$	frequency==10
-/{re=exrex:(|%PROJECT-NACOS%)}$/index.html	frequency==1
-/{re=exrex:(|%PROJECT-NACOS%)}$/login.html	frequency==1
-/{re=exrex:(|%PROJECT-NACOS%)}$/config	frequency==2
-/{re=exrex:(|%PROJECT-NACOS%)}$/%NACOS-VER-NUM%/auth/users	frequency==10
-/{re=exrex:(|%PROJECT-NACOS%)}$/%NACOS-VER-NUM%/cs/configs	frequency==1
-/{re=exrex:(|%PROJECT-NACOS%)}$/%NACOS-VER-NUM%/cs/configs?dataId=Misplaced	frequency==1
-/{re=exrex:(|%PROJECT-NACOS%)}$/%NACOS-VER-NUM%/ns/instance	frequency==5
-/{re=exrex:(|%PROJECT-NACOS%)}$/%NACOS-VER-NUM%/ns/instance?serviceName=springboot2-nacos-discovery	frequency==5
-/{re=exrex:(|%PROJECT-NACOS%)}$/%NACOS-VER-NUM%/service/list?pageSize=123&groupname=default_group&encoding=utf-8	frequency==5
-/{re=exrex:(|%PROJECT-NACOS%)}$/%NACOS-VER-NUM%/services/findOnes/api/v1/login	frequency=5
+/{re=exrex:(|%NACOS-PROJECT%)}$	frequency==10
+/{re=exrex:(|%NACOS-PROJECT%)}$/index.html	frequency==1
+/{re=exrex:(|%NACOS-PROJECT%)}$/login.html	frequency==1
+/{re=exrex:(|%NACOS-PROJECT%)}$/config	frequency==2
+/{re=exrex:(|%NACOS-PROJECT%)}$/%NACOS-VERSION%/auth/users	frequency==10
+/{re=exrex:(|%NACOS-PROJECT%)}$/%NACOS-VERSION%/cs/configs	frequency==1
+/{re=exrex:(|%NACOS-PROJECT%)}$/%NACOS-VERSION%/cs/configs?dataId=Misplaced	frequency==1
+/{re=exrex:(|%NACOS-PROJECT%)}$/%NACOS-VERSION%/ns/instance	frequency==5
+/{re=exrex:(|%NACOS-PROJECT%)}$/%NACOS-VERSION%/ns/instance?serviceName=springboot2-nacos-discovery	frequency==5
+/{re=exrex:(|%NACOS-PROJECT%)}$/%NACOS-VERSION%/service/list?pageSize=123&groupname=default_group&encoding=utf-8	frequency==5
+/{re=exrex:(|%NACOS-PROJECT%)}$/%NACOS-VERSION%/services/findOnes/api/v1/login	frequency=5

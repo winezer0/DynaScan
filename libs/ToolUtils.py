@@ -190,6 +190,18 @@ def file_is_exist(filepath):
         else:
             return False
 
+# 去除不可见字符
+def remove_upprintable_chars(raw_path):
+    """
+    去除列表元素的\u200b等字符
+    https://blog.csdn.net/lly1122334/article/details/107615950
+    """
+    if raw_path.isprintable():
+        return raw_path
+    else:
+        new_path = ''.join(x for x in raw_path if x.isprintable())
+        return new_path
+
 
 # 读取文件内容并返回字符串
 def read_file_to_str(file_name, encoding='utf-8'):
@@ -199,8 +211,9 @@ def read_file_to_str(file_name, encoding='utf-8'):
     result_str = ""
     with open(file_name, 'r', encoding=encoding) as f_obj:
         result_str = f_obj.read().strip()
+        # 去除不可见字符
+        result_str = remove_upprintable_chars(result_str)
         return result_str
-
 
 # 读取文件内容并返回结果列表
 def read_file_to_list_de_weight(file_name, encoding='utf-8'):
@@ -211,8 +224,11 @@ def read_file_to_list_de_weight(file_name, encoding='utf-8'):
         result_list = []
         for line in f_obj.readlines():
             if line.strip() != "":
+                # 去除不可见字符
+                line = remove_upprintable_chars(line)
                 result_list.append(line.strip())
         return result_list
+
 
 
 # 读取一个文件内容并返回结果字典 {"路径”:频率}
@@ -231,10 +247,12 @@ def read_file_to_dict_with_frequency(file_name, encoding='utf-8', separator='fre
     with open(file_name, 'r', encoding=file_encoding(file_name)) as f_obj:
         result_dict = {}
         for line in f_obj.readlines():
-            # 忽略#号开头的行
+            # 忽略 #号开头的行
             if annotation and line.startswith(annotation):
                 line = ''
             if line.strip() != "":
+                # 去除不可见字符
+                line = remove_upprintable_chars(line)
                 # 如果规则存在频率选项 path [frequency==10]
                 if separator in line.strip():
                     line_string = line.rsplit(separator, 1)[0].strip()
@@ -242,7 +260,6 @@ def read_file_to_dict_with_frequency(file_name, encoding='utf-8', separator='fre
                     line_frequency = line.rsplit(separator, 1)[-1].split(annotation, 1)[0].strip()
                     line_frequency = int(line_frequency)
                     # print(line_string,line_frequency)
-
                 else:
                     line_string = line.strip()
                     line_frequency = 1

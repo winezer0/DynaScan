@@ -31,8 +31,6 @@ def multi_threaded_requests_url(url_path_list, threads_count=10, proxies={}, coo
     """
     url_access_result_list = []
 
-    # 此处使用消息队列作为线程池锁，避免在第一个任务异常发生后到主线程获知中间仍然有任务被发送执行
-
     with ThreadPoolExecutor(max_workers=threads_count) as pool:
         all_task = []
         for url in url_path_list:
@@ -42,14 +40,28 @@ def multi_threaded_requests_url(url_path_list, threads_count=10, proxies={}, coo
             all_task.append(task)
 
         # 保存所有访问进程返回的结果
+        access_fail_count = 0
+        access_fail_resp = ("url",  -1, -1, -1, 'Null-Title', 'Null-Text-Hash', 'Null-Bytes', 'Null-Redirect-Url')
         for future in as_completed(all_task):
-            url_access_result_list.append(future.result())
+            access_resp = future.result()
+            url_access_result_list.append(access_resp)
             # future.result()格式为元组
             # url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url = future.result()
             # 取消线程结果输出,在请求内部进行输出
             # logger.debug("[+] 线程 {} 返回结果:{}".format(future, future.result()))
+            if STOP_SCAN_SWITCH:
+                # 统计访问失败次数
+                if access_resp[1:] == access_fail_resp[1:]:
+                    access_fail_count += 1
+                # 取消继续访问进程
+                if access_fail_count >= STOP_SCAN_NUM:
+                    logger.error("[!] 已超过非正常响应阈值,即将取消访问任务,当前请求为{}".format(access_resp[0]))
+                    # 反向序列化之前塞入的任务队列，并逐个取消
+                    for task in reversed(all_task):
+                        task.cancel()
+                    # 终止获取进程返回数据
+                    break
     return url_access_result_list
-
 
 # 处理测试URL访问结果,返回一个用于对比的此时结果字典
 def handle_test_result_dict(test_path_result_dict={}, filter_module_default_value_dict={}, logger=None):
@@ -290,7 +302,7 @@ def attempt_add_proto_and_access(list_all_target, logger):
             multi_target_proto_result_dict = {}  # 多目标协议结果字典{"host":[(结果1),(结果2),(不应该有结果3)]}
             for tuple_ in target_proto_result_list:
                 url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url = tuple_
-                host_port = url.split("://", 1)[-1]
+                host_port = get_host_port(url)
                 if host_port in multi_target_proto_result_dict.keys():
                     multi_target_proto_result_dict[host_port].append(tuple_)
                 else:
@@ -432,7 +444,7 @@ def controller():
         # 将命中扩展追加到所有基本键值对中
         if APPEND_HIT_EXT and frequency_list_hit: frequency_list_.extend(frequency_list_hit)
         if frequency_list_: BASE_VAR_REPLACE_DICT[var_str] = frequency_list_
-        logger.info("[*] 基本替换变量 {} 有效替换元素 {} 个 {}".format(var_str, len(frequency_list_), frequency_list_))
+        logger.info("[*] 基本替换变量 {} 提取有效替换元素 {} 个 {}".format(var_str, len(frequency_list_), frequency_list_))
     logger.info("==================================================")
     # 将基本变量关键字加入全局替换关键字列表,用于最后检测请求URL是否没有替换成功
     ALL_REPLACE_KEY.extend(BASE_VAR_REPLACE_DICT.keys())
