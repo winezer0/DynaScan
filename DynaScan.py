@@ -430,18 +430,18 @@ def controller():
     logger.info("[*] 路径 {} 下存在基本变量规则字典: {}".format(dir_base_var, list_dir_base_file))
 
     # 1.2、读取BASE目录中的命中文件（ hit_ext.lst）把这个文件的内容加到所有基本变量以内
-    frequency_list_hit = []
-    if APPEND_HIT_EXT and file_is_exist(HIT_EXT_PATH):
-        # 读取命中扩展字典文件
-        frequency_dict_hit = read_file_to_dict_with_frequency(HIT_EXT_PATH, separator=SEPARATOR, additional=ADDITIONAL)
-        logger.debug("[*] BASE目录中历史命中记录文件 {} 内容读取结果: {} 条 详情: {}".format(HIT_EXT_PATH, len(frequency_dict_hit), frequency_dict_hit))
-        # 提取符合频率的键
-        frequency_list_hit = get_key_list_with_frequency(frequency_dict_hit, frequency=FREQUENCY_MIN_HIT)
-        logger.debug("[*] BASE目录中历史命中记录文件 {} 频率[{}]时筛选结果: {} 条,详情: {}".format(HIT_EXT_PATH, FREQUENCY_MIN_HIT, len(frequency_list_hit), frequency_list_hit))
-        # 当开启命中扩展追加时,就不需要将命中后缀作为一个单独的替换关键字。
-        hit_ext_name = HIT_EXT_PATH.rsplit('/', 1)[-1]
-        if hit_ext_name in list_dir_base_file: list_dir_base_file.remove(hit_ext_name)
-    logger.info("==================================================")
+    # frequency_list_hit = []
+    # if APPEND_HIT_EXT and file_is_exist(HIT_EXT_PATH):
+    #     # 读取命中扩展字典文件
+    #     frequency_dict_hit = read_file_to_dict_with_frequency(HIT_EXT_PATH, separator=SEPARATOR, additional=ADDITIONAL)
+    #     logger.debug("[*] BASE目录中历史命中记录文件 {} 内容读取结果: {} 条 详情: {}".format(HIT_EXT_PATH, len(frequency_dict_hit), frequency_dict_hit))
+    #     # 提取符合频率的键
+    #     frequency_list_hit = get_key_list_with_frequency(frequency_dict_hit, frequency=FREQUENCY_MIN_HIT)
+    #     logger.debug("[*] BASE目录中历史命中记录文件 {} 频率[{}]时筛选结果: {} 条,详情: {}".format(HIT_EXT_PATH, FREQUENCY_MIN_HIT, len(frequency_list_hit), frequency_list_hit))
+    #     # 当开启命中扩展追加时,就不需要将命中后缀作为一个单独的替换关键字。
+    #     hit_ext_name = HIT_EXT_PATH.rsplit('/', 1)[-1]
+    #     if hit_ext_name in list_dir_base_file: list_dir_base_file.remove(hit_ext_name)
+    # logger.info("==================================================")
     # 1.3 读取所有基本替换变量字典并加入到基本变量替换字典文件
     for file_name in list_dir_base_file:
         # 从文件名中删除字典后缀,两边加上%%作为基本替换字典的键
@@ -453,7 +453,7 @@ def controller():
         logger.debug("[*] BASE目录中常规替换字典文件 {} 频率[{}]时筛选结果: {} 条 详情: {}".format(dir_base_var + '/' + file_name, FREQUENCY_MIN_BASE, len(frequency_list_), frequency_list_))
 
         # 将命中扩展追加到所有基本键值对中
-        if APPEND_HIT_EXT and frequency_list_hit: frequency_list_.extend(frequency_list_hit)
+        # if APPEND_HIT_EXT and frequency_list_hit: frequency_list_.extend(frequency_list_hit)
         if frequency_list_: BASE_VAR_REPLACE_DICT[var_str] = frequency_list_
         logger.info("[*] 基本替换变量 {} 提取有效替换元素 {} 个 {}".format(var_str, len(frequency_list_), frequency_list_))
     logger.info("==================================================")
