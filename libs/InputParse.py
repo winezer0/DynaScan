@@ -38,6 +38,8 @@ class ParserCmd(object):
 
         parser.add_argument("-f", dest="target_file", type=str, default=None, help="指定扫描目标URL文件, Example: target.txt")
 
+        parser.add_argument("-dp", dest="dict_path", type=str, default=None, help="指定扫描使用的字典目录, Example: dict-max")
+
         parser.add_argument("-p", dest="proxy", type=str, default=None, help="指定请求时使用的HTTPS或SOCKS5的代理, Example: http://127.0.0.1:8080 or socks5://127.0.0.1:1080")
 
         parser.add_argument("-t", dest="threads_count", type=int, default=None, help="指定多线程池的最大线程数")

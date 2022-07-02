@@ -81,53 +81,53 @@ FILE_RUN_TIME_SWITCH = False
 
 # 设置日志输出文件路径 #目录不存在会自动创建
 if FILE_RUN_TIME_SWITCH:
-    log_file_path = str(BASE_DIR.joinpath("runtime/runtime_{time}_module.log")).format(time=RUN_TIME)
+    LOG_FILE_PATH = str(BASE_DIR.joinpath("runtime/runtime_{time}_module.log")).format(time=RUN_TIME)
 else:
-    log_file_path = str(BASE_DIR.joinpath("runtime/runtime_module.log"))
+    LOG_FILE_PATH = str(BASE_DIR.joinpath("runtime/runtime_module.log"))
 
-
-info_log_file_path = log_file_path.replace('module', 'info')
-dbg_log_file_path = log_file_path.replace('module', 'debug')
-err_log_file_path = log_file_path.replace('module', 'error')
+INFO_LOG_FILE_PATH = LOG_FILE_PATH.replace('module', 'info')
+DBG_LOG_FILE_PATH = LOG_FILE_PATH.replace('module', 'debug')
+ERR_LOG_FILE_PATH = LOG_FILE_PATH.replace('module', 'error')
 
 # 记录已完成扫描的目标 # 固定命名,不需要添加时间戳
 # 可访问目标已访问记录
-accessible_target_visited_record_file = str(BASE_DIR.joinpath("runtime/runtime_module.log")).replace('module', 'visited_accessible')
+ACCESSIBLE_TARGET_VISITED_RECORD_FILE = str(BASE_DIR.joinpath("runtime/runtime_module.log")).replace('module', 'visited_accessible')
 # 不可访问目标已访问记录
-inaccessible_target_visited_record_file = str(BASE_DIR.joinpath("runtime/runtime_module.log")).replace('module', 'visited_inaccessible')
+INACCESSIBLE_TARGET_VISITED_RECORD_FILE = str(BASE_DIR.joinpath("runtime/runtime_module.log")).replace('module', 'visited_inaccessible')
 
 # 扫描时是否排除可访问目标的测试记录,默认True
 EXCLUDE_ACCESSIBLE_VISITED_RECORD = True
 ACCESSIBLE_VISITED_TARGET_LIST = []
 # 读取命中记录文件
-if EXCLUDE_ACCESSIBLE_VISITED_RECORD and file_is_exist(accessible_target_visited_record_file):
-    ACCESSIBLE_VISITED_TARGET_LIST = read_file_to_list_de_weight(accessible_target_visited_record_file, encoding='utf-8')
+if EXCLUDE_ACCESSIBLE_VISITED_RECORD and file_is_exist(ACCESSIBLE_TARGET_VISITED_RECORD_FILE):
+    ACCESSIBLE_VISITED_TARGET_LIST = read_file_to_list_de_weight(ACCESSIBLE_TARGET_VISITED_RECORD_FILE, encoding='utf-8')
 
 # 扫描时是否排除不可访问目标的测试记录,默认True
 EXCLUDE_INACCESSIBLE_VISITED_RECORD = True
 INACCESSIBLE_VISITED_TARGET_LIST = []
 # 读取命中记录文件
-if EXCLUDE_INACCESSIBLE_VISITED_RECORD and file_is_exist(inaccessible_target_visited_record_file):
-    INACCESSIBLE_VISITED_TARGET_LIST = read_file_to_list_de_weight(inaccessible_target_visited_record_file, encoding='utf-8')
+if EXCLUDE_INACCESSIBLE_VISITED_RECORD and file_is_exist(INACCESSIBLE_TARGET_VISITED_RECORD_FILE):
+    INACCESSIBLE_VISITED_TARGET_LIST = read_file_to_list_de_weight(INACCESSIBLE_TARGET_VISITED_RECORD_FILE, encoding='utf-8')
 
 # 设置输出结果文件目录
-result_dir_path = BASE_DIR.joinpath("result")
-if not os.path.exists(result_dir_path): os.makedirs(result_dir_path)
+RESULT_DIR_PATH = BASE_DIR.joinpath("result")
+if not os.path.exists(RESULT_DIR_PATH): os.makedirs(RESULT_DIR_PATH)
 
 # 字典来自文件列表 #从文件夹获得所有文件列表
-dir_base_var = 'dict/base_var'
-dir_direct_path = 'dict/direct_path'
-dir_group_folder = 'dict/group_folder'
-dir_group_files = 'dict/group_files'
+ALL_DICT_PATH = ["dict-max", "dict-mid", "dict-min"]
+base_var = "base_var"
+direct_path = "direct_path"
+group_folder = "group_folder"
+group_files = "group_files"
+all_dir_name = [base_var, direct_path, group_folder, group_files]
+
+config.dict_path = "dict-max"  # 设置默认调用的字典路径
 
 # 字典文件后缀
 dict_file_suffix = '.lst'
 
 # 是否读取DIRECT目录下的字典
 DIRECT_DICT_MODE = True
-
-# 指定仅读取的 direct 目录指定的文件字典,,不再读取 direct 目录下的所有文件
-SPECIFY_DIRECT_DICT = []
 
 # 指定仅读取 group-xxx目录指定的文件字典,不再读取 group-xxx 目录下的所有文件
 SPECIFY_GROUP_FOLDER_DICT = []
@@ -140,6 +140,7 @@ GROUP_DICT_MODE = True
 # 读取命中的后缀文件时的频率阈值 # 由于后缀文件不好进行进一步的解析,所以加到每个后缀以后
 FREQUENCY_MIN_HIT = 10
 FREQUENCY_MAX_HIT = 999
+
 # 是否将历史命中扩展的值扩展到每一个基本变量中
 APPEND_HIT_EXT = False
 
@@ -213,13 +214,16 @@ PATH_LOWERCASE_SWITCH = False
 
 # 为每个路径添加自定义前缀
 CUSTOM_PREFIX_LIST = ['/admin']
+# 为每个路径添加自定义前缀功能开关
 CUSTOM_PREFIX_SWITCH = False
 
 # 命中文件保存路径
-HIT_EXT_PATH = dir_base_var + '/' + 'HIT_EXT' + '.hit'
-HIT_DIRECT_PATH = dir_direct_path + '/' + 'HIT_DIRECT' + '.hit'
-HIT_FOLDER_PATH = dir_group_folder + '/' + 'HIT_FLODER' + '.hit'
-HIT_FILES_PATH = dir_group_files + '/' + 'HIT_FILE' + '.hit'
+HIT_FILE_PATH = "dict-hit"
+if not os.path.exists(HIT_FILE_PATH): os.makedirs(HIT_FILE_PATH)
+HIT_EXT_PATH = os.path.join(HIT_FILE_PATH, 'HIT_EXT.hit')
+HIT_DIRECT_PATH = os.path.join(HIT_FILE_PATH, 'HIT_DIRECT.hit')
+HIT_FOLDER_PATH = os.path.join(HIT_FILE_PATH, 'HIT_FLODER.hit')
+HIT_FILES_PATH = os.path.join(HIT_FILE_PATH, 'HIT_FILE.hit')
 
 # 是否保存命中结果到HIT_XXX文件
 SAVE_HIT_RESULT = True
@@ -363,8 +367,11 @@ HEADERS = {
 }
 ########################扩展的调用函数###################################
 # 自动创建文件字典目录
-list__ = [dir_base_var, dir_direct_path, dir_group_folder, dir_group_files]
-for path in list__:
+all_dict_dir = []
+for dict_class in ALL_DICT_PATH:
+    for dir_ in all_dir_name:
+        all_dict_dir.append(os.path.join(dict_class, dir_))
+for path in all_dict_dir:
     if not os.path.exists(path):
         os.makedirs(path)
 ########################扩展的调用函数###################################

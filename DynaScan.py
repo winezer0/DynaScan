@@ -41,7 +41,7 @@ def multi_threaded_requests_url(url_path_list, threads_count=10, proxies={}, coo
 
         # 保存所有访问进程返回的结果
         access_fail_count = 0
-        access_fail_resp = ("url",  -1, -1, -1, 'Null-Title', 'Null-Text-Hash', 'Null-Bytes', 'Null-Redirect-Url')
+        access_fail_resp = ("url", -1, -1, -1, 'Null-Title', 'Null-Text-Hash', 'Null-Bytes', 'Null-Redirect-Url')
         for future in as_completed(all_task):
             access_resp = future.result()
             url_access_result_list.append(access_resp)
@@ -62,6 +62,7 @@ def multi_threaded_requests_url(url_path_list, threads_count=10, proxies={}, coo
                     # 终止获取进程返回数据
                     break
     return url_access_result_list
+
 
 # 处理测试URL访问结果,返回一个用于对比的此时结果字典
 def handle_test_result_dict(test_path_result_dict={}, filter_module_default_value_dict={}, logger=None):
@@ -119,7 +120,7 @@ def handle_real_result_dict(real_path_result_dict={}, logger=None, exclude_statu
 
             # 以目标host:port.replace(":",_)作为作为域名相关的结果文件名
             host_port_str = get_host_port(target).replace(":", "_")
-            result_dir_str = str(result_dir_path).replace("\\", "/")
+            result_dir_str = str(RESULT_DIR_PATH).replace("\\", "/")
 
             if WRITE_RESULT_DIFF_SWITCH:
                 if FILE_RUN_TIME_SWITCH:
@@ -352,10 +353,10 @@ def attempt_add_proto_and_access(list_all_target, logger):
                                 inaccessible_all_target.append(url)
     # 记录不可访问的URL
     if inaccessible_all_target:
-        with open(inaccessible_target_visited_record_file, 'a+', encoding='utf-8') as file_open:
+        with open(INACCESSIBLE_TARGET_VISITED_RECORD_FILE, 'a+', encoding='utf-8') as file_open:
             for inaccessible_url in inaccessible_all_target:
                 file_open.write(inaccessible_url + '\n')
-        logger.error("[+] 所有不可访问URL目标 即将写入不可访问的已访问URL记录文件 {} 元素 {}个 {}".format(inaccessible_target_visited_record_file, len(inaccessible_all_target), inaccessible_all_target))
+        logger.error("[+] 所有不可访问URL目标 即将写入不可访问的已访问URL记录文件 {} 元素 {}个 {}".format(INACCESSIBLE_TARGET_VISITED_RECORD_FILE, len(inaccessible_all_target), inaccessible_all_target))
 
     return new_list_all_target
 
@@ -380,11 +381,21 @@ def controller():
                           'https': config.proxy.replace('http://', 'https://')}
 
     # 根据用户输入的debug参数设置日志打印器属性 # 为主要是为了接受config.debug参数来配置输出颜色.
-    logger = set_logger(info_log_file_path, err_log_file_path, dbg_log_file_path, config.debug)
+    logger = set_logger(INFO_LOG_FILE_PATH, ERR_LOG_FILE_PATH, DBG_LOG_FILE_PATH, config.debug)
 
     # 输出所有参数
     logger.info("[*] 所有输入参数信息: {}".format(config))
     logger.info("==================================================")
+
+    # 用户选择的字典文件夹
+    if config.dict_path not in ALL_DICT_PATH:
+        print("[!] 字典分类 {config.dict_path} 不存在, 请选择已存在的字典分类...")
+        sys.exit()
+
+    dir_base_var = os.path.join(config.dict_path, base_var)
+    dir_direct_path = os.path.join(config.dict_path, direct_path)
+    dir_group_folder = os.path.join(config.dict_path, group_folder)
+    dir_group_files = os.path.join(config.dict_path, group_files)
 
     # 读取用户输入的URL和目标文件参数
     list_all_target = []
@@ -469,13 +480,8 @@ def controller():
     if DIRECT_DICT_MODE:
         logger.info("[+] 已开启 DIRECT 目录下的字典文件读取...")
         module = '直接追加路径'
-        if SPECIFY_DIRECT_DICT:
-            # 读取 DIRECT 目录的指定名称的字典文件
-            logger.error("[+] 已开启 DIRECT 目录下的指定字典文件读取 {}".format(SPECIFY_DIRECT_DICT))
-            direct_path_frequency_list_ = read_list_file_to_all(module, dir_direct_path, SPECIFY_DIRECT_DICT, BASE_VAR_REPLACE_DICT, SEPARATOR, ANNOTATION, ADDITIONAL, FREQUENCY_MIN_GROUP, logger)
-        else:
-            # 读取 DIRECT 目录的所有字典文件
-            direct_path_frequency_list_ = read_many_file_to_all(module, dir_direct_path, dict_file_suffix, BASE_VAR_REPLACE_DICT, SEPARATOR, ANNOTATION, ADDITIONAL, FREQUENCY_MIN_GROUP, logger)
+        # 读取 DIRECT 目录的所有字典文件
+        direct_path_frequency_list_ = read_many_file_to_all(module, dir_direct_path, dict_file_suffix, BASE_VAR_REPLACE_DICT, SEPARATOR, ANNOTATION, ADDITIONAL, FREQUENCY_MIN_GROUP, logger)
         logger.info("==================================================")
     else:
         logger.error("[-] 已关闭 DIRECT 目录下的字典文件读取...")
@@ -724,9 +730,9 @@ def controller():
         else:
             logger.error("[-] 当前目标 {} 已关闭命中结果保存功能...".format(target))
         logger.info("==================================================")
-        with open(accessible_target_visited_record_file, 'a+', encoding='utf-8') as file_open:
+        with open(ACCESSIBLE_TARGET_VISITED_RECORD_FILE, 'a+', encoding='utf-8') as file_open:
             file_open.write(target + '\n')
-            logger.info("[+] 当前目标 {} 已写入已访问URL记录文件 {}".format(target, accessible_target_visited_record_file))
+            logger.info("[+] 当前目标 {} 已写入已访问URL记录文件 {}".format(target, ACCESSIBLE_TARGET_VISITED_RECORD_FILE))
             logger.info("==================================================")
 
     # 程序整体运行结束的时间
