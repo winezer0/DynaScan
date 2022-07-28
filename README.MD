@@ -1,6 +1,6 @@
 
 
-# DynaScan 戴拿 ) 
+# DynaScan (戴拿 ) 
 
  dynamic Weak File Scanner 动态敏感文件扫描器 -- NOVESEC
 
