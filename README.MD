@@ -481,3 +481,11 @@ runtime/runtime_visited.log  记录已完成扫描的目标，实现断点续传
 
 ​    weakfilescan原版请访问https://github.com/ring04h/weakfilescan
 
+## NEED STAR And ISSUE
+
+```
+1、右上角点击Star支持更新.
+2、ISSUE或NOVASEC提更新需求
+```
+
+![NOVASEC](doc/NOVASEC.jpg)
