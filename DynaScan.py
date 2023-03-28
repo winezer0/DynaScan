@@ -553,9 +553,9 @@ def controller():
 
         logger.info("[+] 当前目标 {} 开始进行因变量规则提取、替换...".format(target))
         # 基于URL解析出因变量,再和初步处理的list_all_fuzz_path再次组合替换生成新的URL字典列表
-        domain_var_list = get_domain_words(target, ignore_ip_format=IGNORE_IP_FORMAT, sysbol_replace_dict=DOMAIN_SYSBOL_REPLACE_DICT, remove_not_path_symbol=REMOVE_NOT_PATH_SYMBOL,
+        domain_var_list = get_domain_words(target, ignore_ip_format=IGNORE_IP_FORMAT, sysbol_replace_dict=DOMAIN_SYMBOL_REPLACE_DICT, remove_not_path_symbol=REMOVE_NOT_PATH_SYMBOL,
                                            not_path_symbol=NOT_PATH_SYMBOL)
-        path_var_list = get_path_words(target, sysbol_replace_dict=PATH_SYSBOL_REPLACE_DICT, remove_not_path_symbol=REMOVE_NOT_PATH_SYMBOL, not_path_symbol=NOT_PATH_SYMBOL)
+        path_var_list = get_path_words(target, sysbol_replace_dict=PATH_SYMBOL_REPLACE_DICT, remove_not_path_symbol=REMOVE_NOT_PATH_SYMBOL, not_path_symbol=NOT_PATH_SYMBOL)
 
         # 将因变量加入因变量替换字典
         DEPEND_VAR_REPLACE_DICT = {"%%DOMAIN%%": domain_var_list, "%%PATH%%": path_var_list}
@@ -564,10 +564,10 @@ def controller():
         ALL_REPLACE_KEY.extend(DEPEND_VAR_REPLACE_DICT.keys())
 
         # 如果开启了自定义替换变量,就在每个因变量的值内添加自定义变量
-        if APPEND_CUSTOM_VAR and CUSTOME_REPLACE_VAR:
-            logger.info("[*] 当前目标 {} 因变量字典结果{} 需要追加自定义因变量 {}".format(target, DEPEND_VAR_REPLACE_DICT, CUSTOME_REPLACE_VAR))
+        if APPEND_CUSTOM_VAR and CUSTOM_REPLACE_VAR:
+            logger.info("[*] 当前目标 {} 因变量字典结果{} 需要追加自定义因变量 {}".format(target, DEPEND_VAR_REPLACE_DICT, CUSTOM_REPLACE_VAR))
             for key in DEPEND_VAR_REPLACE_DICT.keys():
-                DEPEND_VAR_REPLACE_DICT[key].extend(CUSTOME_REPLACE_VAR)
+                DEPEND_VAR_REPLACE_DICT[key].extend(CUSTOM_REPLACE_VAR)
 
         # 去除因变量字典中没有获取到值的键
         remove_dict_none_value_key(DEPEND_VAR_REPLACE_DICT)

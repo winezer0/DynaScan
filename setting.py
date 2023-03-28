@@ -3,19 +3,16 @@
 
 # 全局配置文件
 import sys
-
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
 import os
 import random
 import pathlib
 import time
-
 from libs.DataType import config
 # 使用config存储主要的设置用户变量更加优雅,注意使用config存储logger后会导致不能用logger打印config,由于死循环调用的问题
-# 所有需要用户输入的变量[就是说cmd直接解析的参数,非直接解析的参数不需要加],需要添加config.作为前缀,
+# 所有需要用户输入的变量[就是说cmd直接解析的参数,非直接解析的参数不需要加],需要添加config.作为前缀
 from libs.ToolUtils import get_random_str, file_is_exist, read_file_to_list_de_weight
-
 ##################################################################
 # 获取setting.py脚本所在路径作为的基本路径
 BASE_DIR = pathlib.Path(__file__).parent.resolve()
@@ -91,23 +88,27 @@ ERR_LOG_FILE_PATH = LOG_FILE_PATH.replace('module', 'error')
 
 # 记录已完成扫描的目标 # 固定命名,不需要添加时间戳
 # 可访问目标已访问记录
-ACCESSIBLE_TARGET_VISITED_RECORD_FILE = str(BASE_DIR.joinpath("runtime/runtime_module.log")).replace('module', 'visited_accessible')
+ACCESSIBLE_TARGET_VISITED_RECORD_FILE = str(BASE_DIR.joinpath("runtime/runtime_module.log")).replace('module',
+                                                                                                     'visited_accessible')
 # 不可访问目标已访问记录
-INACCESSIBLE_TARGET_VISITED_RECORD_FILE = str(BASE_DIR.joinpath("runtime/runtime_module.log")).replace('module', 'visited_inaccessible')
+INACCESSIBLE_TARGET_VISITED_RECORD_FILE = str(BASE_DIR.joinpath("runtime/runtime_module.log")).replace('module',
+                                                                                                       'visited_inaccessible')
 
 # 扫描时是否排除可访问目标的测试记录,默认True
 EXCLUDE_ACCESSIBLE_VISITED_RECORD = True
 ACCESSIBLE_VISITED_TARGET_LIST = []
 # 读取命中记录文件
 if EXCLUDE_ACCESSIBLE_VISITED_RECORD and file_is_exist(ACCESSIBLE_TARGET_VISITED_RECORD_FILE):
-    ACCESSIBLE_VISITED_TARGET_LIST = read_file_to_list_de_weight(ACCESSIBLE_TARGET_VISITED_RECORD_FILE, encoding='utf-8')
+    ACCESSIBLE_VISITED_TARGET_LIST = read_file_to_list_de_weight(ACCESSIBLE_TARGET_VISITED_RECORD_FILE,
+                                                                 encoding='utf-8')
 
 # 扫描时是否排除不可访问目标的测试记录,默认True
 EXCLUDE_INACCESSIBLE_VISITED_RECORD = True
 INACCESSIBLE_VISITED_TARGET_LIST = []
 # 读取命中记录文件
 if EXCLUDE_INACCESSIBLE_VISITED_RECORD and file_is_exist(INACCESSIBLE_TARGET_VISITED_RECORD_FILE):
-    INACCESSIBLE_VISITED_TARGET_LIST = read_file_to_list_de_weight(INACCESSIBLE_TARGET_VISITED_RECORD_FILE, encoding='utf-8')
+    INACCESSIBLE_VISITED_TARGET_LIST = read_file_to_list_de_weight(INACCESSIBLE_TARGET_VISITED_RECORD_FILE,
+                                                                   encoding='utf-8')
 
 # 设置输出结果文件目录
 RESULT_DIR_PATH = BASE_DIR.joinpath("result")
@@ -180,18 +181,18 @@ DEPEND_VAR_REPLACE_DICT = {"%%DOMAIN%%": [], "%%PATH%%": []}
 IGNORE_IP_FORMAT = True
 
 # 存储自定义变量单词,会自动加入到%%DOMAIN%% 和%%PATH%% 中
-# CUSTOME_REPLACE_VAR = ['admin', 'product', 'wwwroot', 'www', '网站']
-CUSTOME_REPLACE_VAR = []
+# CUSTOM_REPLACE_VAR = ['admin', 'product', 'wwwroot', 'www', '网站']
+CUSTOM_REPLACE_VAR = []
 # 是否在每个因变量内追加自定义变量
 APPEND_CUSTOM_VAR = True
 
 # DOMAIN因变量中HOST:PORt中的替换规则,替换后追加到域名因子列表
-DOMAIN_SYSBOL_REPLACE_DICT = {
+DOMAIN_SYMBOL_REPLACE_DICT = {
     ":": ["_"],
     ".": ["_"]}
 
 # PATH因变量中HOST:PORt中的替换规则,替换后追加到域名因子列表
-PATH_SYSBOL_REPLACE_DICT = {
+PATH_SYMBOL_REPLACE_DICT = {
     ":": ["_"],  # 获取的路径相关单词中的[:]会替换为[_]
     ".": ["_"]  # 获取的路径相关单词中的[.]会替换为[_]
 }
