@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
+import itertools
 import sys
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 import time
@@ -16,7 +16,7 @@ def list_in_str(list=[], string=""):
     return flag
 
 
-# 替换列表中包含关键字的字符串,返回一个列表文件
+# 替换列表中包含关键字的字符串,返回一个列表文件 # 使用 itertools 实现多个列表(即多个因变量)的支持
 def replace_list_has_key_str(replace_list=[], replace_dict={}):
     # 替换列表中包含关键字的字符串,返回一个列表文件
     # 记录开始替换的时间
@@ -25,41 +25,25 @@ def replace_list_has_key_str(replace_list=[], replace_dict={}):
     replace_count = 0
     # 保存替换完毕后的结果文件
     result_list = []
-    # 提前取出键值对,也许可以加快运行速度
-    replace_dict_key = list(replace_dict.keys())
-    if not replace_dict_key:
-        # 没有需要替换的关键字,直接忽略替换
-        result_list = replace_list
-    else:
-        for index in range(0, len(replace_dict_key)):
-            # 逐步替换每一个关键字,需要循环  len(replace_dict_key) * len(replace_list)
-            # 提前取出索引对应的值,也许可以加快运行速度
-            replace_key = replace_dict_key[index]
-            # print("replace_key", replace_key)
-            # 保存初次替换后还需要继续替换的字符串
-            tmp_replace_list = []
+    # 开始替换
+    replace_keys = list(replace_dict.keys())
+    # replace_values = list(replace_dict.values())
+    # dict.values() 和 dict.keys()的顺序是一般一样的
+    # 但是在更高版本中，不能保证它们的顺序一致。 最好手动生成
+    replace_values = [replace_dict[key] for key in replace_keys]
 
-            for replace_str in replace_list:
-                # 如果字符串中有需要替换的键,就考虑进行替换
-                if list_in_str(replace_dict_key[index:], replace_str):
-                    # 如果字符串中有需要替换的键,就进行替换
-                    if replace_key in replace_str:
-                        for value in replace_dict[replace_key]:
-                            replace_count = replace_count + 1
-                            new_replace_str = replace_str.replace(replace_key, value)
-                            # 替换后再看元素中有没有需要替换的键,
-                            if list_in_str(replace_dict_key[index + 1:], new_replace_str):
-                                tmp_replace_list.append(new_replace_str)
-                            else:
-                                result_list.append(new_replace_str)
-                    else:
-                        tmp_replace_list.append(replace_str)
-                else:
-                    # 没有需要替换的关键字,直接保存该项目
-                    result_list.append(replace_str)
-            else:
-                replace_list = tmp_replace_list
-
+    for string in replace_list:
+        # 使用嵌套循环将多个列表进行组合
+        for values in itertools.product(*replace_values):
+            # 将占位符用对应的元素替换，然后添加到结果列表中
+            new_string = string
+            for i in range(len(replace_keys)):
+                str_1 = replace_keys[i]
+                if str_1 in new_string:
+                    new_string = new_string.replace(str_1, values[i])
+                    replace_count += 1
+            result_list.append(new_string)
+    # 去重
     result_list = list(set(result_list))
     end_time = time.time()
     run_time = end_time - start_time
