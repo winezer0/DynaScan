@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+import copy
 import sys
 
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
@@ -480,7 +481,7 @@ def list_in_str(list=[], string=""):
 # 保留文件中指定后缀的URL
 ############URL解析处理相关###############
 # 从URL中获取域名相关的单词列表
-def get_domain_words(url, ignore_ip_format=True, sysbol_replace_dict={}, remove_not_path_symbol=True, not_path_symbol=[':']):
+def get_domain_words(url, ignore_ip_format=True, symbol_replace_dict={}, not_allowed_symbol=[':']):
     """
     从URL中获取域名相关的单词
     print(get_basedomain('http://www.baidu.com/xxx.aspx?p=123'))  # ['www.baidu.com', 'baidu.com', 'baidu']
@@ -496,8 +497,7 @@ def get_domain_words(url, ignore_ip_format=True, sysbol_replace_dict={}, remove_
         real_domain_val_list = []
         domain_val_1 = urlparse(url).netloc
         if ignore_ip_format:
-            re_search_ip_result = re.search(
-                r'(([01]{0,1}\d{0,1}\d|2[0-4]\d|25[0-5])\.){3}([01]{0,1}\d{0,1}\d|2[0-4]\d|25[0-5])', domain_val_1)
+            re_search_ip_result = re.search(r'^[\d.:]+$', domain_val_1)
             if re_search_ip_result:
                 # 如果从域名中搜索到IP,就直接返回
                 return real_domain_val_list
@@ -507,42 +507,24 @@ def get_domain_words(url, ignore_ip_format=True, sysbol_replace_dict={}, remove_
         # print(domain_val_2) # baidu.com.cn
         domain_val_3 = extract(url).domain
         # print(domain_val_3) #baidu
-        tmp_domain_val_list = [domain_val_1, domain_val_2, domain_val_3]
-        """
-        # colon_to_other_list = ["_", "-"]
-        colon_to_other_list = ["_"] #建议将变量移动到seting.py 要解决各个包之间相互导入的问题
-        for domain_val in tmp_domain_val_list:
-            if domain_val.strip() != '':
-                real_domain_val_list.append(domain_val.strip())
-            if ':' in domain_val:
-                real_domain_val_list.append(domain_val.split(":")[0])
-                for sysbol in colon_to_other_list:
-                    real_domain_val_list.append(domain_val.replace(":",sysbol))
-        """
-        # 根据字典动态替换
-        # sysbol_replace_dict = {":": ["_"],".": ["_"]}
-        if sysbol_replace_dict:
-            for domain_val in tmp_domain_val_list:
-                if domain_val.strip() != '':
-                    real_domain_val_list.append(domain_val.strip())
-                    # 如果里面有冒号,需要再添加一边
-                    if ':' in domain_val:
-                        real_domain_val_list.append(domain_val.split(":")[0])
+        real_domain_val_list = [domain_val_1, domain_val_2, domain_val_3]
 
         # 对所有结果再进行一次替换和添加
-        for domain_val in real_domain_val_list:
-            for key, value in sysbol_replace_dict.items():
-                for sysbol in value:
+        # symbol_replace_dict = {":": ["_"],".": ["_"]}
+        tmp_domain_val_list = copy.copy(real_domain_val_list)
+        for domain_val in tmp_domain_val_list:
+            for key, value in symbol_replace_dict.items():
+                for symbol in value:
                     if key in domain_val:
-                        real_domain_val_list.append(domain_val.replace(key, sysbol))
-
+                        real_domain_val_list.append(domain_val.replace(key, symbol))
+        # 去重
         real_domain_val_list = list(set(real_domain_val_list))
 
-        # 如果开启删除非路径字符开关
-        if remove_not_path_symbol:
+        # 如果不允许的字符列表不为空,就再过滤一遍
+        if not_allowed_symbol:
             tmp_words_list = []
             for word in real_domain_val_list:
-                if not list_in_str(not_path_symbol, word):
+                if not list_in_str(not_allowed_symbol, word):
                     tmp_words_list.append(word)
             real_domain_val_list = tmp_words_list
         return real_domain_val_list

@@ -553,8 +553,7 @@ def controller():
 
         logger.info("[+] 当前目标 {} 开始进行因变量规则提取、替换...".format(target))
         # 基于URL解析出因变量,再和初步处理的list_all_fuzz_path再次组合替换生成新的URL字典列表
-        domain_var_list = get_domain_words(target, ignore_ip_format=IGNORE_IP_FORMAT, sysbol_replace_dict=DOMAIN_SYMBOL_REPLACE_DICT, remove_not_path_symbol=REMOVE_NOT_PATH_SYMBOL,
-                                           not_path_symbol=NOT_PATH_SYMBOL)
+        domain_var_list = get_domain_words(target, ignore_ip_format=IGNORE_IP_FORMAT, symbol_replace_dict=DOMAIN_SYMBOL_REPLACE_DICT, not_allowed_symbol=NOT_PATH_SYMBOL)
         path_var_list = get_path_words(target, sysbol_replace_dict=PATH_SYMBOL_REPLACE_DICT, remove_not_path_symbol=REMOVE_NOT_PATH_SYMBOL, not_path_symbol=NOT_PATH_SYMBOL)
 
         # 将因变量加入因变量替换字典
