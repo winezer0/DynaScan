@@ -7,12 +7,13 @@ sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
 import urllib
 import libs.requests as requests
-
 import chardet
 import hashlib
 from libs.ToolUtils import get_host_port
+from binascii import b2a_hex
 
 requests.packages.urllib3.disable_warnings()
+
 
 # 输出时产生了序列问题,尝试枷锁解决,发现问题时由于python3 print的自动换行时线程不再安全导致
 # import threading
@@ -21,7 +22,18 @@ requests.packages.urllib3.disable_warnings()
 # from colorama import init, Fore  # 需要添加有颜色的结果输出,便于区分错误结果
 # init(autoreset=True) #使用logger进行输出,本文件没有导入logeer,从外部传参进入
 
-from binascii import b2a_hex
+
+# 根据logger是否存在来输出数据
+def output_with_logger(string, logger=None, level="debug"):
+    if logger:
+        if level == "info":
+            logger.info(string)
+        elif level == "debug":
+            logger.debug(string)
+        elif level == "error":
+            logger.error(string)
+    else:
+        print(string)
 
 
 # 判断列表内的元素是否存在有包含在字符串内的
@@ -35,13 +47,13 @@ def list_element_in_str(common_error_list=[], error_string=""):
     return common_error_flag
 
 
-def handle_error(url, common_error_list, module, error, logger):
+def handle_error(url, common_error_list, module, error, logger=None):
     # 把常规错误的关键字加入列表common_error_list内,列表为空时都作为非常规错误处理
     common_error_flag = list_element_in_str(common_error_list, str(error))
     if common_error_flag:
-        logger.debug("[-] 当前目标 {} COMMON ERROR ON Acquire {}: {}".format(url, module, error))
+        output_with_logger("[-] 当前目标 {} COMMON ERROR ON Acquire {}: {}".format(url, module, error), logger, "debug")
     else:
-        logger.error("[-] 当前目标 {} OTHERS ERROR ON Acquire {}: {}".format(url, module, error))
+        output_with_logger("[-] 当前目标 {} OTHERS ERROR ON Acquire {}: {}".format(url, module, error), logger, "error")
 
 
 def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False, proxies=None, headers=None, verify=False, allow_redirects=False,
@@ -83,32 +95,28 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
             if encode_all_path:
                 # 不需要重试的结果 设置resp_status标记为1,
                 resp_status = 1
-                result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url)
-                logger.debug("[-] 当前目标 {} 中文数据编码错误,但是已经开启中文编码处理功能,忽略本次结果 {}!!!".format(url, result))
+                output_with_logger("[-] 当前目标 {} 中文数据编码错误,但是已经开启中文编码处理功能,忽略本次结果 {}!!!".format(url), logger, "debug")
             else:
                 # 需要手动访问重试的结果
-                result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url)
-                logger.error("[-] 当前目标 {} 中文数据编码错误,需要针对中文编码进行额外处理,返回固定结果 {}!!!".format(url, result))
+                output_with_logger("[-] 当前目标 {} 中文数据编码错误,需要针对中文编码进行额外处理,返回固定结果 {}!!!".format(url), logger, "error")
         elif "No host supplied" in str(error):
             # 不需要重试的结果 设置resp_status标记为1,
             resp_status = 1
-            result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url)
-            logger.error("[-] 当前目标 {} 格式输入错误,忽略本次结果{}!!!".format(url, result))
+            output_with_logger("[-] 当前目标 {} 格式输入错误,忽略本次结果{}!!!".format(url), logger, "error")
         else:
             # 如果服务器没有响应,但是也有可能存在能访问的URL,因此不能简单以状态码判断结果
             # 如果是其他访问错误,就进程访问重试
             if retry_times > 0:
                 if "Exceeded 30 redirects" in str(error):
                     headers = None
-                    logger.error("[-] 当前目标 {} 即将修改请求头为默认头后进行重试!!!".format(url))
-
-                logger.debug("[-] 当前目标 {} 开始进行倒数第 {} 次重试,(HTTP_TIMEOUT = HTTP_TIMEOUT * 1.5)...".format(url, retry_times))
+                    output_with_logger("[-] 当前目标 {} 即将修改请求头为默认头后进行重试!!!".format(url), logger, "error")
+                output_with_logger("[-] 当前目标 {} 开始进行倒数第 {} 次重试,(HTTP_TIMEOUT = HTTP_TIMEOUT * 1.5)...".format(url, retry_times),  logger, "debug")
                 result = requests_plus(method=method, url=url, proxies=proxies, cookies=cookies, headers=headers, timeout=timeout * 1.5, verify=verify, allow_redirects=allow_redirects,
                                        dynamic_host_header=dynamic_host_header, dynamic_refer_header=dynamic_refer_header, retry_times=retry_times - 1, logger=logger, encode=encode)
+                return result
             else:
                 # 如果重试次数为小于0,返回固定结果-1
-                result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url)
-                logger.error("[-] 当前目标 {} 剩余重试次数为0,返回固定结果{},需要后续手动进行验证...".format(url, result))
+                output_with_logger("[-] 当前目标 {} 剩余重试次数为0,返回固定结果,需要后续手动进行验证...".format(url), logger, "error")
     else:
         # 当获取到响应结果时,获取三个响应关键匹配项目
         #############################################################
@@ -189,7 +197,7 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
                     resp_text_title.encode(sys.stdout.encoding)
                 except Exception as error:
                     resp_text_title = urllib.parse.quote(resp_text_title.encode('utf-8'))
-                    logger.error("[!] 字符串使用当前控制台编码 {} 编码失败,自动转换为UTF-8型URL编码 {}, ERROR:{}".format(sys.stdout.encoding, resp_text_title, error))
+                    output_with_logger("[!] 字符串使用当前控制台编码 {} 编码失败,自动转换为UTF-8型URL编码 {}, ERROR:{}".format(sys.stdout.encoding, resp_text_title, error), logger, "error")
                 if resp_text_title.strip() == "": resp_text_title = "Blank-Title"
         except Exception as error:
             module = "resp_text_title"
@@ -222,6 +230,7 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
             module = "resp_redirect_url"
             common_error_list = []  # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
             handle_error(url, common_error_list, module, error, logger)
+    finally:
         # 合并所有获取到的结果
         """
         # 获取编码后URL的真实URL 忽略本步骤,解码可能会导致报错 也没有必要获取
@@ -232,8 +241,8 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
             url = urllib.parse.unquote(url, encoding=encode)  # 解码为/备份.zip成功
         """
         result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url)
-        logger.debug("[*] 当前目标 {} 请求返回结果集合:{}".format(url, result))
-    return result
+        output_with_logger("[*] 当前目标 {} 请求返回结果集合:{}".format(url, result),logger,"debug")
+        return result
 
 
 if __name__ == '__main__':
