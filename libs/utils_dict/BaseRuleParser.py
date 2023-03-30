@@ -339,7 +339,7 @@ def rule_list_base_render(rule_list):
                         print_str = "[-] 规则 {} 发生编写错误,每条规则仅支持单个格式规则!!!".format(rule_line)
                         output(print_str, level="error")
                     else:
-                        print_str = "[-] 规则 {} 发生未知解析错误!!! Error: {error}".format(rule_line)
+                        print_str = "[-] 规则 {} 发生未知解析错误!!! Error: {}".format(rule_line, error)
                         output(print_str, level="error")
                 else:
                     # 实际解析规则返回结果
