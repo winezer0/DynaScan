@@ -3,23 +3,25 @@
 
 # 全局配置文件
 import sys
-sys.dont_write_bytecode = True  # 设置不生成pyc文件
-
 import os
 import random
 import pathlib
 import time
 from libs.DataType import config
-# 使用config存储主要的设置用户变量更加优雅,注意使用config存储logger后会导致不能用logger打印config,由于死循环调用的问题
-# 所有需要用户输入的变量[就是说cmd直接解析的参数,非直接解析的参数不需要加],需要添加config.作为前缀
+# 使用config字典 存储主要的设置用户变量更加优雅
+# 注意使用config存储logger后会导致不能用logger打印config,由于死循环调用的问题
+# 所有需要用户输入的变量,需要添加config.作为前缀
 from libs.ToolUtils import get_random_str, file_is_exist, read_file_to_list_de_weight
+sys.dont_write_bytecode = True  # 设置不生成pyc文件
+##################################################################
+# 程序开始运行时间
+RUN_TIME = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
 ##################################################################
 # 获取setting.py脚本所在路径作为的基本路径
 BASE_DIR = pathlib.Path(__file__).parent.resolve()
 ##################################################################
 # 是否显示DEBUG级别信息,默认False
 config.debug = False
-
 # 是否属于测试模式,默认False
 TEST_MODE_HANDLE = False
 # 测试模式每个目标URL只获取生成的前100个URL进行测试,
@@ -66,9 +68,6 @@ SMART_ADD_PROTO_HEAD = True
 # 对URL路径进行分解,一个目标能够变成多个目标,每多一个目标,请求URL就会多一倍
 MULTI_TARGET_PATH_MODE = True
 # 示例：https://XXX/item/DD/ 会被分解为 https://XXX/item/DD/,https://XXX/item/,https://XXX/
-
-# 程序开始运行时间
-RUN_TIME = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
 
 # 是否将每一次批量扫描的扫描结果分别按照多个HOST_PORT进行拆分
 WRITE_RESULT_DIFF_SWITCH = False
@@ -138,13 +137,6 @@ SPECIFY_GROUP_FILES_DICT = []
 GROUP_DICT_MODE = True
 
 # 要提取的路径频率阈值，大于等于FREQUENCY_MIN 小于等于 FREQUENCY_MAX的字典会被提取
-# # 读取命中的后缀文件时的频率阈值 # 由于后缀文件不好进行进一步的解析,所以加到每个后缀以后
-# FREQUENCY_MIN_HIT = 10
-# FREQUENCY_MAX_HIT = 999
-#
-# # 是否将历史命中扩展的值扩展到每一个基本变量中
-# APPEND_HIT_EXT = False
-
 # 读取BASE目录下字典时的频率阈值
 FREQUENCY_MIN_BASE = 1
 FREQUENCY_MAX_BASE = 999

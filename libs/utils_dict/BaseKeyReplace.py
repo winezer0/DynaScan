@@ -2,6 +2,9 @@
 # encoding: utf-8
 import itertools
 import sys
+
+from libs.LoggerPrinter import output
+
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 import time
 
@@ -60,5 +63,5 @@ if __name__ == '__main__':
     replace_str2 = "2222222222.%EXT%.%BAK%.%XXX%"
     replace_str_list = [replace_str, replace_str2]
     result_list, replace_count, run_time = replace_list_has_key_str(replace_str_list, replace_dict)
-    print(len(result_list), replace_count, run_time)
-    print(result_list)
+    output(len(result_list), replace_count, run_time)
+    output(result_list)

@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 import sys
+
+from libs.LoggerPrinter import output
+
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
 # 简单的判断文件编码类型
@@ -39,11 +42,13 @@ def string_encoding(data: bytes):
             continue
     return 'unknown'
 
+
 if __name__ == '__main__':
     import SimpleCoding
     import requests
+
     # 检测文件编码
-    print(SimpleCoding.file_encoding('test1.txt'))
-    print(SimpleCoding.file_encoding('test2.txt'))
+    output(SimpleCoding.file_encoding('test1.txt'))
+    output(SimpleCoding.file_encoding('test2.txt'))
     # 检测字符串编码
-    print(SimpleCoding.string_encoding(requests.get('https://www.baidu.com').content))
+    output(SimpleCoding.string_encoding(requests.get('https://www.baidu.com').content))

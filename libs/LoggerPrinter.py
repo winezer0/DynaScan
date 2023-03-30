@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
 import sys
-sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
 from loguru import logger
+
+sys.dont_write_bytecode = True  # 设置不生成pyc文件
+
 
 def set_logger(info_log_file_path=None, err_log_file_path=None, dbg_log_file_path=None, debug=None):
     # 初始化日志记录器
@@ -29,15 +31,18 @@ def set_logger(info_log_file_path=None, err_log_file_path=None, dbg_log_file_pat
     # logger.add(sys.stdout, format=logger_format1, level="DEBUG")
 
     # 设置显示INFO到文件
-    logger.add(info_log_file_path, format=logger_format_writer, rotation="100 MB", level="INFO", enqueue=True, encoding="utf-8", errors="ignore")
+    logger.add(info_log_file_path, format=logger_format_writer, rotation="100 MB", level="INFO", enqueue=True,
+               encoding="utf-8", errors="ignore")
     # 设置显示DEBUG到文件
-    logger.add(dbg_log_file_path, format=logger_format_writer, rotation="100 MB", level="DEBUG", enqueue=True, encoding="utf-8", errors="ignore")
+    logger.add(dbg_log_file_path, format=logger_format_writer, rotation="100 MB", level="DEBUG", enqueue=True,
+               encoding="utf-8", errors="ignore")
     # 设置显示ERROR到文件
-    logger.add(err_log_file_path, format=logger_format_writer, rotation="100 MB", level="ERROR", enqueue=True, encoding="utf-8", errors="ignore")
+    logger.add(err_log_file_path, format=logger_format_writer, rotation="100 MB", level="ERROR", enqueue=True,
+               encoding="utf-8", errors="ignore")
 
     # 根据输入的debug参数指定窗口输出的日志信息级别,不执行语句会导致没有控制台页面输出
-    logger_format_show_info= "[<blue>{time:HH:mm:ss}</blue>] <level>{message}</level>"
-    logger_format_show_debug= "[<green>{time:HH:mm:ss}</green>] <level>{message}</level>"
+    logger_format_show_info = "[<blue>{time:HH:mm:ss}</blue>] <level>{message}</level>"
+    logger_format_show_debug = "[<green>{time:HH:mm:ss}</green>] <level>{message}</level>"
 
     # import codecs # 解决韩文乱码问题
     # sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach()) # utf-8会导致控制台输出其他结果输出乱码
@@ -47,3 +52,13 @@ def set_logger(info_log_file_path=None, err_log_file_path=None, dbg_log_file_pat
     else:
         logger.add(sys.stdout, format=logger_format_show_info, level="INFO")
     return logger
+
+
+# 根据logger是否传递输出数据
+def output(*args, level="debug"):
+    if level in ["debug","info","error"]:
+        # 使用 getattr() 函数和 f-string 简化代码
+        log_func = getattr(logger, level)
+        log_func("{}".format(' '.join(map(str, args))))
+    else:
+        output(*args)

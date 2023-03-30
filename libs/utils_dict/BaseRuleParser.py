@@ -2,6 +2,9 @@
 # encoding: utf-8
 
 import sys
+
+from libs.LoggerPrinter import output
+
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 import re
 import string
@@ -28,7 +31,7 @@ class RuleParser(object):
             parse_result = []
             start_str = self.get_start_str()
             end_str = self.get_end_str()
-            # print("dict_str:",self.dict_str,"start_str:",start_str,"end_str:", end_str,"rule:",self.get_reg_rule())
+            # output("dict_str:",self.dict_str,"start_str:",start_str,"end_str:", end_str,"rule:",self.get_reg_rule())
             dic_result = self.generate_dic(self.get_reg_rule())
             for line in dic_result:
                 parse_result.append('%s%s%s' % (start_str, line, end_str))
@@ -309,7 +312,7 @@ class RuleParser(object):
 
 
 # 解析列表中包含规则的字符串,返回一个列表文件
-def rule_list_base_render(rule_list, logger=None):
+def rule_list_base_render(rule_list):
     """
     # 解析列表中包含规则的字符串,返回一个列表文件
     """
@@ -334,10 +337,10 @@ def rule_list_base_render(rule_list, logger=None):
                 except Exception as error:
                     if 'too many values to unpack' in str(error):
                         print_str = "[-] 规则 {} 发生编写错误,每条规则仅支持单个格式规则!!!".format(rule_line)
-                        logger.error(print_str) if logger else print(print_str)
+                        output(print_str, level="error")
                     else:
                         print_str = "[-] 规则 {} 发生未知解析错误!!! Error: {error}".format(rule_line)
-                        logger.error(print_str) if logger else print(print_str)
+                        output(print_str, level="error")
                 else:
                     # 实际解析规则返回结果
                     parser_result = parser.parse()
@@ -345,7 +348,7 @@ def rule_list_base_render(rule_list, logger=None):
                     render_count = render_count + 1
             else:
                 print_str = "[!] 字典 {} 疑似解析规则,可能存在编写错误...".format(rule_line)
-                logger.error(print_str) if logger else print(print_str)
+                output(print_str, level="error")
                 result_list.append(rule_line)
         else:
             # 不进行渲染
@@ -387,10 +390,10 @@ if __name__ == '__main__':
     # result = RuleParser('{re=exrex:(''|admin/|exec/)}$').parse() # ['', 'admin/', 'exec/']
     result = RuleParser('/{re=exrex:(|v[1-3]|v1\.[0-9]|v[2-3]\.[0-5]|api|api/v[1-3]|api/v1\.[0-9]|api/v[2-3]\.[0-5])}$/agent/self').parse() # ['', 'admin/', 'exec/']
 
-    print(result)
+    output(result)
 
     ##########rule_list_base_render
     # rule_list = ['.{re=exrex:(zip|rar|asp)}$','.re={exrex:(zip|rar|asp)}$','.aspx']
     # result_list,render_count,run_time = rule_list_base_render(rule_list)
-    # print(len(result_list),render_count,run_time)
-    # print(result_list)
+    # output(len(result_list),render_count,run_time)
+    # output(result_list)

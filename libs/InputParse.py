@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 import sys
+
+from libs.LoggerPrinter import output
+
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 from pyfiglet import Figlet
 import argparse
@@ -58,4 +61,4 @@ class ParserCmd(object):
 
 if __name__ == '__main__':
     args = ParserCmd().init()
-    print(args)
+    output(args)
