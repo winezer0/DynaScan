@@ -94,16 +94,16 @@ ACCESSIBLE_TARGET_VISITED_RECORD_FILE = str(BASE_DIR.joinpath("runtime/runtime_m
 INACCESSIBLE_TARGET_VISITED_RECORD_FILE = str(BASE_DIR.joinpath("runtime/runtime_module.log")).replace('module',
                                                                                                        'visited_inaccessible')
 
-# 扫描时是否排除可访问目标的测试记录,默认True
-EXCLUDE_ACCESSIBLE_VISITED_RECORD = True
+# 扫描时是否排除测试记录（可访问目标的）,# 即不重复扫描可访问目标 默认True
+EXCLUDE_ACCESSIBLE_VISITED_RECORD = False
 ACCESSIBLE_VISITED_TARGET_LIST = []
 # 读取命中记录文件
 if EXCLUDE_ACCESSIBLE_VISITED_RECORD and file_is_exist(ACCESSIBLE_TARGET_VISITED_RECORD_FILE):
     ACCESSIBLE_VISITED_TARGET_LIST = read_file_to_list_de_weight(ACCESSIBLE_TARGET_VISITED_RECORD_FILE,
                                                                  encoding='utf-8')
 
-# 扫描时是否排除不可访问目标的测试记录,默认True
-EXCLUDE_INACCESSIBLE_VISITED_RECORD = True
+# 扫描时是否排除测试记录（不可访问目标的）,默认True  # 即不重复扫描不可访问目标
+EXCLUDE_INACCESSIBLE_VISITED_RECORD = False
 INACCESSIBLE_VISITED_TARGET_LIST = []
 # 读取命中记录文件
 if EXCLUDE_INACCESSIBLE_VISITED_RECORD and file_is_exist(INACCESSIBLE_TARGET_VISITED_RECORD_FILE):
