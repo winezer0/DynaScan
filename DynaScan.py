@@ -707,15 +707,28 @@ def controller():
         output("[*] 当前目标 {} 所有URL进程访问完毕,过程耗时[{}]...".format(target, target_exec_end_time - target_exec_start_time), level="info")
         output("==================================================", level="info")
         output("[+] 当前目标 {} 开始处理所有URL访问测试结果 结果自动筛选分类中...".format(target), level="info")
-        write_tuple_result = handle_real_result_dict(real_path_result_dict, EXCLUDE_REGEXP, dynamic_exclude_dict, EXCLUDE_DYNAMIC_SWITCH, FILTER_MODULE_DEFAULT_VALUE_DICT)
+        # write_tuple_result = handle_real_result_dict(real_path_result_dict, EXCLUDE_REGEXP, dynamic_exclude_dict, EXCLUDE_DYNAMIC_SWITCH, FILTER_MODULE_DEFAULT_VALUE_DICT)
+        write_tuple_result = handle_real_result_dict(real_path_result_dict=real_path_result_dict,
+                                                     exclude_status=EXCLUDE_STATUS,
+                                                     exclude_regexp=EXCLUDE_REGEXP,
+                                                     dynamic_exclude_dict=dynamic_exclude_dict,
+                                                     exclude_dynamic_switch=EXCLUDE_DYNAMIC_SWITCH,
+                                                     filter_module_default_value_dict=FILTER_MODULE_DEFAULT_VALUE_DICT)
         output("==================================================", level="info")
         if SAVE_HIT_RESULT:
             output("[+] 当前目标 {} 已开启命中结果保存...".format(target), level="info")
             if write_tuple_result:
                 output("[+] 当前目标 {} 开始将命中的结果 {} 写入到命中文件中...".format(target, write_tuple_result), level="info")
                 write_url_list = [tuple_[0] for tuple_ in write_tuple_result]
-                write_flag = auto_analyse_hit_result_and_write_file(write_url_list, BASE_VAR_REPLACE_DICT, DEPEND_VAR_REPLACE_DICT, HIT_EXT_PATH, HIT_DIRECT_PATH, HIT_FOLDER_PATH, HIT_FILES_PATH)
-                if not write_flag:
+                write_status = auto_analyse_hit_result_and_write_file(url_list=write_url_list,
+                                                                    BASE_VAR_REPLACE_DICT=BASE_VAR_REPLACE_DICT,
+                                                                    DEPEND_VAR_REPLACE_DICT=DEPEND_VAR_REPLACE_DICT,
+                                                                    hit_ext_path=HIT_EXT_PATH,
+                                                                    hit_direct_path=HIT_DIRECT_PATH,
+                                                                    hit_folder_path=HIT_FOLDER_PATH,
+                                                                    hit_files_path=HIT_FILES_PATH,
+                                                                    hit_overwrite_mode=HIT_OVERWRITE_MODE)
+                if not write_status:
                     output("[!] 当前目标 {} 命中结果写入时发生错误...".format(target), level="error")
             else:
                 output("[-] 当前目标 {} 在本次扫描中没有命中任何结果...".format(target), level="error")

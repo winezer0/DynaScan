@@ -220,7 +220,6 @@ HIT_FILES_PATH = os.path.join(HIT_FILE_PATH, 'HIT_FILE.hit')
 
 # 是否保存命中结果到HIT_XXX文件
 SAVE_HIT_RESULT = True
-
 # 命中结果文件追加模式
 # True,计算频率后覆盖写入、后期写入时内存占用大,磁盘占用小,读取效率高
 # False 直接追加命中记录、后期写入时内存占用小,磁盘占用大,读取效率低
