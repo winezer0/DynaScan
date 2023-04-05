@@ -1,8 +1,8 @@
-pyfiglet
-chardet
-argparse
-loguru
-tldextract
-exrex
-sre_yield
-#requests
+pyfiglet~=0.8.post1
+chardet~=3.0.4
+argparse~=1.4.0
+loguru~=0.5.2
+tldextract~=2.2.3
+exrex~=0.10.5
+requests~=2.28.1
+sre_yield~=1.2

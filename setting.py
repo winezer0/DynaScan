@@ -223,7 +223,7 @@ SAVE_HIT_RESULT = True
 # 命中结果文件追加模式
 # True,计算频率后覆盖写入、后期写入时内存占用大,磁盘占用小,读取效率高
 # False 直接追加命中记录、后期写入时内存占用小,磁盘占用大,读取效率低
-HIT_OVERWRITE_MODE = False
+HIT_OVERWRITE_MODE = True
 
 # 保留指定后缀的URL目标,注意:后缀不需要加[.]前缀
 STORE_SPECIFY_EXT_SWITCH = False

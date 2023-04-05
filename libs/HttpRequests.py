@@ -8,7 +8,7 @@ from libs.LoggerPrinter import output
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
 import urllib
-import libs.requests as requests
+import requests
 import chardet
 import hashlib
 from libs.ToolUtils import get_host_port

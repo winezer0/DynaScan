@@ -2,10 +2,6 @@
 # encoding: utf-8
 
 import sys
-
-from libs.LoggerPrinter import output
-
-sys.dont_write_bytecode = True  # 设置不生成pyc文件
 import re
 import string
 from datetime import *
@@ -13,6 +9,10 @@ import datetime
 import exrex
 import sre_yield
 import time
+from libs.LoggerPrinter import output
+
+sys.dont_write_bytecode = True  # 设置不生成pyc文件
+
 
 # 规则解释器，四种模式：date/int/str/re
 class RuleParser(object):
@@ -357,7 +357,7 @@ def rule_list_base_render(rule_list):
     result_list = list(set(result_list))
     end_time = time.time()
     run_time = end_time - start_time
-    return result_list,render_count,run_time
+    return result_list, render_count, run_time
 
 
 if __name__ == '__main__':
@@ -388,7 +388,8 @@ if __name__ == '__main__':
     # ['201718', '201818', '201918', '201719', '201819', '201919']
 
     # result = RuleParser('{re=exrex:(''|admin/|exec/)}$').parse() # ['', 'admin/', 'exec/']
-    result = RuleParser('/{re=exrex:(|v[1-3]|v1\.[0-9]|v[2-3]\.[0-5]|api|api/v[1-3]|api/v1\.[0-9]|api/v[2-3]\.[0-5])}$/agent/self').parse() # ['', 'admin/', 'exec/']
+    result = RuleParser(
+        '/{re=exrex:(|v[1-3]|v1\.[0-9]|v[2-3]\.[0-5]|api|api/v[1-3]|api/v1\.[0-9]|api/v[2-3]\.[0-5])}$/agent/self').parse()  # ['', 'admin/', 'exec/']
 
     output(result)
 
