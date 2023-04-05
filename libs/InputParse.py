@@ -12,7 +12,7 @@ from setting import version
 
 # 获取版本号,并返回版本号字符串
 def get_version():
-    return '[*] 当前的工具版本号为: {} !!!'.format(version)
+    return f'[*] 当前的工具版本号为: {version} !!!'
 
 
 class ParserCmd(object):

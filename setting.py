@@ -11,7 +11,8 @@ from libs.DataType import config
 # 使用config字典 存储主要的设置用户变量更加优雅
 # 注意使用config存储logger后会导致不能用logger打印config,由于死循环调用的问题
 # 所有需要用户输入的变量,需要添加config.作为前缀
-from libs.ToolUtils import get_random_str, file_is_exist, read_file_to_list_de_weight
+from libs.ToolUtils import get_random_str, file_is_exist, read_file_to_list_de_weight, auto_mkdir
+
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 ##################################################################
 # 程序开始运行时间
@@ -72,46 +73,43 @@ MULTI_TARGET_PATH_MODE = True
 # 是否将每一次批量扫描的扫描结果分别按照多个HOST_PORT进行拆分
 WRITE_RESULT_DIFF_SWITCH = False
 
+# 设置日志输出文件路径 #目录不存在会自动创建
+LOG_FILE_PATH = str(BASE_DIR.joinpath("runtime/runtime_module.log"))
+
 # 是否在结果文件和日志文件中添加程序启动时间,默认添加
 FILE_RUN_TIME_SWITCH = False
-
-# 设置日志输出文件路径 #目录不存在会自动创建
 if FILE_RUN_TIME_SWITCH:
-    LOG_FILE_PATH = str(BASE_DIR.joinpath("runtime/runtime_{time}_module.log")).format(time=RUN_TIME)
-else:
-    LOG_FILE_PATH = str(BASE_DIR.joinpath("runtime/runtime_module.log"))
+    LOG_FILE_PATH = str(BASE_DIR.joinpath(f"runtime/runtime_{RUN_TIME}_module.log"))
 
 INFO_LOG_FILE_PATH = LOG_FILE_PATH.replace('module', 'info')
 DBG_LOG_FILE_PATH = LOG_FILE_PATH.replace('module', 'debug')
 ERR_LOG_FILE_PATH = LOG_FILE_PATH.replace('module', 'error')
 
+
 # 记录已完成扫描的目标 # 固定命名,不需要添加时间戳
 # 可访问目标已访问记录
-ACCESSIBLE_TARGET_VISITED_RECORD_FILE = str(BASE_DIR.joinpath("runtime/runtime_module.log")).replace('module',
-                                                                                                     'visited_accessible')
+ACCESSIBLE_TARGET_RECORD_FILE = str(BASE_DIR.joinpath("runtime/runtime_module.log")).replace('module', 'visited_accessible')
 # 不可访问目标已访问记录
-INACCESSIBLE_TARGET_VISITED_RECORD_FILE = str(BASE_DIR.joinpath("runtime/runtime_module.log")).replace('module',
-                                                                                                       'visited_inaccessible')
+INACCESSIBLE_TARGET_RECORD_FILE = str(BASE_DIR.joinpath("runtime/runtime_module.log")).replace('module', 'visited_inaccessible')
 
 # 扫描时是否排除测试记录（可访问目标的）,# 即不重复扫描可访问目标 默认True
 EXCLUDE_ACCESSIBLE_VISITED_RECORD = False
 ACCESSIBLE_VISITED_TARGET_LIST = []
 # 读取命中记录文件
-if EXCLUDE_ACCESSIBLE_VISITED_RECORD and file_is_exist(ACCESSIBLE_TARGET_VISITED_RECORD_FILE):
-    ACCESSIBLE_VISITED_TARGET_LIST = read_file_to_list_de_weight(ACCESSIBLE_TARGET_VISITED_RECORD_FILE,
-                                                                 encoding='utf-8')
+if EXCLUDE_ACCESSIBLE_VISITED_RECORD and file_is_exist(ACCESSIBLE_TARGET_RECORD_FILE):
+    ACCESSIBLE_VISITED_TARGET_LIST = read_file_to_list_de_weight(ACCESSIBLE_TARGET_RECORD_FILE)
 
 # 扫描时是否排除测试记录（不可访问目标的）,默认True  # 即不重复扫描不可访问目标
 EXCLUDE_INACCESSIBLE_VISITED_RECORD = False
 INACCESSIBLE_VISITED_TARGET_LIST = []
 # 读取命中记录文件
-if EXCLUDE_INACCESSIBLE_VISITED_RECORD and file_is_exist(INACCESSIBLE_TARGET_VISITED_RECORD_FILE):
-    INACCESSIBLE_VISITED_TARGET_LIST = read_file_to_list_de_weight(INACCESSIBLE_TARGET_VISITED_RECORD_FILE,
-                                                                   encoding='utf-8')
+if EXCLUDE_INACCESSIBLE_VISITED_RECORD and file_is_exist(INACCESSIBLE_TARGET_RECORD_FILE):
+    INACCESSIBLE_VISITED_TARGET_LIST = read_file_to_list_de_weight(INACCESSIBLE_TARGET_RECORD_FILE)
 
 # 设置输出结果文件目录
 RESULT_DIR_PATH = BASE_DIR.joinpath("result")
-if not os.path.exists(RESULT_DIR_PATH): os.makedirs(RESULT_DIR_PATH)
+auto_mkdir(RESULT_DIR_PATH)
+
 
 # 字典来自文件列表 #从文件夹获得所有文件列表
 ALL_DICT_PATH = ["dict-max", "dict-mid", "dict-min"]
@@ -119,7 +117,7 @@ base_var = "base_var"
 direct_path = "direct_path"
 group_folder = "group_folder"
 group_files = "group_files"
-all_dir_name = [base_var, direct_path, group_folder, group_files]
+all_dict_classify = [base_var, direct_path, group_folder, group_files]
 
 config.dict_path = "dict-max"  # 设置默认调用的字典路径
 
@@ -212,7 +210,7 @@ CUSTOM_PREFIX_SWITCH = False
 
 # 命中文件保存路径
 HIT_FILE_PATH = "dict-hit"
-if not os.path.exists(HIT_FILE_PATH): os.makedirs(HIT_FILE_PATH)
+auto_mkdir(HIT_FILE_PATH)
 HIT_EXT_PATH = os.path.join(HIT_FILE_PATH, 'HIT_EXT.hit')
 HIT_DIRECT_PATH = os.path.join(HIT_FILE_PATH, 'HIT_DIRECT.hit')
 HIT_FOLDER_PATH = os.path.join(HIT_FILE_PATH, 'HIT_FLODER.hit')
@@ -247,7 +245,7 @@ config.http_method = "get"
 config.threads_count = 30
 
 # 默认代理配置
-config.proxies = {
+config.req_proxies = {
     # "http": "http://user:pass@10.10.1.10:3128/",
     # "https": "http://192.168.88.1:8080",
     # "http": "http://192.168.88.1:8080", # TOR 洋葱路由器
@@ -361,9 +359,6 @@ HEADERS = {
 # 自动创建文件字典目录
 all_dict_dir = []
 for dict_class in ALL_DICT_PATH:
-    for dir_ in all_dir_name:
-        all_dict_dir.append(os.path.join(dict_class, dir_))
-for path in all_dict_dir:
-    if not os.path.exists(path):
-        os.makedirs(path)
+    for dir_ in all_dict_classify:
+        auto_mkdir(os.path.join(dict_class, dir_))
 ########################扩展的调用函数###################################

@@ -2,31 +2,21 @@
 # encoding: utf-8
 import re
 import sys
-
-from libs.LoggerPrinter import output
-
-sys.dont_write_bytecode = True  # 设置不生成pyc文件
-
 import urllib
 import requests
 import chardet
 import hashlib
 from libs.ToolUtils import get_host_port
 from binascii import b2a_hex
-
+from libs.LoggerPrinter import output
+sys.dont_write_bytecode = True  # 设置不生成pyc文件
 requests.packages.urllib3.disable_warnings()
 
 
-# 输出时产生了序列问题,尝试枷锁解决,发现问题时由于python3 print的自动换行时线程不再安全导致
-# import threading
-# lock = threading.Lock()
-
-# from colorama import init, Fore  # 需要添加有颜色的结果输出,便于区分错误结果
-# init(autoreset=True)
-
-
 # 判断列表内的元素是否存在有包含在字符串内的
-def list_element_in_str(common_error_list=[], error_string=""):
+def list_element_in_str(common_error_list=None, error_string=""):
+    if common_error_list is None:
+        common_error_list = []
     common_error_flag = False
     if len(common_error_list) > 0:
         for common_error in common_error_list:
@@ -36,26 +26,42 @@ def list_element_in_str(common_error_list=[], error_string=""):
     return common_error_flag
 
 
-def handle_error(url, common_error_list, module, error):
+def handle_error(current_url, common_error_list, acquire_module, error_info):
     # 把常规错误的关键字加入列表common_error_list内,列表为空时都作为非常规错误处理
-    common_error_flag = list_element_in_str(common_error_list, str(error))
+    common_error_flag = list_element_in_str(common_error_list, str(error_info))
     if common_error_flag:
-        output("[-] 当前目标 {} COMMON ERROR ON Acquire {}: {}".format(url, module, error), "debug")
+        output(f"[-] 当前目标 {current_url} COMMON ERROR ON Acquire {acquire_module}: {error_info}", level="debug")
     else:
-        output("[-] 当前目标 {} OTHERS ERROR ON Acquire {}: {}".format(url, module, error), "error")
+        output(f"[-] 当前目标 {current_url} OTHERS ERROR ON Acquire {acquire_module}: {error_info}", level="error")
 
 
-def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False, proxies=None, headers=None, verify=False, allow_redirects=False,
-                  dynamic_host_header=True, dynamic_refer_header=True, retry_times=0, encode='utf-8', encode_all_path=True):
-    if not headers:
-        headers = {
+def requests_plus(req_method='get',
+                  req_url=None,
+                  req_cookies=None,
+                  req_timeout=1,
+                  stream_mode=False,
+                  req_proxies=None,
+                  req_headers=None,
+                  req_verify_ssl=False,
+                  req_allow_redirects=False,
+                  dynamic_host_mode=True,
+                  dynamic_refer_mode=True,
+                  max_retry_times=0,
+                  resp_default_encode='utf-8',
+                  encode_all_path=True):
+    if not req_headers:
+        req_headers = {
             'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)',
             'Accept-Encoding': ''}
 
     # 需要动态添加host字段
-    if dynamic_host_header: headers["Host"] = get_host_port(url)
+    if dynamic_host_mode:
+        req_headers["Host"] = get_host_port(req_url)
+
     # 需要动态添加refer字段
-    if dynamic_refer_header: headers["Referer"] = url
+    if dynamic_refer_mode:
+        req_headers["Referer"] = req_url
+
     # 设置需要接受的参数的默认值 #如果返回结果是默认值,说明程序异常没有获取到
     resp_status = -1  # 赋值默认值
     resp_bytes_head = "Null-Bytes"  # 赋值默认值
@@ -66,14 +72,22 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
     resp_text_hash = "Null-Text-Hash"  # 赋值默认值
     resp_redirect_url = "Null-Redirect-Url"  # 赋值默认值
     try:
-        resp = requests.request(method=method, url=url, cookies=cookies, timeout=timeout, stream=stream, proxies=proxies, headers=headers, verify=verify, allow_redirects=allow_redirects)
+        resp = requests.request(method=req_method,
+                                url=req_url,
+                                cookies=req_cookies,
+                                timeout=req_timeout,
+                                stream=stream_mode,
+                                proxies=req_proxies,
+                                headers=req_headers,
+                                verify=req_verify_ssl,
+                                allow_redirects=req_allow_redirects)
         resp_status = resp.status_code
     except Exception as error:
         # 当错误原因时一般需要重试的错误时,直接忽略输出,进行访问重试
         module = "resp or resp_status"
         # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
         common_error_list = ["retries", "Read timed out", "codec can't encode", "No host supplied", "Exceeded 30 redirects", 'WSAECONNRESET']
-        handle_error(url, common_error_list, module, error)
+        handle_error(req_url, common_error_list, module, error)
         # 如果是数据编码错误,需要进行判断处理
         if "codec can't encode" in str(error):
             # 如果是数据编码错误,就不再进行尝试 ,返回固定结果状态码
@@ -84,28 +98,38 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
             if encode_all_path:
                 # 不需要重试的结果 设置resp_status标记为1,
                 resp_status = 1
-                output("[-] 当前目标 {} 中文数据编码错误,但是已经开启中文编码处理功能,忽略本次结果 {}!!!".format(url), "debug")
+                output(f"[-] 当前目标 {req_url} 中文数据编码错误,但是已经开启中文编码处理功能,忽略本次错误!!!", level="debug")
             else:
                 # 需要手动访问重试的结果
-                output("[-] 当前目标 {} 中文数据编码错误,需要针对中文编码进行额外处理,返回固定结果 {}!!!".format(url), "error")
+                output(f"[-] 当前目标 {req_url} 中文数据编码错误,需要针对中文编码进行额外处理,返回固定结果!!!", level="error")
         elif "No host supplied" in str(error):
             # 不需要重试的结果 设置resp_status标记为1,
             resp_status = 1
-            output("[-] 当前目标 {} 格式输入错误,忽略本次结果{}!!!".format(url), "error")
+            output(f"[-] 当前目标 {req_url} 格式输入错误,忽略本次结果!!!", level="error")
         else:
             # 如果服务器没有响应,但是也有可能存在能访问的URL,因此不能简单以状态码判断结果
             # 如果是其他访问错误,就进程访问重试
-            if retry_times > 0:
+            if max_retry_times > 0:
                 if "Exceeded 30 redirects" in str(error):
-                    headers = None
-                    output("[-] 当前目标 {} 即将修改请求头为默认头后进行重试!!!".format(url),  "error")
-                output("[-] 当前目标 {} 开始进行倒数第 {} 次重试,(HTTP_TIMEOUT = HTTP_TIMEOUT * 1.5)...".format(url, retry_times), "debug")
-                result = requests_plus(method=method, url=url, proxies=proxies, cookies=cookies, headers=headers, timeout=timeout * 1.5, verify=verify, allow_redirects=allow_redirects,
-                                       dynamic_host_header=dynamic_host_header, dynamic_refer_header=dynamic_refer_header, retry_times=retry_times - 1, encode=encode)
+                    req_headers = None
+                    output(f"[-] 当前目标 {req_url} 即将修改请求头为默认头后进行重试!!!", "error")
+                output(f"[-] 当前目标 {req_url} 开始进行倒数第 {max_retry_times} 次重试,(HTTP_TIMEOUT = HTTP_TIMEOUT * 1.5)...", level="debug")
+                result = requests_plus(req_method=req_method,
+                                       req_url=req_url,
+                                       req_proxies=req_proxies,
+                                       req_cookies=req_cookies,
+                                       req_headers=req_headers,
+                                       req_timeout=req_timeout * 1.5,
+                                       req_verify_ssl=req_verify_ssl,
+                                       req_allow_redirects=req_allow_redirects,
+                                       dynamic_host_mode=dynamic_host_mode,
+                                       dynamic_refer_mode=dynamic_refer_mode,
+                                       max_retry_times=max_retry_times - 1,
+                                       resp_default_encode=resp_default_encode)
                 return result
             else:
                 # 如果重试次数为小于0,返回固定结果-1
-                output("[-] 当前目标 {} 剩余重试次数为0,返回固定结果,需要后续手动进行验证...".format(url), "error")
+                output(f"[-] 当前目标 {req_url} 剩余重试次数为0,返回固定结果,需要后续手动进行验证...", level="error")
     else:
         # 当获取到响应结果时,获取三个响应关键匹配项目
         #############################################################
@@ -121,7 +145,7 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
             # 当错误原因时一般需要重试的错误时,直接忽略输出,进行访问重试
             module = "resp_bytes_head"
             common_error_list = []  # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
-            handle_error(url, common_error_list, module, error)
+            handle_error(req_url, common_error_list, module, error)
         #############################################################
         # 2、resp_content_length 获取响应的content_length头部
         try:
@@ -129,7 +153,7 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
         except Exception as error:
             module = "resp_content_length"
             common_error_list = ["invalid literal for int()"]  # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
-            handle_error(url, common_error_list, module, error)
+            handle_error(req_url, common_error_list, module, error)
         #############################################################
         # 3、resp_text_size 获取响应内容实际长度,如果响应长度过大就放弃读取,从resp_content_length进行读取
         if resp_content_length >= 1024000 * 5:
@@ -146,7 +170,7 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
                 # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
                 # Received response with content-encoding: gzip, but failed to decode it. # 返回gzip不解压报错
                 # ('Connection broken: IncompleteRead(22 bytes read)', IncompleteRead(22 bytes read)) # 使用流模式导致不完全读取报错
-                handle_error(url, common_error_list, module, error)
+                handle_error(req_url, common_error_list, module, error)
         #############################################################
         # 4、resp_text_title 获取网页标题,如果resp_text_size获取到了就直接获取
         # 如果resp_text_size没有获取到,说明没有resp_text 不参考上级处理结果
@@ -179,19 +203,19 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
                 re_find_result_list = re.findall(r"<title.*?>(.+?)</title>", encode_content)
                 resp_text_title = ",".join(re_find_result_list)
                 # 解决所有系统下字符串无法编码输出的问题,比如windows下控制台gbk的情况下,不能gbk解码就是BUG
-                # output( level="error","当前控制台输出编码为:{}".format(sys.stdout.encoding))
+                # output(f"当前控制台输出编码为:{sys.stdout.encoding}",level="error")
                 # 解决windows下韩文无法输出的问题,如果不能gbk解码就是window BUG
                 # if sys.platform.lower().startswith('win'):
                 try:
                     resp_text_title.encode(sys.stdout.encoding)
                 except Exception as error:
                     resp_text_title = urllib.parse.quote(resp_text_title.encode('utf-8'))
-                    output("[!] 字符串使用当前控制台编码 {} 编码失败,自动转换为UTF-8型URL编码 {}, ERROR:{}".format(sys.stdout.encoding, resp_text_title, error), "error")
+                    output(f"[!] 字符串使用当前控制台编码 {sys.stdout.encoding} 编码失败,自动转换为UTF-8型URL编码 {resp_text_title}, ERROR:{error}", level="error")
                 if resp_text_title.strip() == "": resp_text_title = "Blank-Title"
         except Exception as error:
             module = "resp_text_title"
             common_error_list = []  # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
-            handle_error(url, common_error_list, module, error)
+            handle_error(req_url, common_error_list, module, error)
         #############################################################
         # 5、resp_text_hash 获取网页内容hash
         # resp_text_title = "Null-Title"  # 赋值默认值
@@ -207,18 +231,18 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
             except Exception as error:
                 module = "resp_text_hash"
                 common_error_list = []  # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
-                handle_error(url, common_error_list, module, error)
+                handle_error(req_url, common_error_list, module, error)
         #############################################################
         # 6、resp_redirect_url 获取重定向后的URL
         try:
-            if url.strip() == resp_redirect_url.strip():
+            if req_url.strip() == resp_redirect_url.strip():
                 resp_redirect_url = "Raw-Redirect-Url"
             else:
                 resp_redirect_url = resp.url.strip()
         except Exception as error:
             module = "resp_redirect_url"
             common_error_list = []  # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
-            handle_error(url, common_error_list, module, error)
+            handle_error(req_url, common_error_list, module, error)
     finally:
         # 合并所有获取到的结果
         """
@@ -229,8 +253,8 @@ def requests_plus(method='get', url=None, cookies=None, timeout=1, stream=False,
             # 仅对没有编码的情况进行解码,如果GB2312编码了，但是UTF8解码会报错的。
             url = urllib.parse.unquote(url, encoding=encode)  # 解码为/备份.zip成功
         """
-        result = (url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url)
-        output("[*] 当前目标 {} 请求返回结果集合:{}".format(url, result),"debug")
+        result = (req_url, resp_status, resp_content_length, resp_text_size, resp_text_title, resp_text_hash, resp_bytes_head, resp_redirect_url)
+        output(f"[*] 当前目标 {req_url} 请求返回结果集合:{result}", level="debug")
         return result
 
 

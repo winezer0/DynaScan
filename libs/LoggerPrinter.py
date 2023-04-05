@@ -59,6 +59,6 @@ def output(*args, level="debug"):
     if level in ["debug","info","error"]:
         # 使用 getattr() 函数和 f-string 简化代码
         log_func = getattr(logger, level)
-        log_func("{}".format(' '.join(map(str, args))))
+        log_func(f"{' '.join(map(str, args))}")
     else:
         output(*args)

@@ -3,44 +3,42 @@
 
 # URL处理对象
 import sys
-sys.dont_write_bytecode = True  # 设置不生成pyc文件
-
-sys.path.append("../")
 from tldextract import extract, TLDExtract
 
-class UrlSplitParser(object):
-    """docstring for UrlSplitParser
-		碎片化信息处理并集，生成其因变量组 [dependents]
-	"""
+sys.dont_write_bytecode = True  # 设置不生成pyc文件
+sys.path.append("../")
 
-    def __init__(self, urlobj, extion=None):
+
+class UrlSplitParser(object):
+    # 碎片化信息处理并集，生成其因变量组 [dependents]
+
+    def __init__(self, url_obj, extension=None):
         super(UrlSplitParser, self).__init__()
-        self.url = urlobj.geturl()
-        self.scheme = urlobj.scheme
-        self.netloc = urlobj.netloc
-        self.path = urlobj.path
+        self.url = url_obj.geturl()
+        self.scheme = url_obj.scheme
+        self.netloc = url_obj.netloc
+        self.path = url_obj.path
         self.paths = self.split_path()
-        self.query = urlobj.query
-        self.fragment = urlobj.fragment
-        self.domain = extract(urlobj.netloc).domain
-        self.rootdomain = extract(urlobj.netloc).registered_domain
-        self.subdomain = extract(urlobj.netloc).subdomain.split('.')
+        self.query = url_obj.query
+        self.fragment = url_obj.fragment
+        self.domain = extract(url_obj.netloc).domain
+        self.root_domain = extract(url_obj.netloc).registered_domain
+        self.subdomain = extract(url_obj.netloc).subdomain.split('.')
         self.domain_info = self.get_domain_info()
-        self.extion = extion
-        self.file_ext = self.get_extion()
+        self.extension = extension
+        self.file_ext = self.get_extension()
         self.urlfile = self.get_urlfile()
         self.baseurl = self.scheme + '://' + self.netloc
         self.dependent = self.get_dependent()
 
     def parse(self):
-        urlsplit = {}
-        urlsplit['url'] = self.url
-        urlsplit['scheme'] = self.scheme
-        urlsplit['netloc'] = self.netloc
-        urlsplit['query'] = self.split_query()
-        urlsplit['path'] = self.split_path()
-        urlsplit['extion'] = self.get_extion()
-        urlsplit['fragment'] = self.fragment
+        urlsplit = {'url': self.url,
+                    'scheme': self.scheme,
+                    'netloc': self.netloc,
+                    'query': self.split_query(),
+                    'path': self.split_path(),
+                    'extension': self.get_extension(),
+                    'fragment': self.fragment}
         return urlsplit
 
     def split_query(self):
@@ -92,22 +90,22 @@ class UrlSplitParser(object):
         if '' in dependent: dependent.remove('')
         return dependent
 
-    def get_extion(self):
+    def get_extension(self):
         path = self.split_path()
         if len(path) >= 1:
             filename = path[-1].split('.')
             if len(filename) > 1:
                 return filename[-1]
             else:
-                return self.extion
+                return self.extension
         else:
-            return self.extion
+            return self.extension
 
     def get_urlfile(self):
         # 初始化脚本文件
         urlfile = self.path
-        if self.get_extion():
-            file_ext = self.get_extion()
+        if self.get_extension():
+            file_ext = self.get_extension()
             if urlfile == '/':
                 urlfile = urlfile + 'index.' + file_ext
             elif urlfile == '':
@@ -121,21 +119,21 @@ class UrlSplitParser(object):
         segments = ['/']
         fullpath = ''
         if self.path.endswith('/'):
-            for pathline in self.paths:
-                paths.append(pathline)
-                fullpath += '/' + pathline
+            for path_line in self.paths:
+                paths.append(path_line)
+                fullpath += '/' + path_line
                 segments.append(fullpath)
         else:
-            for pathline in self.paths:
-                if pathline == self.paths[-1]:
-                    if '.' in pathline:  # 最后一个是文件，判断是否存在扩展名
-                        rstrip_path = pathline.replace(('.' + self.file_ext), '')
-                        paths.append(rstrip_path)
+            for path_line in self.paths:
+                if path_line == self.paths[-1]:
+                    if '.' in path_line:  # 最后一个是文件，判断是否存在扩展名
+                        right_strip_path = path_line.replace(('.' + self.file_ext), '')
+                        paths.append(right_strip_path)
                     else:
-                        paths.append(pathline)
+                        paths.append(path_line)
                 else:
-                    paths.append(pathline)
-                    fullpath += '/' + pathline
+                    paths.append(path_line)
+                    fullpath += '/' + path_line
                     segments.append(fullpath)
 
         return {'segment': segments, 'path': paths}

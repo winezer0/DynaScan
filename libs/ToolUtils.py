@@ -2,28 +2,30 @@
 # encoding: utf-8
 import copy
 import sys
-
-from libs.LoggerPrinter import output
-
-sys.dont_write_bytecode = True  # 设置不生成pyc文件
-
 import os
 import os.path
 import random
 import time
 import urllib
-from pathlib import Path
 import re
 from urllib.parse import urlparse
 from tldextract import extract
-
+from pathlib import Path
 from libs.SimpleCoding import file_encoding
 from libs.UrlSplitParser import UrlSplitParser
 from libs.utils_dict.BaseRuleParser import rule_list_base_render
 from libs.utils_dict.BaseKeyReplace import replace_list_has_key_str
+from libs.LoggerPrinter import output
+
+sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
 
 ########字典文件读取相关######################
+def auto_mkdir(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+
 # 获取目录下的文件列表,返回基于输入文件目录的拼接文件名路径列表【半绝对路径】
 def get_absolute_file_name(file_dir, ext=''):
     """
@@ -62,13 +64,14 @@ def get_relative_file_name(file_dir, ext=''):
 
 # 判断文件是否存在
 def file_is_exist(filepath):
-    '''判断文件是否存在'''
+    """判断文件是否存在"""
     if filepath:
         path = Path(filepath)
         if path.is_file():
             return True
         else:
             return False
+
 
 # 去除不可见字符
 def remove_upprintable_chars(raw_path):
@@ -95,6 +98,7 @@ def read_file_to_str(file_name, encoding='utf-8'):
         result_str = remove_upprintable_chars(result_str)
         return result_str
 
+
 # 读取文件内容并返回结果列表
 def read_file_to_list_de_weight(file_name, encoding='utf-8'):
     """
@@ -110,9 +114,12 @@ def read_file_to_list_de_weight(file_name, encoding='utf-8'):
         return result_list
 
 
-
 # 读取一个文件内容并返回结果字典 {"路径”:频率}
-def read_file_to_dict_with_frequency(file_name, encoding='utf-8', separator='frequency==', annotation='#', additional=True):
+def read_file_to_dict_with_frequency(file_name,
+                                     encoding='utf-8',
+                                     separator='frequency==',
+                                     annotation='#',
+                                     additional=True):
     """
     读取文件内容并返回结果字典
     文件的每一行格式类似 path separator==10
@@ -124,7 +131,10 @@ def read_file_to_dict_with_frequency(file_name, encoding='utf-8', separator='fre
     additional 遇到字典中已有的值,是追加频率还是覆盖频率
     annotation = '#' 如果启用注释,对#号开头的行,和频率字符串后面的#号都会进行删除
     """
-    with open(file_name, 'r', encoding=file_encoding(file_name)) as f_obj:
+    if not encoding:
+        encoding = file_encoding(file_name)
+
+    with open(file_name, 'r', encoding=encoding) as f_obj:
         result_dict = {}
         for line in f_obj.readlines():
             # 忽略 #号开头的行
@@ -146,7 +156,7 @@ def read_file_to_dict_with_frequency(file_name, encoding='utf-8', separator='fre
                 # 如果字典已经存在就追加频率,否则直接赋值
                 # 判断字典是否包含键,可以使用in，__contains__()
                 # if result_dict.__contains__(line_string):
-                if line_string in result_dict and additional == True:
+                if line_string in result_dict and additional:
                     line_frequency += result_dict[line_string]
                     result_dict[line_string] = line_frequency
                 else:
@@ -155,8 +165,14 @@ def read_file_to_dict_with_frequency(file_name, encoding='utf-8', separator='fre
 
 
 # 读取多个文件内容并返回结果字典 {"路径”:频率}
-def read_many_file_to_dict_with_frequency(base_dir='.', list_dir_base_file=[], separator='frequency==', annotation='#', additional=True):  # 存储所有字典及其对应键值对
+def read_many_file_to_dict_with_frequency(base_dir='.',
+                                          list_dir_base_file=None,
+                                          separator='frequency==',
+                                          annotation='#',
+                                          additional=True):  # 存储所有字典及其对应键值对
     # 存储所有字典及其对应键值对
+    if list_dir_base_file is None:
+        list_dir_base_file = []
     frequency_dict_ = {}
     # 实现多个文件的分步读取,但是频率叠加
     for file_name in list_dir_base_file:
@@ -174,7 +190,9 @@ def read_many_file_to_dict_with_frequency(base_dir='.', list_dir_base_file=[], s
 
 
 # 得到{"路径”:频率}字典中频率大于指定值的列表
-def get_key_list_with_frequency(frequency_dict={}, frequency=1, frequency_max=99999):
+def get_key_list_with_frequency(frequency_dict=None, frequency=1, frequency_max=99999):
+    if frequency_dict is None:
+        frequency_dict = {}
     frequency_list = []
     for key, value in frequency_dict.items():
         if frequency <= value <= frequency_max:
@@ -184,7 +202,14 @@ def get_key_list_with_frequency(frequency_dict={}, frequency=1, frequency_max=99
 
 ########字典列表处理相关######################
 # 读取字典文件列表、进行规则解析、进行基本变量替换
-def read_list_file_to_all(module, dir_path='.', list_dir_file=[], replace_dict={}, separator='frequency==', annotation='#', additional=True, frequency=1):
+def read_list_file_to_all(module,
+                          dir_path='.',
+                          list_dir_file=None,
+                          replace_dict=None,
+                          separator='frequency==',
+                          annotation='#',
+                          additional=True,
+                          frequency=1):
     """
     read_list_file_to_dict_with_frequency_and_rule_parse_and_replace_base_var
     # 1、一次性读取多个文件,并叠加频率参数
@@ -194,48 +219,57 @@ def read_list_file_to_all(module, dir_path='.', list_dir_file=[], replace_dict={
     # 5、返回替换后的规则列表
     """
     # 存储结果列表默认值
+    if replace_dict is None:
+        replace_dict = {}
+    if list_dir_file is None:
+        list_dir_file = []
     frequency_list_ = []
 
     # 读取直接文件目录下的所有字典
     frequency_dict_ = read_many_file_to_dict_with_frequency(dir_path, list_dir_file, separator=separator,
                                                             annotation=annotation, additional=additional)
-    output("[*] 路径 {} 下所有字典文件 {} 内容读取结果: {} 条 详情: {}".format(dir_path, list_dir_file, len(frequency_dict_),
-                                                                   frequency_dict_), level="debug")
+    output(f"[*] 路径 {dir_path} 下所有字典文件 {list_dir_file} 内容读取结果: {len(frequency_dict_)} 条 详情: {frequency_dict_}",
+           level="debug")
 
     # 如果字典读取结果为空,直接返回空列表
     if not frequency_dict_: return frequency_list_
 
     # 提取符合频率的键
     frequency_list_ = get_key_list_with_frequency(frequency_dict_, frequency=frequency)
-    output(
-        "[*] 路径 {} 下所有字典文件 {} 频率[{}]时筛选结果: {} 条 详情: {}".format(dir_path, list_dir_file, frequency, len(frequency_list_),
-                                                               frequency_list_))
+    output(f"[*] 路径 {dir_path} 下所有字典文件 {list_dir_file} 频率[{frequency}]时筛选结果: {len(frequency_list_)} 条 "
+           f"详情: {frequency_list_}", level="debug")
 
     # 如果频率筛选结果为空,直接返回空列表
     if not frequency_list_: return frequency_list_
 
     # 对直接规则字典列表里的元素进行规则解析 # 每一行字典解析顺序-规则解析,基本变量替换,因变量替换
-    output("[*] {}字典 元素 {{XX=XXX:XXXXX}}$ 规则解析渲染开始...".format(module), level="info")
+    output(f"[*] {module}字典 元素 {{XX=XXX:XXXXX}}$ 规则解析渲染开始...", level="info")
     frequency_list_, render_count, run_time = rule_list_base_render(frequency_list_)
-    output(
-        "[+] {}字典 元素渲染完毕,剩余元素 {} 个,本次解析规则 {} 次, 耗时 {} 秒".format(module, len(frequency_list_), render_count, run_time), level="info")
-    output("[*] {}字典 元素渲染后内容: {}".format(module, frequency_list_))
+    output(f"[+] {module}字典 元素渲染完毕,剩余元素 {len(frequency_list_)} 个,本次解析规则 {render_count} 次, 耗时 {run_time} 秒",
+           level="info")
+    output(f"[*] {module}字典 元素渲染后内容: {frequency_list_}")
 
     # 如果基本变量字典为空,直接返回渲染后的结果
     if not replace_dict.keys(): return frequency_list_
 
     # 对直接规则字典列表里的元素进行基本变量替换 # 每一行字典解析顺序-规则解析,基本变量替换,因变量替换
-    output("[*] {}字典 元素 {} 变量替换开始...".format(module, replace_dict.keys()), level="info")
+    output(f"[*] {module}字典 元素 {replace_dict.keys()} 变量替换开始...", level="info")
     frequency_list_, replace_count, run_time = replace_list_has_key_str(frequency_list_, replace_dict)
     output(
-        "[+] {}字典 元素 {} 变量替换完毕,剩余元素 {} 个,本次替换 {} 次, 耗时 {} 秒".format(module, replace_dict.keys(), len(frequency_list_),
-                                                                    replace_count, run_time), level="info")
-    output("[*] {}字典 元素 {} 变量替换后内容: {}".format(module, replace_dict.keys(), frequency_list_))
+        f"[+] {module}字典 元素 {replace_dict.keys()} 变量替换完毕,剩余元素 {len(frequency_list_)} 个,本次替换 {replace_count} 次, 耗时 {run_time} 秒",
+        level="info")
+    output(f"[*] {module}字典 元素 {replace_dict.keys()} 变量替换后内容: {frequency_list_}", level="info")
     return frequency_list_
 
 
 # 读取多个字典文件、进行规则解析、进行基本变量替换
-def read_many_file_to_all(module, dir_path='.', dict_file_suffix='.lst', replace_dict={}, separator='frequency==', annotation='#', additional=True, frequency=1):
+def read_many_file_to_all(module, dir_path='.',
+                          dict_file_suffix='.lst',
+                          replace_dict=None,
+                          separator='frequency==',
+                          annotation='#',
+                          additional=True,
+                          frequency=1):
     """
     read_many_file_to_dict_with_frequency_and_rule_parse_and_replace_base_var
     # 1、获取目录下存在的文件名列表
@@ -247,8 +281,10 @@ def read_many_file_to_all(module, dir_path='.', dict_file_suffix='.lst', replace
     """
 
     # 获取字典目录下的所有文件名
+    if replace_dict is None:
+        replace_dict = {}
     list_dir_file = get_relative_file_name(dir_path, dict_file_suffix)
-    output("[*] 路径 {} 下存在 {} 字典: {}".format(dir_path, module, list_dir_file), level="info")
+    output(f"[*] 路径 {dir_path} 下存在 {module} 字典: {list_dir_file}", level="info")
 
     # 读取文件列表中的内容,并进行频率筛选
     frequency_list_ = read_list_file_to_all(module, dir_path=dir_path, list_dir_file=list_dir_file,
@@ -324,19 +360,17 @@ def remove_list_none_render_value(path_list, ALL_REPLACE_KEY):
         if replace_str.startswith('%') and replace_str.endswith('%'):
             for index in range(0, len(path_list)):
                 if replace_str in path_list[index]:
-                    print_str = "[-] {} 中关键字[{}]没有被成功替换,正在剔除...".format(path_list[index], replace_str)
-                    output(print_str, level="debug")
+                    output(f"[-] {path_list[index]} 中关键字[{replace_str}]没有被成功替换,正在剔除...", level="debug")
                     path_list[index] = ""
         else:
-            print_str = "[-] 关键字[{}]没有遵循%key%或%%key%%命名规则...".format(replace_str)
-            output(print_str, level="error")
+            output(f"[-] 关键字[{replace_str}]没有遵循%key%或%%key%%命名规则...", level="error")
 
     path_list = [path for path in path_list if path != ""]
     return path_list
 
 
 # 对列表中的元素进行中文判断和处理
-def url_path_chinese_encode(path_list, encode_list=['utf-8', 'gb2312']):
+def url_path_chinese_encode(path_list, encode_list=None):
     """
     对列表中的元素进行中文判断和多个编码处理
     show_differ_path=True
@@ -344,44 +378,47 @@ def url_path_chinese_encode(path_list, encode_list=['utf-8', 'gb2312']):
     # new_path = urllib.parse.quote(path.encode("utf-8")) #解决/备份.zip读取问题成功
     # new_path = urllib.parse.quote(path) #解决/备份.zip读取问题成功
     """
+    if encode_list is None:
+        encode_list = ['utf-8', 'gb2312']
     zh_model = re.compile(u'[\u4e00-\u9fa5]')  # 检查中文
     new_path_list = []
     for path in path_list:
         new_path_list.append(path)
         match = zh_model.search(path)
         if match:
-            new_path = None
-            for encode in encode_list:
+            for encoding in encode_list:
                 try:
-                    new_path = urllib.parse.quote(path.encode(encode))  # 解决/备份.zip读取问题失败
+                    new_path = urllib.parse.quote(str(path).encode(encoding))  # 解决/备份.zip读取问题失败
                     if path != new_path:
                         new_path_list.append(new_path)
-                        output("[*] 中文编码模式: 路径列表中的元素[{}] 已基于 [{}] 编码 URL编码为:{}".format(path, encode, new_path))
+                        output(f"[*] 中文编码模式: 路径列表中的元素[{path}] 已基于 [{encoding}] 编码 URL编码为:{new_path}")
                 except Exception as error:
-                    output("[-] 中文编码模式: 路径列表中的元素[{}] 基于 [{}] 编码进行URL编码时,发生错误:{}".format(path, encode, error), level="error")
+                    output(f"[-] 中文编码模式: 路径列表中的元素[{path}] 基于 [{encoding}] 编码进行URL编码时,发生错误:{error}", level="error")
     new_path_list = list(set(new_path_list))
     return new_path_list
 
 
 # 对列表中的所有元素进行URL编码
-def url_path_url_encode(path_list, encode_list=['utf-8', 'gb2312']):
+def url_path_url_encode(path_list, encode_list=None):
     """
     # 对列表中的所有元素进行URL编码,
     # new_path = urllib.parse.quote(path.encode("gb2312")) #解决/备份.zip读取问题失败
     # new_path = urllib.parse.quote(path.encode("utf-8")) #解决/备份.zip读取问题成功
     # new_path = urllib.parse.quote(path) #解决/备份.zip读取问题成功
     """
+    if encode_list is None:
+        encode_list = ['utf-8', 'gb2312']
     new_path_list = []
     for path in path_list:
         new_path_list.append(path)
-        for encode in encode_list:
+        for encoding in encode_list:
             try:
-                new_path = urllib.parse.quote(path.encode(encode))  # 解决/备份.zip读取问题失败
+                new_path = urllib.parse.quote(str(path).encode(encoding))  # 解决/备份.zip读取问题失败
                 if path != new_path:
                     new_path_list.append(new_path)
-                    output("[*] 全部编码模式: 路径列表中的元素 [{}] 已基于 [{}] 编码 URL编码为:{}".format(path, encode, new_path))
+                    output(f"[*] 全部编码模式: 路径列表中的元素 [{path}] 已基于 [{encoding}] 编码 URL编码为:{new_path}")
             except Exception as error:
-                output("[-] 全部编码模式: 路径列表中的元素 [{}] 基于 [{}] 编码进行URL编码时,发生错误:{}".format(path, encode, error), level="error")
+                output(f"[-] 全部编码模式: 路径列表中的元素 [{path}] 基于 [{encoding}] 编码进行URL编码时,发生错误:{error}", level="error")
     new_path_list = list(set(new_path_list))
     return new_path_list
 
@@ -432,7 +469,9 @@ def replace_multi_slashes(list_):
 
 
 # 对列表中的所有URL去除指定结尾字符并去重
-def url_remove_end_symbol(list_, remove_symbol_list=['.', '/']):
+def url_remove_end_symbol(list_, remove_symbol_list=None):
+    if remove_symbol_list is None:
+        remove_symbol_list = ['.', '/']
     new_list_ = []
     for str_ in list_:
         new_list_.append(str_.rstrip(''.join(remove_symbol_list)))
@@ -468,10 +507,12 @@ def two_tuple_list_value_equal(tuple_result_list):
 
 
 # 判断列表的元素是否有在字符串内
-def list_in_str(list=[], string=""):
+def list_in_str(list_=None, string=""):
+    if list_ is None:
+        list_ = []
     flag = False
-    if list:
-        for i in list:
+    if list_:
+        for i in list_:
             if i in string:
                 flag = True
                 break
@@ -483,7 +524,7 @@ def list_in_str(list=[], string=""):
 # 保留文件中指定后缀的URL
 ############URL解析处理相关###############
 # 从URL中获取域名相关的单词列表
-def get_domain_words(url, ignore_ip_format=True, symbol_replace_dict={}, not_allowed_symbol=[':']):
+def get_domain_words(url, ignore_ip_format=True, symbol_replace_dict=None, not_allowed_symbol=None):
     """
     从URL中获取域名相关的单词
     output(get_basedomain('http://www.baidu.com/xxx.aspx?p=123'))  # ['www.baidu.com', 'baidu.com', 'baidu']
@@ -495,6 +536,10 @@ def get_domain_words(url, ignore_ip_format=True, symbol_replace_dict={}, not_all
     ['www.baidu.com.cn:8080', 'www.baidu.com.cn', 'www.baidu.com.cn_8080', 'baidu.com.cn', 'baidu']
     ['1.1.1.1:8080', '1.1.1.1', '1.1.1.1_8080', '1.1.1.1']
     """
+    if not_allowed_symbol is None:
+        not_allowed_symbol = [':']
+    if symbol_replace_dict is None:
+        symbol_replace_dict = {}
     try:
         real_domain_val_list = []
         domain_val_1 = urlparse(url).netloc
@@ -531,19 +576,19 @@ def get_domain_words(url, ignore_ip_format=True, symbol_replace_dict={}, not_all
             real_domain_val_list = tmp_words_list
         return real_domain_val_list
     except Exception as e:
-        output("[*] Get_basedomain No Knowed Error:{}".format(str(e)))
+        output(f"[*] Get Base Domain Occurred UnKnow Error:{str(e)}", level="error")
 
 
 # 获取URL的脚本语言后缀
-def get_url_extion(url):
+def get_url_extension(url):
     """
     url = 'http://www.baidu.com' # 没有后缀,返回None
     url = 'http://www.baidu.com/xxx' # 没有后缀, 返回None
     url = 'http://www.baidu.com/xxx.xxx'  # 有后缀,返回 xxx
     """
     parser_obj = UrlSplitParser(urlparse(url))
-    extion = parser_obj.get_extion()
-    return extion
+    extension = parser_obj.get_extension()
+    return extension
 
 
 # 移除指定后缀列表的内容
@@ -552,7 +597,7 @@ def store_specify_ext(url_list_, ext_list_):
     if ext_list_:
         try:
             for url in url_list_:
-                ext = get_url_extion(url)
+                ext = get_url_extension(url)
                 # 对于没有后缀的扩展也保留
                 if not ext:
                     new_url_list_.append(url)
@@ -560,7 +605,7 @@ def store_specify_ext(url_list_, ext_list_):
                 elif ext not in ext_list_:
                     new_url_list_.append(url)
         except Exception as error:
-            output("[-] 获取后缀进行列表匹配时发生错误!!! Error: {}".format(error))
+            output(f"[-] 获取后缀进行列表匹配时发生错误!!! Error: {error}")
             new_url_list_ = url_list_
     else:
         new_url_list_ = url_list_
@@ -573,7 +618,7 @@ def delete_specify_ext(url_list_, ext_list_):
     if ext_list_:
         try:
             for url in url_list_:
-                ext = get_url_extion(url)
+                ext = get_url_extension(url)
                 # 对于没有后缀的扩展也保留
                 if not ext:
                     new_url_list_.append(url)
@@ -581,7 +626,7 @@ def delete_specify_ext(url_list_, ext_list_):
                 elif ext in ext_list_:
                     new_url_list_.append(url)
         except Exception as error:
-            output("[-] 获取后缀进行列表匹配时发生错误!!! Error: {}".format(error))
+            output(f"[-] 获取后缀进行列表匹配时发生错误!!! Error: {error}")
             new_url_list_ = url_list_
     else:
         new_url_list_ = url_list_
@@ -589,18 +634,22 @@ def delete_specify_ext(url_list_, ext_list_):
 
 
 # 获取URL目录单词和参数单词列表
-def get_path_words(url, sysbol_replace_dict={}, remove_not_path_symbol=True, not_path_symbol=[':']):
+def get_path_words(url, sysbol_replace_dict=None, remove_not_path_symbol=True, not_path_symbol=None):
     """
     # 获取URL目录单词和参数单词
     # UrlSplitParser(urlparse('http://www.baidu.com.cn:8080/xxxxx/xxx.aspx?p=123'))
     # output(parser_obj.get_paths()) # {'segment': ['/', '/xxxxx'], 'path': ['xxxxx', 'xxx']}
 
     UrlSplitParser中的其他方法
-    #output(parser_obj.get_extion()) # aspx
+    #output(parser_obj.get_extension()) # aspx
     #output(parser_obj.get_urlfile()) # /xxxxx/xxx.aspx
     #output(parser_obj.get_dependent()) # ['p', 'xxx', 'baidu', 'www', '123', 'aspx', 'xxxxx']
     #output(parser_obj.get_domain_info()) # ['www', 'baidu', 'baidu'] ???
     """
+    if not_path_symbol is None:
+        not_path_symbol = [':']
+    if sysbol_replace_dict is None:
+        sysbol_replace_dict = {}
     parser_obj = UrlSplitParser(urlparse(url))
     path_words_list = parser_obj.get_paths()['path']
     # 对所有结果再进行一次替换和添加
@@ -617,8 +666,7 @@ def get_path_words(url, sysbol_replace_dict={}, remove_not_path_symbol=True, not
         for word in path_words_list:
             if not list_in_str(not_path_symbol, word):
                 tmp_words_list.append(word)
-        real_domain_val_list = tmp_words_list
-    return real_domain_val_list
+        path_words_list = tmp_words_list
 
     return path_words_list
 
@@ -704,14 +752,20 @@ def list_to_re_str(replace_list, bracket=True):
     else:
         regexp = ""
     if bracket:
-        replace_str = '({regexp})'.format(regexp=regexp)
+        replace_str = f'({regexp})'
     else:
-        replace_str = '{regexp}'.format(regexp=regexp)
+        replace_str = f'{regexp}'
     return replace_str
 
 
 # 将URL转换为原始规则
-def url_to_raw_rule(url_list=[], BASE_VAR_REPLACE_DICT={}, DEPEND_VAR_REPLACE_DICT={}):
+def url_to_raw_rule(url_list=None, BASE_VAR_REPLACE_DICT=None, DEPEND_VAR_REPLACE_DICT=None):
+    if DEPEND_VAR_REPLACE_DICT is None:
+        DEPEND_VAR_REPLACE_DICT = {}
+    if BASE_VAR_REPLACE_DICT is None:
+        BASE_VAR_REPLACE_DICT = {}
+    if url_list is None:
+        url_list = []
     result_add_dict = {"add_to_base": [], "add_to_direct": [], "add_to_group_folders": [], "add_to_group_files": []}
 
     for url_str in url_list:
@@ -735,10 +789,10 @@ def url_to_raw_rule(url_list=[], BASE_VAR_REPLACE_DICT={}, DEPEND_VAR_REPLACE_DI
         """
 
         # 提取URL中的后缀
-        url_extion = get_url_extion(url_str)
+        url_extension = get_url_extension(url_str)
         # 如果URL中确实存在后缀
-        if url_extion is not None and url_extion.strip():
-            result_add_dict["add_to_base"].append(url_extion)  # 需要添加到hit_ext.lst这个文件中
+        if url_extension is not None and url_extension.strip():
+            result_add_dict["add_to_base"].append(url_extension)  # 需要添加到hit_ext.lst这个文件中
             # 如果后缀没有被成功替换,那应该使用命中的ext进行替换,[取消替换,仅仅追加命中扩展的频率]
             # url_path = re.sub(list_to_re_str(result_add_dict["add_to_base"]), "%hit_ext%",url_path, count=0)
             # output(url_str, url_path)
@@ -755,20 +809,21 @@ def url_to_raw_rule(url_list=[], BASE_VAR_REPLACE_DICT={}, DEPEND_VAR_REPLACE_DI
 
 
 # 将命中的结果写入到文件中
-def write_hit_result_to_file_with_frequency(file_name=None, result_list=[], encoding='utf-8', separator='frequency==', additional=True, hit_overwrite_mode=True):
+def write_hit_result_to_file_with_frequency(file_name=None, result_list=None, encoding='utf-8', separator='frequency==',
+                                            additional=True, hit_overwrite_mode=True):
+    if result_list is None:
+        result_list = []
     if not hit_overwrite_mode:
-        output(
-            "[+] 简单追加记录 HIT_OVERWRITE_MODE == {} 文件: {} 内容: {}".format(hit_overwrite_mode, file_name, result_list), level="info")
+        output(f"[+] 简单追加记录 HIT_OVERWRITE_MODE == {hit_overwrite_mode} 文件: {file_name} 内容: {result_list}", level="info")
         # 需要对命中字典进行频率计算后写入使用w+,不需要计算时,可以直接追加
         with open(file_name, 'a+', encoding=encoding) as f_obj:
             for path in result_list:
-                result_str = "{path}     {separator}{frequency}".format(path=path, separator=separator, frequency=1)
+                result_str = f"{path}     {separator}1"
                 f_obj.write(result_str + '\n')
-                output("[+] 成功往文件 {} 中追加命中记录: {}".format(file_name, result_str), level="debug")
+                output(f"[+] 成功往文件 {file_name} 中追加命中记录: {result_str}", level="debug")
             f_obj.close()
     else:
-        output(
-            "[+] 追加频率重写 HIT_OVERWRITE_MODE == {} 文件: {} 内容: {}".format(hit_overwrite_mode, file_name, result_list), level="info")
+        output(f"[+] 追加频率重写 HIT_OVERWRITE_MODE == {hit_overwrite_mode} 文件: {file_name} 内容: {result_list}", level="info")
         # 存储最终的频率字典
         result_dict = {}
         # 先读取以前的命中文件文件内容
@@ -785,23 +840,23 @@ def write_hit_result_to_file_with_frequency(file_name=None, result_list=[], enco
         # 需要对命中字典进行频率计算后写入使用w+,不需要计算时,可以直接追加
         with open(file_name, 'w+', encoding=encoding) as f_obj:
             for path, frequency in result_dict.items():
-                result_str = "{path}     {separator}{frequency}".format(path=path, separator=separator,
-                                                                        frequency=frequency)
+                result_str = f"{path}     {separator}{frequency}"
                 f_obj.write(result_str + '\n')
-                output("[+] 成功往文件 {} 中覆写命中记录: {}".format(file_name, result_str))
+                output(f"[+] 成功往文件 {file_name} 中覆写命中记录: {result_str}")
             f_obj.close()
     return True
 
 
 # 自动解析命中结果,并将命中结果写入到文件中
-def auto_analyse_hit_result_and_write_file(url_list, BASE_VAR_REPLACE_DICT, DEPEND_VAR_REPLACE_DICT, hit_ext_path, hit_direct_path, hit_folder_path, hit_files_path,
+def auto_analyse_hit_result_and_write_file(url_list, BASE_VAR_REPLACE_DICT, DEPEND_VAR_REPLACE_DICT, hit_ext_path,
+                                           hit_direct_path, hit_folder_path, hit_files_path,
                                            hit_overwrite_mode):
     # 自动将命中结果写入到文件中
     try:
         result_add_dict = url_to_raw_rule(url_list, BASE_VAR_REPLACE_DICT, DEPEND_VAR_REPLACE_DICT)
-        output("[+] 所有命中URL记录解析结果: {}".format(result_add_dict), level="info")
+        output(f"[+] 所有命中URL记录解析结果: {result_add_dict}", level="info")
     except Exception as error:
-        output("[!] 命中URL解析过程发生错误: {}".format(error), level="error")
+        output(f"[!] 命中URL解析过程发生错误: {error}", level="error")
         return False
     else:
         try:
@@ -813,10 +868,11 @@ def auto_analyse_hit_result_and_write_file(url_list, BASE_VAR_REPLACE_DICT, DEPE
             # 开始将解析的命中结果写入结果文件
             for key, value in result_add_dict.items():
                 if value:
-                    output("[+] 正在往文件 {} 中写入命中结果 {}".format(vars()[key], value), level="info")
-                    write_hit_result_to_file_with_frequency(file_name=vars()[key], result_list=value,
+                    output(f"[+] 正在往文件 {vars()[key]} 中写入命中结果 {value}", level="info")
+                    write_hit_result_to_file_with_frequency(file_name=vars()[key],
+                                                            result_list=value,
                                                             hit_overwrite_mode=hit_overwrite_mode)
             return True
         except Exception as error:
-            output("[!] 解析结果写入过程发生错误: {}".format(error), level="error")
+            output(f"[!] 解析结果写入过程发生错误: {error}", level="error")
             return False

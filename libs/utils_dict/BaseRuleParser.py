@@ -333,22 +333,19 @@ def rule_list_base_render(rule_list):
                 try:
                     # 尝试解析规则
                     rules, options = rule.split(':')
-                    rule_name, rule_type = rules.split('=')
+                    _, _ = rules.split('=')
                 except Exception as error:
                     if 'too many values to unpack' in str(error):
-                        print_str = "[-] 规则 {} 发生编写错误,每条规则仅支持单个格式规则!!!".format(rule_line)
-                        output(print_str, level="error")
+                        output(f"[-] 规则 {rule_line} 发生编写错误,每条规则仅支持单个格式规则!!!", level="error")
                     else:
-                        print_str = "[-] 规则 {} 发生未知解析错误!!! Error: {}".format(rule_line, error)
-                        output(print_str, level="error")
+                        output(f"[-] 规则 {rule_line} 发生未知解析错误!!! Error: {error}", level="error")
                 else:
                     # 实际解析规则返回结果
                     parser_result = parser.parse()
                     result_list.extend(parser_result)
                     render_count = render_count + 1
             else:
-                print_str = "[!] 字典 {} 疑似解析规则,可能存在编写错误...".format(rule_line)
-                output(print_str, level="error")
+                output(f"[!] 字典 {rule_line} 疑似解析规则,可能存在编写错误...", level="error")
                 result_list.append(rule_line)
         else:
             # 不进行渲染

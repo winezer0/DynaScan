@@ -2,17 +2,19 @@
 # encoding: utf-8
 import itertools
 import sys
-
+import time
 from libs.LoggerPrinter import output
 
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
-import time
+
 
 # 判断列表的元素是否有在字符串内
-def list_in_str(list=[], string=""):
+def list_in_str(list_=None, string=""):
+    if list_ is None:
+        list_ = []
     flag = False
-    if list:
-        for i in list:
+    if list_:
+        for i in list_:
             if i in string:
                 flag = True
                 break
@@ -20,9 +22,13 @@ def list_in_str(list=[], string=""):
 
 
 # 替换列表中包含关键字的字符串,返回一个列表文件 # 使用 itertools 实现多个列表(即多个因变量)的支持
-def replace_list_has_key_str(replace_list=[], replace_dict={}):
+def replace_list_has_key_str(replace_list=None, replace_dict=None):
     # 替换列表中包含关键字的字符串,返回一个列表文件
     # 记录开始替换的时间
+    if replace_dict is None:
+        replace_dict = {}
+    if replace_list is None:
+        replace_list = []
     start_time = time.time()
     # 对每次替换进行一次计数
     replace_count = 0
@@ -51,7 +57,6 @@ def replace_list_has_key_str(replace_list=[], replace_dict={}):
     end_time = time.time()
     run_time = end_time - start_time
     return result_list, replace_count, run_time
-
 
 
 if __name__ == '__main__':
