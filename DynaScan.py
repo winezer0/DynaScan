@@ -240,7 +240,8 @@ def handle_real_result_dict(real_path_result_dict=None,
                         # 尝试使用动态字符串转变量名
                         dynamic_var_name = vars()[filter_key]
                         if dynamic_var_name == filter_key_value:
-                            output(f"[-] 当前目标 {url} {filter_key} {dynamic_var_name} == {filter_key_value} 因此本请求结果忽略", level="debug")
+                            output(f"[-] 当前目标 {url} {filter_key} {dynamic_var_name} == {filter_key_value} 因此本请求结果忽略",
+                                   level="debug")
                             ignore_file_path_open.write(tuple_result_format % tuple_)
                             break
                     else:
@@ -417,7 +418,8 @@ def attempt_add_proto_and_access(list_all_target):
                                        level="info")
                                 new_list_all_target.append(url)
                             else:
-                                output(f"[-] 当前目标 {target} 使用http&https进行访问时结果不同, {url} 状态码为 {resp_status} ,将被过滤 响应结果 {tuple_}",
+                                output(
+                                    f"[-] 当前目标 {target} 使用http&https进行访问时结果不同, {url} 状态码为 {resp_status} ,将被过滤 响应结果 {tuple_}",
                                     level="error")
                                 inaccessible_all_target.append(url)
     # 记录不可访问的URL
@@ -448,7 +450,7 @@ def controller():
     # 需要进一步手动处理的参数
     if config.__contains__("proxy") and config.proxy:
         config.req_proxies = {'http': config.proxy.replace('https://', 'http://'),
-                          'https': config.proxy.replace('http://', 'https://')}
+                              'https': config.proxy.replace('http://', 'https://')}
 
     # 根据用户输入的debug参数设置日志打印器属性 # 为主要是为了接受config.debug参数来配置输出颜色.
     set_logger(INFO_LOG_FILE_PATH, ERR_LOG_FILE_PATH, DBG_LOG_FILE_PATH, config.debug)
@@ -706,7 +708,8 @@ def controller():
         if REMOVE_END_SYMBOL_SWITCH:
             list_one_target_url_path = url_remove_end_symbol(list_one_target_url_path,
                                                              remove_symbol_list=REMOVE_SYMBOL_LIST)
-            output(f"[*] 当前目标 {current_target} 删除结尾字符 {REMOVE_SYMBOL_LIST} ,当前元素 {len(list_one_target_url_path)}个",  level="info")
+            output(f"[*] 当前目标 {current_target} 删除结尾字符 {REMOVE_SYMBOL_LIST} ,当前元素 {len(list_one_target_url_path)}个",
+                   level="info")
             output("==================================================", level="info")
 
         if PATH_LOWERCASE_SWITCH:
