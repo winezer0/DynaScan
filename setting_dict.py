@@ -30,6 +30,7 @@ GB_ADD_GROUP_DICT = True
 
 # 大中小字典模式 通过后缀区分  max|mid|min
 GB_DICT_FILE_MODE = 'mid'
+
 # 需要读取的字典文件后缀
 # GB_DICT_FILE_EXT = f'.{GB_DICT_FILE_MODE}.lst'
 GB_DICT_FILE_EXT = f'.lst'
@@ -43,4 +44,23 @@ FREQUENCY_MIN = 1
 
 # 字典的行注释符号
 GB_ANNOTATION_SYMBOL = '#'
+##################################################################
+# 命中文件保存路径
+GB_HIT_FILE_DIR = GB_BASE_DIR.joinpath("dict_hit")
+# 存储命中的后缀
+GB_HIT_EXT_FILE = os.path.join(GB_HIT_FILE_DIR, 'HIT_EXT.hit')
+# 存储命中的路径
+GB_HIT_DIRECT_FILE = os.path.join(GB_HIT_FILE_DIR, 'HIT_DIRECT.hit')
+# 存储命中的目录
+GB_HIT_FOLDER_FILE = os.path.join(GB_HIT_FILE_DIR, 'HIT_FOLDER.hit')
+# 存储命中的文件
+GB_HIT_FILES_FILE = os.path.join(GB_HIT_FILE_DIR, 'HIT_FILE.hit')
+
+# 是否保存命中结果到HIT_XXX文件
+SAVE_HIT_RESULT = True
+
+# 命中结果文件追加模式
+GB_HIT_OVER_CALC = True
+# True,计算频率后覆盖写入、后期写入时内存占用大,磁盘占用小,读取效率高
+# False 直接追加命中记录、后期写入时内存占用小,磁盘占用大,读取效率低
 ##################################################################

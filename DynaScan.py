@@ -18,7 +18,7 @@ from libs.lib_url_analysis.url_tools import get_segment_urls_urlsplit, get_host_
 from libs.lib_url_analysis.url_tools import specify_ext_store, specify_ext_delete
 from libs.util_file import read_file_to_list, file_encoding, write_lines, write_line, file_is_exist, \
     write_hit_result_to_frequency_file
-from libs.util_func import get_random_str, analysis_dict_same_keys, url_to_raw_rule_classify
+from libs.util_func import get_random_str, analysis_dict_same_keys, url_to_raw_rule_classify, is_positive_num
 from setting import *  # setting.py中的变量
 
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
@@ -52,9 +52,10 @@ def parse_input():
 
 # 扫描前的URL过滤和格式化
 def url_list_handle(url_list, url_history_file):
-    # # 测试模式 每个目标URL只获取生成的前100个URL进行测试,
-    # if GB_TEST_MODE:
-    #     current_url_list = current_url_list[:100]
+    # URL列表限额
+    if MAX_URL_NUM:
+        if isinstance(MAX_URL_NUM, int):
+            url_list = url_list[:MAX_URL_NUM]
 
     if GB_EXCLUDE_HOST_HISTORY:
         if file_is_exist(url_history_file):
@@ -226,7 +227,7 @@ def access_result_handle(result_dict_list,
             access_fail_count += 1
 
         # 取消继续访问进程 错误太多 或者 已经爆破成功
-        if access_fail_count >= GB_MAX_ERROR_NUM:
+        if isinstance(GB_MAX_ERROR_NUM,int) and access_fail_count >= GB_MAX_ERROR_NUM:
             output(f"[*] 错误数量超过阈值 取消访问任务!!!", level="error")
             stop_run = True
 

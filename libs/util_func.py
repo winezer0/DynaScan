@@ -1,15 +1,29 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-
-# 判断列表内的字符串是否某个字符串内 # 如果列表为空,就返回default值
 import random
 import re
-
 from libs.lib_log_print.logger_printer import output
-
-# 列表中的任一元素是否在字符串内
 from libs.lib_url_analysis.url_tools import get_base_url, get_url_ext_urlsplit
+
+
+# 随机生成User-Agent
+def random_useragent(user_agents, condition=False):
+    if condition:
+        return random.choice(user_agents)
+    else:
+        return user_agents[0]
+
+
+# 随机X-Forwarded-For，动态IP
+def random_x_forwarded_for(condition=False):
+    if condition:
+        return '%d.%d.%d.%d' % (random.randint(1, 254),
+                                random.randint(1, 254),
+                                random.randint(1, 254),
+                                random.randint(1, 254))
+    else:
+        return '8.8.8.8'
 
 
 # 获得随机字符串
@@ -132,3 +146,4 @@ def list_to_re_str(replace_list, bracket=True):
         replace_str = f'{regexp}'
 
     return replace_str
+
