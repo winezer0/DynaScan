@@ -3,9 +3,8 @@
 import argparse
 import copy
 import re
-
+from setting import *  # setting.py中的变量
 from pyfiglet import Figlet
-
 from libs.gen_path import gen_base_scan_path_list, product_urls_and_paths
 from libs.lib_log_print.logger_printer import set_logger, output
 from libs.lib_requests.check_protocol import check_proto_and_access
@@ -14,12 +13,12 @@ from libs.lib_requests.requests_thread import multi_thread_requests_url, multi_t
 from libs.lib_rule_dict.base_key_replace import replace_list_has_key_str
 from libs.lib_rule_dict.util_depend_var import set_dependent_var_dict
 from libs.lib_url_analysis.url_tools import get_segment_urls_urlsplit, get_host_port, replace_multi_slashes, \
-    remove_url_end_symbol, url_path_lowercase, url_path_chinese_encode, url_path_url_encode, get_base_url
-from libs.lib_url_analysis.url_tools import specify_ext_store, specify_ext_delete
-from libs.util_file import read_file_to_list, file_encoding, write_lines, write_line, file_is_exist, \
-    write_hit_result_to_frequency_file
-from libs.util_func import get_random_str, analysis_dict_same_keys, url_to_raw_rule_classify, is_positive_num
-from setting import *  # setting.py中的变量
+    get_base_url
+from libs.lib_url_analysis.url_tools import remove_url_end_symbol, url_path_lowercase, url_path_chinese_encode
+from libs.lib_url_analysis.url_tools import specify_ext_store, specify_ext_delete, url_path_url_encode
+from libs.util_file import read_file_to_list, file_encoding, write_lines, write_line
+from libs.util_file import file_is_exist, write_hit_result_to_frequency_file
+from libs.util_func import get_random_str, analysis_dict_same_keys, url_to_raw_rule_classify
 
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
@@ -32,13 +31,13 @@ def parse_input():
     # description 程序描述信息
     argument_parser.description = Figlet().renderText("DynaScan")
 
-    argument_parser.add_argument("-u", dest="target", default=GB_TARGET, help="指定检测目标URL或文件")
-    argument_parser.add_argument("-d", dest="debug_flag", default=GB_DEBUG_FLAG, help="显示运行时调试信息", action="store_true")
+    argument_parser.add_argument("-u", dest="target", default=GB_TARGET, help="指定目标URL或目标文件")
+    argument_parser.add_argument("-d", dest="debug_flag", default=GB_DEBUG_FLAG, help="显示调试信息", action="store_true")
 
-    example = """s
+    example = """
              \rExamples:
              \r  python3 {shell_name} -u https://www.baidu.com
-             \r  python3 {shell_name} -f target.txt
+             \r  python3 {shell_name} -u target.txt
              \r    
              \r  其他控制细节参数请通过setting.py进行配置
              \r    
@@ -227,7 +226,7 @@ def access_result_handle(result_dict_list,
             access_fail_count += 1
 
         # 取消继续访问进程 错误太多 或者 已经爆破成功
-        if isinstance(GB_MAX_ERROR_NUM,int) and access_fail_count >= GB_MAX_ERROR_NUM:
+        if isinstance(GB_MAX_ERROR_NUM, int) and access_fail_count >= GB_MAX_ERROR_NUM:
             output(f"[*] 错误数量超过阈值 取消访问任务!!!", level="error")
             stop_run = True
 
