@@ -3,286 +3,179 @@
 
 # 全局配置文件
 import sys
-import os
-import random
-import pathlib
 import time
-from libs.DataType import config
-# 使用config字典 存储主要的设置用户变量更加优雅
-# 注意使用config存储logger后会导致不能用logger打印config,由于死循环调用的问题
-# 所有需要用户输入的变量,需要添加config.作为前缀
-from libs.ToolUtils import get_random_str, file_is_exist, read_file_to_list_de_weight, auto_mkdir
+import random
+
+from libs.util_file import auto_make_dir
+from setting_dict import *
 
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 ##################################################################
 # 程序开始运行时间
-RUN_TIME = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
+GB_RUN_TIME = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
 ##################################################################
 # 获取setting.py脚本所在路径作为的基本路径
-BASE_DIR = pathlib.Path(__file__).parent.resolve()
+GB_BASE_DIR = pathlib.Path(__file__).parent.resolve()
 ##################################################################
 # 是否显示DEBUG级别信息,默认False
-config.debug = False
-# 是否属于测试模式,默认False
-TEST_MODE_HANDLE = False
-# 测试模式每个目标URL只获取生成的前100个URL进行测试,
+GB_DEBUG_FLAG = False
+# # 测试模式 每个目标URL只获取生成的前100个URL进行测试,
+# GB_TEST_MODE = False
 ##################################################################
 # 版本号配置
-version = "Ver 0.1.10 2023-04-05 23:00"
+GB_VERSION = "Ver 0.2.0 2023-04-11 20:23"
 ##################################################################
-# 停止扫描阈值,默认True
-STOP_SCAN_SWITCH = True
-STOP_SCAN_NUM = 20
-# 如果非正常响应超过这个阈值, 就关闭多线程中的所有线程任务
+# 停止扫描阈值 # 如果非正常响应超过这个阈值, 就停止任务
+GB_MAX_ERROR_NUM = 20
 ##################################################################
 # 中文路径、特殊字符会以列表内的编码作为基础编码，再进行URL编码
-ALL_BASE_ENCODE = ['utf-8']  # ['utf-8', 'gbk']
+GB_CHINESE_ENCODE = ['utf-8']  # ['utf-8', 'gbk', 'gb2312']
 # 注意:gb2312编码繁体中文可能报错,此时可使用gbk编码,GBK与G2312编码结果相同
-# 中文编码模式: 路径列表中的元素[/說明.txt] 已基于 [utf-8] 编码 URL编码为:/%E8%AA%AA%E6%98%8E.txt
-# 中文编码模式: 路径列表中的元素[/說明.txt] 已基于 [gbk] 编码 URL编码为:/%D5f%C3%F7.txt
-# 中文编码模式: 路径列表中的元素[/說明.txt] 基于 [gb2312] 编码进行URL编码时,发生错误:'gb2312' codec can't encode character '\u8aaa' in position 1: illegal multibyte sequence
-# 中文编码模式: 路径列表中的元素[/服务器.rar4] 已基于 [gb2312] 编码 URL编码为:/%B7%FE%CE%F1%C6%F7.rar4
-# 中文编码模式: 路径列表中的元素[/服务器.rar4] 已基于 [gbk] 编码 URL编码为:/%B7%FE%CE%F1%C6%F7.rar4
 
-# 是否对所有最终PATH开启URL编码模式,解决中文路径乱码问题
-ENCODE_ALL_PATH = True
-
-# URL路径列表编码处理包含两种模式,一种是仅处理中文路径（使用正则匹配出中文）,一种是所有路径都会处理,所有特殊字符都会被编码,
-# 是否仅对包含中文的路径使用URL编码模式,默认True
-ENCODE_CHINESE_ONLY = True
+# 是否仅对包含中文的路径使用URL编码模式,默认True 否则所有路径都会处理,所有特殊字符都会被编码,
+GB_ONLY_ENCODE_CHINESE = True
 ##################################################################
-# 在配置文件中配置默认目标文件等参数 比cmd输入参数优先级低 一般作为默认参数使用
-config.target = None
-config.target_file = "target.txt"
-# 当没有输入目标时,默认加载该文件,可日常使用
-###################程序基本配置开始##################################
-# 是否对符合URL格式的目标直接开启目标URL可访问性判断,默认True
-ACCESS_TEST_URL = True
+# 在配置文件中配置默认目标参数  支持文件 或 URL
+GB_TARGET = "target.txt"
+##################################################################
+# 输入目标的处理
+# 对HOST:PORT格式的目标进行测试,动态判断是否添加https协议头
+GB_DEFAULT_PROTO_HEAD = "auto"  # 可选 http|https|auto
 
-# 是否对HOST:PORT格式的目标进行URL访问测试,根据响应结果自动添加协议头,默认True
-ACCESS_ADD_PROTO_HEAD = True
+# 对URL目标开启目标URL可访问性判断
+GB_URL_ACCESS_TEST = False
 
-# 是否URL访问模式的基础上,动态判断是否添加https协议头,默认True
-SMART_ADD_PROTO_HEAD = True
-
-# 是否开启多目标模式,默认True
-# 对URL路径进行分解,一个目标能够变成多个目标,每多一个目标,请求URL就会多一倍
-MULTI_TARGET_PATH_MODE = True
+# 目标URL拆分,默认True # 对输入的URL路径进行分解
+GB_SPLIT_TARGET_PATH = True
 # 示例：https://XXX/item/DD/ 会被分解为 https://XXX/item/DD/,https://XXX/item/,https://XXX/
-
-# 是否将每一次批量扫描的扫描结果分别按照多个HOST_PORT进行拆分
-WRITE_RESULT_DIFF_SWITCH = False
-
+##################################################################
 # 设置日志输出文件路径 #目录不存在会自动创建
-LOG_FILE_PATH = str(BASE_DIR.joinpath("runtime/runtime_module.log"))
+LOG_FILE_DIR = str(GB_BASE_DIR.joinpath("runtime"))
 
-# 是否在结果文件和日志文件中添加程序启动时间,默认添加
-FILE_RUN_TIME_SWITCH = False
-if FILE_RUN_TIME_SWITCH:
-    LOG_FILE_PATH = str(BASE_DIR.joinpath(f"runtime/runtime_{RUN_TIME}_module.log"))
+LOG_FILE_PATH = os.path.join(LOG_FILE_DIR, "runtime_module.log")
+# LOG_FILE_PATH = os.path.join(LOG_FILE_DIR, "runtime_{GB_RUN_TIME}_module.log")
 
-INFO_LOG_FILE_PATH = LOG_FILE_PATH.replace('module', 'info')
-DBG_LOG_FILE_PATH = LOG_FILE_PATH.replace('module', 'debug')
-ERR_LOG_FILE_PATH = LOG_FILE_PATH.replace('module', 'error')
+GB_INFO_LOG_FILE = LOG_FILE_PATH.replace('module', 'info')
+GB_DBG_LOG_FILE = LOG_FILE_PATH.replace('module', 'debug')
+GB_ERR_LOG_FILE = LOG_FILE_PATH.replace('module', 'error')
 
+# 记录不可访问的目标 # 没啥用
+GB_INACCESSIBLE_RECORD = LOG_FILE_PATH.replace('module', 'inaccessible')
+# 记录可以访问的目标 # 没啥用
+GB_ACCESSIBLE_RECORD = LOG_FILE_PATH.replace('module', 'accessible')
 
-# 记录已完成扫描的目标 # 固定命名,不需要添加时间戳
-# 可访问目标已访问记录
-ACCESSIBLE_TARGET_RECORD_FILE = str(BASE_DIR.joinpath("runtime/runtime_module.log")).replace('module', 'visited_accessible')
-# 不可访问目标已访问记录
-INACCESSIBLE_TARGET_RECORD_FILE = str(BASE_DIR.joinpath("runtime/runtime_module.log")).replace('module', 'visited_inaccessible')
+# 记录扫描已完成的URL 针对每个目标生成不同的记录文件
+GB_PER_HOST_HISTORY_FILE = LOG_FILE_PATH.replace('module', 'history.{host_port}')
+# 每个HOST扫描URL的过滤,建议开启
+GB_EXCLUDE_HOST_HISTORY = True
+##################################################################
+# 全局变量,存储自定义 基本变量
+GB_BASE_VAR_REPLACE_DICT = {"%BLANK%": ['']}
 
-# 扫描时是否排除测试记录（可访问目标的）,# 即不重复扫描可访问目标 默认True
-EXCLUDE_ACCESSIBLE_VISITED_RECORD = False
-ACCESSIBLE_VISITED_TARGET_LIST = []
-# 读取命中记录文件
-if EXCLUDE_ACCESSIBLE_VISITED_RECORD and file_is_exist(ACCESSIBLE_TARGET_RECORD_FILE):
-    ACCESSIBLE_VISITED_TARGET_LIST = read_file_to_list_de_weight(ACCESSIBLE_TARGET_RECORD_FILE)
+# 全局变量,存储自定义 因变量
+GB_DEPENDENT_VAR_REPLACE_DICT = {"%%DEPENDENT%%": ['admin', 'product', 'wwwroot', 'www', '网站']}
+# 程序内置 %%DOMAIN%% 在URL中,域名因变量列表所代表的字符串
+# 程序内置 %%PATH%% 在URL中,路径因变量列表所代表的字符串
 
-# 扫描时是否排除测试记录（不可访问目标的）,默认True  # 即不重复扫描不可访问目标
-EXCLUDE_INACCESSIBLE_VISITED_RECORD = False
-INACCESSIBLE_VISITED_TARGET_LIST = []
-# 读取命中记录文件
-if EXCLUDE_INACCESSIBLE_VISITED_RECORD and file_is_exist(INACCESSIBLE_TARGET_RECORD_FILE):
-    INACCESSIBLE_VISITED_TARGET_LIST = read_file_to_list_de_weight(INACCESSIBLE_TARGET_RECORD_FILE)
+# DOMAIN PATH 因变量中的 符号替换规则, 替换后追加到域名因子列表
+GB_SYMBOL_REPLACE_DICT = {":": ["_"], ".": ["_"]}
 
-# 设置输出结果文件目录
-RESULT_DIR_PATH = BASE_DIR.joinpath("result")
-auto_mkdir(RESULT_DIR_PATH)
+# 删除带有 特定符号 的因变量（比如:）的元素
+GB_NOT_ALLOW_SYMBOL = [":"]
 
+GB_IGNORE_IP_FORMAT = True
+##################################################################
+# 最终生成的扫描路径处理
 
-# 字典来自文件列表 #从文件夹获得所有文件列表
-ALL_DICT_PATH = ["dict-max", "dict-mid", "dict-min"]
-base_var = "base_var"
-direct_path = "direct_path"
-group_folder = "group_folder"
-group_files = "group_files"
-all_dict_classify = [base_var, direct_path, group_folder, group_files]
+# 替换路径中的多个//为一个/
+GB_REMOVE_MULTI_SLASHES = True
 
-config.dict_path = "dict-max"  # 设置默认调用的字典路径
-
-# 字典文件后缀
-dict_file_suffix = '.lst'
-
-# 是否读取DIRECT目录下的字典
-DIRECT_DICT_MODE = True
-
-# 指定仅读取 group-xxx目录指定的文件字典,不再读取 group-xxx 目录下的所有文件
-SPECIFY_GROUP_FOLDER_DICT = []
-SPECIFY_GROUP_FILES_DICT = []
-
-# 是否读取GROUP-XX目录下的字典
-GROUP_DICT_MODE = True
-
-# 要提取的路径频率阈值，大于等于FREQUENCY_MIN 小于等于 FREQUENCY_MAX的字典会被提取
-# 读取BASE目录下字典时的频率阈值
-FREQUENCY_MIN_BASE = 1
-FREQUENCY_MAX_BASE = 999
-
-# 读取DIRECT目录下字典时的频率阈值
-FREQUENCY_MIN_DIRECT = 1
-FREQUENCY_MAX_DIRECT = 999
-
-# 读取GROUP目录下字典时的频率阈值
-FREQUENCY_MIN_GROUP = 1
-FREQUENCY_MAX_GROUP = 999
-
-# 指定path和频率的分隔符,如果每一行的内容为/xxx/xxx  frequency==10,那么切割符为'frequency=='
-SEPARATOR = 'frequency=='
-
-# 如果结果字典中已有的值,是否进行追加频率,False时直接进行频率覆盖
-ADDITIONAL = True
-
-# 行注释符号
-ANNOTATION = '#'
-# 替换字符列表-不再需要手动指定－从文件名和文件内容中自动提取键值对
-# 自动读取base目录所有文件并进行自动赋值
-
-# 全局变量,存储基本变量替换字典 #此处可设置其他默认值
-BASE_VAR_REPLACE_DICT = {"%BLANK%": ['']}
-
-# 因变量替换对应表,初值为空,后根据URL变量自动填充替换  #此处可设置其他默认值
-DEPEND_VAR_REPLACE_DICT = {"%%DOMAIN%%": [], "%%PATH%%": []}
-# %%DOMAIN%% 在URL中,域名因变量列表所代表的字符串
-# %%PATH%% 在URL中,路径因变量列表所代表的字符串
-# 由于需要动态改变,内容实际在代码内部实现,
-
-# 域名变量如果是IP是否需要忽略
-IGNORE_IP_FORMAT = True
-
-# 存储自定义变量单词,会自动加入到%%DOMAIN%% 和%%PATH%% 中
-# CUSTOM_REPLACE_VAR = ['admin', 'product', 'wwwroot', 'www', '网站']
-CUSTOM_REPLACE_VAR = []
-# 是否在每个因变量内追加自定义变量
-APPEND_CUSTOM_VAR = True
-
-# DOMAIN因变量中HOST:PORt中的替换规则,替换后追加到域名因子列表
-DOMAIN_SYMBOL_REPLACE_DICT = {
-    ":": ["_"],
-    ".": ["_"]}
-
-# PATH因变量中HOST:PORt中的替换规则,替换后追加到域名因子列表
-PATH_SYMBOL_REPLACE_DICT = {
-    ":": ["_"],  # 获取的路径相关单词中的[:]会替换为[_]
-    ".": ["_"]  # 获取的路径相关单词中的[.]会替换为[_]
-}
-
-# 路径中不该有的字符 # 解析出来的域名单词和路径单词中有这个符号的元素会删除
-NOT_PATH_SYMBOL = [":"]
-
-# 是否去除路径中包含不该有的字符（比如:）的元素
-REMOVE_NOT_PATH_SYMBOL = True
-
-# 是否替换路径中的多个//为一个/
-REMOVE_MULTI_SLASHES = True
-
-# 去除URL[. /]结尾列表与开关
-REMOVE_SYMBOL_LIST = ['.', '/']
-REMOVE_END_SYMBOL_SWITCH = False
+# 去除以特定字符结尾的URL
+GB_REMOVE_SOME_SYMBOL = ['.']
 
 # URL路径全部小写
-PATH_LOWERCASE_SWITCH = False
+GB_URL_PATH_LOWERCASE = True
 
 # 为每个路径添加自定义前缀
-CUSTOM_PREFIX_LIST = ['/admin']
-# 为每个路径添加自定义前缀功能开关
-CUSTOM_PREFIX_SWITCH = False
+# GB_ADD_CUSTOM_PREFIX = ['/admin']
+GB_ADD_CUSTOM_PREFIX = None
 
-# 命中文件保存路径
-HIT_FILE_PATH = "dict-hit"
-auto_mkdir(HIT_FILE_PATH)
-HIT_EXT_PATH = os.path.join(HIT_FILE_PATH, 'HIT_EXT.hit')
-HIT_DIRECT_PATH = os.path.join(HIT_FILE_PATH, 'HIT_DIRECT.hit')
-HIT_FOLDER_PATH = os.path.join(HIT_FILE_PATH, 'HIT_FLODER.hit')
-HIT_FILES_PATH = os.path.join(HIT_FILE_PATH, 'HIT_FILE.hit')
+# 仅扫描指定后缀的URL目标,注意:后缀不需要加[.]前缀
+# GB_STORE_SPECIFY_EXT_LIST = ['xxx']
+GB_ONLY_SCAN_SPECIFY_EXT = None
 
+# 仅移除指定后缀的URL, 注意:后缀不需要加[.]前缀
+GB_NO_SCAN_SPECIFY_EXT = None
+# 当保留指定后缀和移除指定后缀同时存在时,先进行指定后缀URL保留,后进行指定后缀URL排除, 建议一次扫描仅开启一个开关
+##################################################################
+# 设置输出结果文件目录
+GB_RESULT_DIR = GB_BASE_DIR.joinpath("result")
+auto_make_dir(GB_RESULT_DIR)
+
+# 结果文件名称  # auto 根据主机名和时间戳自动生成
+GB_RESULT_FILE_PATH = "auto"
+# GB_RESULT_FILE_PATH = os.path.join(GB_RESULT_DIR,f"result_{GB_RUN_TIME}.csv")
+##################################################################
 # 是否保存命中结果到HIT_XXX文件
 SAVE_HIT_RESULT = True
+
 # 命中结果文件追加模式
+GB_HIT_OVER_CALC = True
 # True,计算频率后覆盖写入、后期写入时内存占用大,磁盘占用小,读取效率高
 # False 直接追加命中记录、后期写入时内存占用小,磁盘占用大,读取效率低
-HIT_OVERWRITE_MODE = True
 
-# 保留指定后缀的URL目标,注意:后缀不需要加[.]前缀
-STORE_SPECIFY_EXT_SWITCH = False
-STORE_SPECIFY_EXT_LIST = ['xxx']
+# 命中文件保存路径
+GB_HIT_FILE_DIR = GB_BASE_DIR.joinpath("dict_hit")
+auto_make_dir(GB_HIT_FILE_DIR)
+# 存储命中的后缀
+GB_HIT_EXT_FILE = os.path.join(GB_HIT_FILE_DIR, 'HIT_EXT.hit')
+# 存储命中的路径
+GB_HIT_DIRECT_FILE = os.path.join(GB_HIT_FILE_DIR, 'HIT_DIRECT.hit')
+# 存储命中的目录
+GB_HIT_FOLDER_FILE = os.path.join(GB_HIT_FILE_DIR, 'HIT_FOLDER.hit')
+# 存储命中的文件
+GB_HIT_FILES_FILE = os.path.join(GB_HIT_FILE_DIR, 'HIT_FILE.hit')
+##################################################################
 
-# 移除指定后缀的URL,注意:后缀不需要加[.]前缀
-DELETE_SPECIFY_EXT_SWITCH = False
-DELETE_SPECIFY_EXT_LIST = ['xxx']
-# 当保留指定后缀和移除指定后缀同时存在时,先进行指定后缀URL保留,后进行指定后缀URL排除, 建议一次扫描仅开启一个开关
-####################无需进行处理的初始变量赋值开始###########################
-# 代码中会自动添加变量替换关键字
-ALL_REPLACE_KEY = []
-
-# 全局变量,用于存储请求所有已经访问过的目标URL
-ALL_ACCESSED_URL = []
-####################HTTP请求相关默认配置开始##########################
+# HTTP请求相关默认配置
 # 默认请求方法
-config.http_method = "get"
+GB_REQ_METHOD = "get"
 
 # 默认线程数
-config.threads_count = 30
+GB_THREADS_COUNT = 100
 
-# 默认代理配置
-config.req_proxies = {
+# 每个线程之间的延迟 单位S秒
+GB_THREAD_SLEEP = 0
+
+# 对外请求代理
+GB_PROXIES = {
+    # "http": "http://127.0.0.1:8080",
+    # "https": "http://127.0.0.1:8080",
     # "http": "http://user:pass@10.10.1.10:3128/",
-    # "https": "http://192.168.88.1:8080",
-    # "http": "http://192.168.88.1:8080", # TOR 洋葱路由器
+    # "https": "https://192.168.88.1:8080",
+    # "http": "socks5://192.168.88.1:1080",
 }
 
-# 是否采用流模式访问
-HTTP_STREAM = True
-
+# 采用流模式访问
+GB_STREAM_MODE = False
 # 是否开启https服务器的证书校验
-ALLOW_SSL_VERIFY = False
-
+GB_SSL_VERIFY = False
 # 超时时间 # URL重定向会严重影响程序的运行时间
-HTTP_TIMEOUT = 2
-
+GB_TIMEOUT = 5
 # 是否允许URL重定向 # URL重定向会严重影响程序的运行时间
-ALLOW_REDIRECTS = True
-
+GB_ALLOW_REDIRECTS = True
 # 访问没有结果时,自动重试的最大次数
-RETRY_TIMES = 3
-
+GB_RETRY_TIMES = 3
+#############################################
 # 是否自动根据URL设置动态HOST头
-DYNAMIC_HOST_HEADER = True
-
+GB_ADD_DYNAMIC_HOST = True
 # 是否自动根据URL设置动态refer头
-DYNAMIC_REFER_HEADER = True
-
-# 是否允许随机User-Agent # 随机User-Agent可能会导致无法建立默认会话 # 报错内容 Exceeded 30 redirects
-ALLOW_RANDOM_USERAGENT = True
-
+GB_ADD_DYNAMIC_REFER = True
+# 随机User-Agent # 可能会导致无法建立默认会话 # 报错内容 Exceeded 30 redirects
+GB_ADD_RANDOM_USERAGENT = True
 # 是否允许随机X-Forwarded-For
-ALLOW_RANDOM_X_FORWARD = True
+GB_ADD_RANDOM_XFF = True
 
-# 指定扫描时的Cookie
-COOKIES = {
-    # 'name1': 'value1',
-    # 'name2': 'value2'
-}
 # 随机HTTP头
 USER_AGENTS = [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/535.20 (KHTML, like Gecko) Chrome/19.0.1036.7 Safari/535.20",
@@ -322,43 +215,16 @@ def random_x_forwarded_for(condition=False):
         return '8.8.8.8'
 
 
-#######################################################################
-# 每个自动动态筛选的变量,需要被忽略的默认值和空值
-FILTER_MODULE_DEFAULT_VALUE_DICT = {
-    "resp_text_title": ["Null-Title", "Ignore-Title", "Blank-Title"],
-    "resp_text_hash": ["Null-Text-Hash", "Ignore-Text-Hash"],
-    "resp_content_length": [-1, 0],
-    "resp_text_size": [-1, 0],
-    "resp_bytes_head": ["Null-Bytes", "Blank-Bytes"],
-    "resp_redirect_url": ["Null-Redirect-Url", "Raw-Redirect-Url"],
-}
-
-# 判断URI不存在的状态码，多个以逗号隔开,符合该状态码的响应将不会写入结果文件
-EXCLUDE_STATUS = [404, 401, 403, 405, 406, 410, 500, 501, 502, 503]
-
-# 判断URI是否不存在的正则，如果页面标题存在如下定义的内容，将从Result结果中剔除到ignore结果中 #re.IGNORECASE 忽略大小写
-EXCLUDE_REGEXP = r"页面不存在|未找到|not[ -]found|403|404|410"
-
-# 动态排除模式：测试访问不存在路径,用于筛选出不正确的结果
-# 动态判断404、假页面的 length、size、head、hash等多个属性来排除虚假页面
-test_path_1 = get_random_str(12)
-test_path_2 = get_random_str(12) + get_random_str(12)
-test_path_3 = get_random_str(12) + get_random_str(12) + get_random_str(12)
-TEST_PATH_LIST = [test_path_1, test_path_2, test_path_3]
-
-# 动态排除模式开关
-EXCLUDE_DYNAMIC_SWITCH = True
-
 # HTTP 头设置
-HEADERS = {
-    'User-Agent': random_useragent(ALLOW_RANDOM_USERAGENT),
-    'X_FORWARDED_FOR': random_x_forwarded_for(ALLOW_RANDOM_X_FORWARD),
+GB_HEADERS = {
+    'User-Agent': random_useragent(GB_ADD_RANDOM_USERAGENT),
+    'X_FORWARDED_FOR': random_x_forwarded_for(GB_ADD_RANDOM_XFF),
     'Accept-Encoding': ''
 }
-########################扩展的调用函数###################################
-# 自动创建文件字典目录
-all_dict_dir = []
-for dict_class in ALL_DICT_PATH:
-    for dir_ in all_dict_classify:
-        auto_mkdir(os.path.join(dict_class, dir_))
+#######################################################################
+# 判断URI不存在的状态码，多个以逗号隔开,符合该状态码的响应将不会写入结果文件
+GB_EXCLUDE_STATUS = [404, 401, 403, 405, 406, 410, 500, 501, 502, 503]
+
+# 判断URI是否不存在的正则，如果页面标题存在如下定义的内容，将从Result结果中剔除到ignore结果中 #re.IGNORECASE 忽略大小写
+GB_EXCLUDE_REGEXP = r"页面不存在|未找到|not[ -]found|403|404|410"
 ########################扩展的调用函数###################################

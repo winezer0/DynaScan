@@ -1,9 +1,0 @@
-/debug/pprof
-/debug/pprof/profile
-/debug/pprof/block?debug=1
-/debug/pprof/gotoutine?debug=1
-/debug/pprof/heap?debug=1
-/debug/pprof/mutex?debug=1
-/debug/pprof/threadcreate?debug=1
-/debug/pprof/trace
-/debug/pprof/allocs?debug=1
