@@ -78,15 +78,11 @@ error 错误信息(需要关注)
 
 ```
 结果目录：result
-格式1：result_path = "{结果目录}/{主机名}_{module分类}_{时间戳}.csv"
 格式2：result_path = "{结果目录}/{主机名}_{module分类}.csv"
 格式3：result_path = "{结果目录}/{module分类}_{时间戳}.csv"
-格式4：result_path = "{结果目录}/{module分类}.csv"
 
 module选项：
-result 正常结果的项目(需要关注)
-manual 需要手动访问测试的项目(需要关注)
-error  发生编码等错误信息(其中需要手动测试的项目会写入到manual)
+result 正常结果的项目(需要关注
 ignore 被404等静态特征及响应内容对比的动态特征排除的项目
 ```
 
@@ -95,7 +91,7 @@ ignore 被404等静态特征及响应内容对比的动态特征排除的项目
 #### 3.命中记录文件路径及说明
 
 ```
-runtime/runtime_visited.log  记录已完成扫描的目标，实现断点续传。
+runtime/runtime_history.log  记录已完成扫描的目标，实现断点续传。
 ```
 
 
@@ -313,9 +309,9 @@ dict/direct 目录存放的字典的规则内容会被【规则解析+基本变�
     
     Examples:
       python3 DynaScan.py -u http://www.baidu.com
-      python3 DynaScan.py -f target.txt
-      python3 DynaScan.py -f target.txt -p http://127.0.0.1:8080
-    
+      python3 DynaScan.py -u target.txt    
+      
+
       其他控制细节参数请通过Setting.py进行配置
 
 
