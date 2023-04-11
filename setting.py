@@ -4,7 +4,6 @@
 # 全局配置文件
 import sys
 import time
-import random
 
 from libs.lib_requests.requests_const import USER_AGENTS
 from libs.util_file import auto_make_dir
@@ -46,10 +45,10 @@ GB_TARGET = "target.txt"
 GB_DEFAULT_PROTO_HEAD = "auto"  # 可选 http|https|auto
 
 # 对URL目标开启目标URL可访问性判断
-GB_URL_ACCESS_TEST = False
+GB_URL_ACCESS_TEST = True
 
 # 目标URL拆分,默认True # 对输入的URL路径进行分解
-GB_SPLIT_TARGET_PATH = True
+GB_SPLIT_TARGET_PATH = False
 # 示例：https://XXX/item/DD/ 会被分解为 https://XXX/item/DD/,https://XXX/item/,https://XXX/
 ##################################################################
 # 设置日志输出文件路径 #目录不存在会自动创建
@@ -72,24 +71,7 @@ GB_PER_HOST_HISTORY_FILE = LOG_FILE_PATH.replace('module', 'history.{host_port}'
 # 每个HOST扫描URL的过滤,建议开启
 GB_EXCLUDE_HOST_HISTORY = True
 ##################################################################
-# 全局变量,存储自定义 基本变量
-GB_BASE_VAR_REPLACE_DICT = {"%BLANK%": ['']}
-
-# 全局变量,存储自定义 因变量
-GB_DEPENDENT_VAR_REPLACE_DICT = {"%%DEPENDENT%%": ['admin', 'product', 'wwwroot', 'www', '网站']}
-# 程序内置 %%DOMAIN%% 在URL中,域名因变量列表所代表的字符串
-# 程序内置 %%PATH%% 在URL中,路径因变量列表所代表的字符串
-
-# DOMAIN PATH 因变量中的 符号替换规则, 替换后追加到域名因子列表
-GB_SYMBOL_REPLACE_DICT = {":": ["_"], ".": ["_"]}
-
-# 删除带有 特定符号 的因变量（比如:）的元素
-GB_NOT_ALLOW_SYMBOL = [":"]
-
-GB_IGNORE_IP_FORMAT = True
-##################################################################
 # 最终生成的扫描路径处理
-
 # 替换路径中的多个//为一个/
 GB_REMOVE_MULTI_SLASHES = True
 
@@ -99,32 +81,23 @@ GB_REMOVE_SOME_SYMBOL = ['.']
 # URL路径全部小写
 GB_URL_PATH_LOWERCASE = True
 
-# 为每个路径添加自定义前缀
-# GB_ADD_CUSTOM_PREFIX = ['/admin']
+# 为每个路径添加自定义前缀 # 例如 ['/admin']
 GB_ADD_CUSTOM_PREFIX = None
 
-# 仅扫描指定后缀的URL目标,注意:后缀不需要加[.]前缀
-# GB_STORE_SPECIFY_EXT_LIST = ['xxx']
+# 仅扫描指定后缀的URL目标,注意:后缀不需要加[.] # 例如 ['php','html']
 GB_ONLY_SCAN_SPECIFY_EXT = None
 
-# 仅移除指定后缀的URL, 注意:后缀不需要加[.]前缀
+# 仅移除指定后缀的URL, 注意:后缀不需要加[.] # 例如 ['php','html']
 GB_NO_SCAN_SPECIFY_EXT = None
-# 当保留指定后缀和移除指定后缀同时存在时,先进行指定后缀URL保留,后进行指定后缀URL排除, 建议一次扫描仅开启一个开关
+# 当保留指定后缀和移除指定后缀同时存在时,先进行指定后缀URL保留,后进行指定后缀URL排除
 ##################################################################
 # 设置输出结果文件目录
 GB_RESULT_DIR = GB_BASE_DIR.joinpath("result")
 
-# 结果文件名称  # auto 根据主机名自动生成
-GB_RESULT_FILE_PATH = "auto"
+# 结果文件名称
 # GB_RESULT_FILE_PATH = os.path.join(GB_RESULT_DIR,f"result_{GB_RUN_TIME}.csv")
+GB_RESULT_FILE_PATH = "auto"  # auto 根据主机名自动生成
 #######################################################################
-# 排除指定结果
-# 判断URI不存在的状态码，多个以逗号隔开,符合该状态码的响应将不会写入结果文件
-GB_EXCLUDE_STATUS = [404, 401, 403, 405, 406, 410, 500, 501, 502, 503]
-
-# 判断URI是否不存在的正则，如果页面标题存在如下定义的内容，将从Result结果中剔除到ignore结果中 #re.IGNORECASE 忽略大小写
-GB_EXCLUDE_REGEXP = r"页面不存在|未找到|not[ -]found|403|404|410"
-##################################################################
 # HTTP请求相关默认配置
 # 默认请求方法
 GB_REQ_METHOD = "get"
@@ -154,7 +127,7 @@ GB_TIMEOUT = 5
 GB_ALLOW_REDIRECTS = True
 # 访问没有结果时,自动重试的最大次数
 GB_RETRY_TIMES = 3
-#############################################
+
 # 是否自动根据URL设置动态HOST头
 GB_ADD_DYNAMIC_HOST = True
 # 是否自动根据URL设置动态refer头
@@ -172,6 +145,13 @@ GB_HEADERS = {
 }
 
 ########################扩展的调用函数###################################
+# 排除指定结果
+# 判断URI不存在的状态码，多个以逗号隔开,符合该状态码的响应将不会写入结果文件
+GB_EXCLUDE_STATUS = [404, 401, 403, 405, 406, 410, 500, 501, 502, 503]
+
+# 判断URI是否不存在的正则，如果页面标题存在如下定义的内容，将从Result结果中剔除到ignore结果中 #re.IGNORECASE 忽略大小写
+GB_EXCLUDE_REGEXP = r"页面不存在|未找到|not[ -]found|403|404|410"
+##################################################################
 auto_make_dir(GB_HIT_FILE_DIR)
 auto_make_dir(GB_RESULT_DIR)
 ########################扩展的调用函数###################################

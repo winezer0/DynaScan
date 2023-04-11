@@ -35,6 +35,22 @@ GB_DICT_FILE_MODE = 'mid'
 # GB_DICT_FILE_EXT = f'.{GB_DICT_FILE_MODE}.lst'
 GB_DICT_FILE_EXT = f'.lst'
 ##################################################################
+# 存储自定义 基本变量
+GB_BASE_VAR_REPLACE_DICT = {"%BLANK%": ['']}
+
+# 存储自定义 因变量
+GB_DEPENDENT_VAR_REPLACE_DICT = {"%%DEPENDENT%%": ['admin', 'product', 'wwwroot', 'www', '网站']}
+# 程序内置 %%DOMAIN%% 在URL中,域名因变量列表所代表的字符串
+# 程序内置 %%PATH%% 在URL中,路径因变量列表所代表的字符串
+
+# DOMAIN PATH 因变量中的 符号替换规则, 替换后追加到域名因子列表
+GB_SYMBOL_REPLACE_DICT = {":": ["_"], ".": ["_"]}
+
+# 删除带有 特定符号 的因变量（比如:）的元素
+GB_NOT_ALLOW_SYMBOL = [":"]
+
+GB_IGNORE_IP_FORMAT = True
+##################################################################
 # 读取字典文件时的处理
 # 指定path和频率的分隔符,如果每一行的内容为/xxx/xxx  <-->10,那么切割符为'<-->'
 GB_FREQUENCY_SYMBOL = '<-->'
