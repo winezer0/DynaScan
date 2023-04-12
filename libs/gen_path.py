@@ -2,7 +2,7 @@
 # encoding: utf-8
 import copy
 
-from libs.lib_log_print.logger_printer import output
+from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_ERROR
 from libs.lib_rule_dict.base_key_replace import replace_list_has_key_str
 from libs.lib_rule_dict.base_rule_parser import base_rule_render_list
 from libs.lib_rule_dict.util_dict import dict_content_base_rule_render, cartesian_product_merging, frozen_tuple_list
