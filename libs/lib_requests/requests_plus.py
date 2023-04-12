@@ -282,35 +282,58 @@ def request_retry(req_url,
                   verify_ssl=False,
                   req_allow_redirects=False,
                   retry_times=0,
-                  req_stream=False
+                  req_stream=False,
+                  clear_cookies=True
                   ):
-    retry_strategy = Retry(
-        total=retry_times,  # 重试的最大次数
-        backoff_factor=1,  # 重试的延迟时间因子 默认值为0，表示不延迟。
-        status_forcelist=[429, 500, 502, 503, 504],  # 需要强制重试的HTTP状态码列表。
-        allowed_methods=["HEAD", "GET", "OPTIONS"],  # 允许进行重试的HTTP请求方法列表。
-        connect=5,  # 连接超时时间
-        read=5,  # 读取超时时间
-    )
 
-    adapter = HTTPAdapter(max_retries=retry_strategy)
-    session = requests.Session()
-    session.mount("https://", adapter)
-    session.mount("http://", adapter)
-    try:
-        response = session.request(url=req_url,
-                                   method=req_method,
-                                   headers=req_headers,
-                                   data=req_data,
-                                   proxies=req_proxies,
-                                   timeout=req_timeout,
-                                   verify=verify_ssl,
-                                   allow_redirects=req_allow_redirects,
-                                   stream=req_stream)
-        return response
-    except Exception as error:
-        output(f"error:{error}")
-        return None
+    if not retry_times > 0:
+        # 使用常规请求模式
+        try:
+            response = requests.request(url=req_url,
+                                        method=req_method,
+                                        headers=req_headers,
+                                        data=req_data,
+                                        proxies=req_proxies,
+                                        timeout=req_timeout,
+                                        verify=verify_ssl,
+                                        allow_redirects=req_allow_redirects,
+                                        stream=req_stream)
+            return response
+        except Exception as error:
+            output(f"error:{error}")
+            return None
+    else:
+        # 使用session回话模式
+        retry_strategy = Retry(
+            total=retry_times,  # 重试的最大次数
+            backoff_factor=1,  # 重试的延迟时间因子 默认值为0，表示不延迟。
+            status_forcelist=[429, 500, 502, 503, 504],  # 需要强制重试的HTTP状态码列表。
+            allowed_methods=["HEAD", "GET", "OPTIONS"],  # 允许进行重试的HTTP请求方法列表。
+            connect=5,  # 连接超时时间
+            read=5,  # 读取超时时间
+        )
+
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        session = requests.Session()
+        if clear_cookies:
+            session.cookies.clear()  # 清除 session 中的 cookies
+        session.mount("https://", adapter)
+        session.mount("http://", adapter)
+
+        try:
+            response = session.request(url=req_url,
+                                       method=req_method,
+                                       headers=req_headers,
+                                       data=req_data,
+                                       proxies=req_proxies,
+                                       timeout=req_timeout,
+                                       verify=verify_ssl,
+                                       allow_redirects=req_allow_redirects,
+                                       stream=req_stream)
+            return response
+        except Exception as error:
+            output(f"error:{error}")
+            return None
 
 # if __name__ == '__main__':
 #     target_url_path_list = ['http://www.baidu.com/201902.iso',
