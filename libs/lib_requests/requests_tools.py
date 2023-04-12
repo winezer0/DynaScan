@@ -2,9 +2,13 @@
 # encoding: utf-8
 
 # 获得随机字符串
+import copy
 import random
+import re
 
 from libs.lib_log_print.logger_printer import output
+from libs.lib_requests.requests_const import *
+from libs.util_file import write_line
 
 
 # 判断列表内的元素是否存在有包含在字符串内的
@@ -81,3 +85,85 @@ def analysis_dict_same_keys(result_dict_list, default_value_dict={}):
             else:
                 output(f"[!] 存在未预期的键{key},该键不在默认值字典[{list(default_value_dict.keys())}]内!!!", level="error")
     return same_key_value_dict
+
+
+# 访问结果处理
+def access_result_handle(result_dict_list,
+                         dynamic_exclude_dict,
+                         ignore_file,
+                         result_file,
+                         history_file,
+                         access_fail_count,
+                         exclude_status_list,
+                         exclude_title_regexp,
+                         max_error_num,
+                         hit_saving_field=CONST_SIGN):
+    # 错误结果超出阈值
+    should_stop_run = False
+
+    # 访问失败的结果 # 就是除去URL和SING之外都是默认值
+    access_fail_resp_dict = copy.copy(DEFAULT_RESP_DICT)
+
+    # 本次扫描的所有命中结果 默认保存的是 请求响应的 CONST_SIGN 属性
+    hit_result_list = []
+
+    # 响应结果处理
+    for access_resp_dict in result_dict_list:
+        # 结果格式
+        result_format = "\"%s\"," * len(access_resp_dict.keys()) + "\n"
+
+        # 写入历史爆破记录文件 CONST_SIGN == URL
+        # history_file_open = open(history_file, "a+", encoding="utf-8", buffering=1)
+        # history_file_open.write(f"{access_resp_dict[CONST_SIGN]}\n")
+        write_line(history_file, f"{access_resp_dict[CONST_SIGN]}", encoding="utf-8", new_line=True, mode="a+")
+
+        # 按照指定的顺序获取 dict 的 values
+        key_order_list = list(access_resp_dict.keys())
+        key_order_list.sort()  # 按字母排序
+        access_resp_values = tuple([access_resp_dict[key] for key in key_order_list])
+
+        # 当前请求的标记
+        resp_status = access_resp_dict[RESP_STATUS]
+        resp_text_title = access_resp_dict[RESP_TEXT_TITLE]
+        # 当前需要保存和显示的字段
+        saving_field = access_resp_dict[hit_saving_field]
+
+        # 过滤结果 并分别写入不同的结果文件
+        IGNORE_RESP = True  # 忽略响应结果
+        if resp_status not in exclude_status_list and \
+                not re.match(exclude_title_regexp, resp_text_title, re.IGNORECASE):
+            # 过滤结果 并分别写入不同的结果文件
+            for filter_key in list(dynamic_exclude_dict.keys()):
+                filter_value = dynamic_exclude_dict[filter_key]  # 被排除的值
+                access_resp_value = access_resp_dict[filter_key]
+                ignore_value_list = FILTER_MODULE_DEFAULT_VALUE_DICT[filter_key]
+
+                if access_resp_value != filter_value and access_resp_value not in ignore_value_list:
+                    # 存在和排除关键字不同的项, 并且 这个值不是被忽略的值时 写入结果文件
+                    IGNORE_RESP = False
+                    break
+
+        if IGNORE_RESP:
+            write_line(ignore_file, result_format % access_resp_values, encoding="utf-8", new_line=True, mode="a+")
+            output(f"[-] 忽略结果 [{saving_field}]", level="debug")
+        else:
+            # result_file_open = open(result_file, "a+", encoding="utf-8", buffering=1)
+            # result_file_open.write(result_format % access_resp_values)
+            write_line(result_file, result_format % access_resp_values, encoding="utf-8", new_line=True, mode="a+")
+            output(f"[+] 可能存在 [{saving_field}]", level="info")
+            # 加入到命中结果列表
+            hit_result_list.append(saving_field)
+
+        # 判断请求是否错误（排除url和const_sign）
+        access_fail_resp_dict[CONST_SIGN] = access_resp_dict[CONST_SIGN]
+        access_fail_resp_dict[REQ_URL] = access_resp_dict[REQ_URL]
+        # 字典可以直接使用 == 运算符进行比较，要求 字典中的键必须是可哈希的（即不可变类型）
+        if access_resp_dict == access_fail_resp_dict:
+            access_fail_count += 1
+
+        # 取消继续访问进程 错误太多 或者 已经爆破成功
+        if isinstance(max_error_num, int) and access_fail_count >= max_error_num:
+            output(f"[*] 错误数量超过阈值 取消访问任务!!!", level="error")
+            should_stop_run = True
+
+    return should_stop_run, hit_result_list

@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
 import argparse
-import copy
-import re
 
 from pyfiglet import Figlet
 
@@ -11,7 +9,7 @@ from libs.lib_log_print.logger_printer import set_logger, output
 from libs.lib_requests.check_protocol import check_proto_and_access
 from libs.lib_requests.requests_const import *
 from libs.lib_requests.requests_thread import multi_thread_requests_url, multi_thread_requests_url_sign
-from libs.lib_requests.requests_tools import get_random_str, analysis_dict_same_keys
+from libs.lib_requests.requests_tools import get_random_str, analysis_dict_same_keys, access_result_handle
 from libs.lib_rule_dict.base_key_replace import replace_list_has_key_str
 from libs.lib_rule_dict.util_depend_var import set_dependent_var_dict
 from libs.lib_url_analysis.url_tools import get_segment_urls_urlsplit, get_host_port, replace_multi_slashes, \
@@ -19,7 +17,7 @@ from libs.lib_url_analysis.url_tools import get_segment_urls_urlsplit, get_host_
 from libs.lib_url_analysis.url_tools import remove_url_end_symbol, url_path_lowercase, url_path_chinese_encode
 from libs.lib_url_analysis.url_tools import specify_ext_store, specify_ext_delete, url_path_url_encode
 from libs.util_file import file_is_exist, write_hit_result_to_frequency_file
-from libs.util_file import read_file_to_list, file_encoding, write_lines, write_line
+from libs.util_file import read_file_to_list, file_encoding, write_lines
 from libs.util_func import url_to_raw_rule_classify
 from setting import *  # setting.py中的变量
 
@@ -163,85 +161,6 @@ def gen_dynamic_exclude_dict(req_url):
     return dynamic_exclude_dict
 
 
-# 访问结果处理
-def access_result_handle(result_dict_list,
-                         dynamic_exclude_dict,
-                         ignore_file,
-                         result_file,
-                         history_file,
-                         access_fail_count,
-                         ):
-    # 错误结果超出阈值
-    stop_run = False
-
-    # 访问失败的结果 # 就是除去URL和SING之外都是默认值
-    access_fail_resp_dict = copy.copy(DEFAULT_RESP_DICT)
-
-    # 本次扫描的所有命中结果
-    HIT_URL_LIST = []
-
-    # 响应结果处理
-    for access_resp_dict in result_dict_list:
-        # 结果格式
-        result_format = "\"%s\"," * len(access_resp_dict.keys()) + "\n"
-
-        # 写入历史爆破记录文件 CONST_SIGN == URL
-        # history_file_open = open(history_file, "a+", encoding="utf-8", buffering=1)
-        # history_file_open.write(f"{access_resp_dict[CONST_SIGN]}\n")
-        write_line(history_file, f"{access_resp_dict[CONST_SIGN]}", encoding="utf-8", new_line=True, mode="a+")
-
-        # 按照指定的顺序获取 dict 的 values
-        key_order_list = list(access_resp_dict.keys())
-        key_order_list.sort()  # 按字母排序
-        access_resp_values = tuple([access_resp_dict[key] for key in key_order_list])
-
-        # 当前请求的标记
-        current_sign = access_resp_dict[CONST_SIGN]
-        resp_status = access_resp_dict[RESP_STATUS]
-        resp_text_title = access_resp_dict[RESP_TEXT_TITLE]
-        req_url = access_resp_dict[REQ_URL]
-
-        # 过滤结果 并分别写入不同的结果文件
-        IGNORE_RESP = True  # 忽略响应结果
-        if resp_status not in GB_EXCLUDE_STATUS and \
-                not re.match(GB_EXCLUDE_REGEXP, resp_text_title, re.IGNORECASE):
-            # 过滤结果 并分别写入不同的结果文件
-            for filter_key in list(dynamic_exclude_dict.keys()):
-                filter_value = dynamic_exclude_dict[filter_key]  # 被排除的值
-                access_resp_value = access_resp_dict[filter_key]
-                ignore_value_list = FILTER_MODULE_DEFAULT_VALUE_DICT[filter_key]
-
-                if access_resp_value != filter_value and access_resp_value not in ignore_value_list:
-                    # 存在和排除关键字不同的项, 并且 这个值不是被忽略的值时 写入结果文件
-                    IGNORE_RESP = False
-                    break
-
-        if IGNORE_RESP:
-            write_line(ignore_file, result_format % access_resp_values, encoding="utf-8", new_line=True, mode="a+")
-            output(f"[-] 忽略结果 [{current_sign}]", level="debug")
-        else:
-            # result_file_open = open(result_file, "a+", encoding="utf-8", buffering=1)
-            # result_file_open.write(result_format % access_resp_values)
-            write_line(result_file, result_format % access_resp_values, encoding="utf-8", new_line=True, mode="a+")
-            output(f"[+] 可能存在 [{current_sign}]", level="info")
-            # 加入到命中结果列表
-            HIT_URL_LIST.append(req_url)
-
-        # 判断请求是否错误（排除url和const_sign）
-        access_fail_resp_dict[CONST_SIGN] = access_resp_dict[CONST_SIGN]
-        access_fail_resp_dict[REQ_URL] = access_resp_dict[REQ_URL]
-        # 字典可以直接使用 == 运算符进行比较，要求 字典中的键必须是可哈希的（即不可变类型）
-        if access_resp_dict == access_fail_resp_dict:
-            access_fail_count += 1
-
-        # 取消继续访问进程 错误太多 或者 已经爆破成功
-        if isinstance(GB_MAX_ERROR_NUM, int) and access_fail_count >= GB_MAX_ERROR_NUM:
-            output(f"[*] 错误数量超过阈值 取消访问任务!!!", level="error")
-            stop_run = True
-
-    return stop_run, HIT_URL_LIST
-
-
 # 对输入的目标URL进行扩展
 def target_url_handle(url):
     url_list = []
@@ -348,6 +267,10 @@ def dyna_scan(target_list):
                                                           result_file=result_file_path,
                                                           history_file=curr_host_history_file,
                                                           access_fail_count=access_fail_count,
+                                                          exclude_status_list=GB_EXCLUDE_STATUS,
+                                                          exclude_title_regexp=GB_EXCLUDE_REGEXP,
+                                                          max_error_num=GB_MAX_ERROR_NUM,
+                                                          hit_saving_field=CONST_SIGN
                                                           )
 
             # 写入命中结果
