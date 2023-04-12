@@ -208,9 +208,8 @@ def target_url_handle(url):
 # 扫描前的URL过滤和格式化
 def url_list_handle(url_list, url_history_file):
     # URL列表限额
-    if MAX_URL_NUM:
-        if isinstance(MAX_URL_NUM, int):
-            url_list = url_list[:MAX_URL_NUM]
+    if MAX_URL_NUM and isinstance(MAX_URL_NUM, int):
+        url_list = url_list[:MAX_URL_NUM]
 
     if GB_EXCLUDE_HOST_HISTORY:
         if file_is_exist(url_history_file):
