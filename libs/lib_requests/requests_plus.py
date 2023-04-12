@@ -5,35 +5,18 @@ import re
 import sys
 import time
 import urllib
-from binascii import b2a_hex
-
 import chardet
 import requests
+from binascii import b2a_hex
+from urllib.parse import urlparse
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
-
 from libs.lib_log_print.logger_printer import output
 from libs.lib_requests.requests_const import *
-from urllib.parse import urlparse
+from libs.lib_requests.requests_tools import list_ele_in_str
 
 requests.packages.urllib3.disable_warnings()
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
-
-
-# 判断列表内的元素是否存在有包含在字符串内的
-def list_ele_in_str(list_=None, str_=None, default=False):
-    if list_ is None:
-        list_ = []
-
-    flag = False
-    if list_:
-        for ele in list_:
-            if ele in str_:
-                flag = True
-                break
-    else:
-        flag = default
-    return flag
 
 
 # 处理错误消息

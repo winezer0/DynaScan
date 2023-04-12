@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # encoding: utf-8
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from libs.lib_log_print.logger_printer import output
 from libs.lib_requests.requests_plus import requests_plus
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 # 进行多线程的URL访问测试

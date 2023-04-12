@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 import itertools
+
 from libs.lib_rule_dict.base_rule_parser import base_rule_render_list
 
 
@@ -38,6 +39,7 @@ def cartesian_product_merging(name_list, pass_list):
     # 笛卡尔积合并两个列表 结果格式[(a,b),(a,b)]
     # 基于 itertools 生成
     cartesian_product_list = list(itertools.product(name_list, pass_list))
+
     # # 基于循环生成
     # cartesian_product_list = []
     # for name_ in name_list:
@@ -212,3 +214,18 @@ def dict_content_base_rule_render(var_dict):
             result_list, render_count, run_time = base_rule_render_list(value_list)
             var_dict[var_name] = result_list
     return var_dict
+
+
+# 移除字典内没有值、或值为'()'的键
+def remove_dict_none_value_key(dict_, bracket=True):
+    """
+    移除字典内没有值、或 值为'()'的键
+    bracket 是否移除值为'()'括号的键
+    """
+    for key in list(dict_.keys()):
+        if not dict_.get(key) or dict_.get(key) is None:
+            del dict_[key]
+        elif bracket and dict_.get(key) == '()':
+            del dict_[key]
+    return dict_
+

@@ -5,7 +5,8 @@ import copy
 from libs.lib_rule_dict.base_key_replace import replace_list_has_key_str
 from libs.lib_rule_dict.base_rule_parser import base_rule_render_list
 from libs.lib_rule_dict.util_dict import dict_content_base_rule_render, cartesian_product_merging, frozen_tuple_list
-from libs.util_file import get_dir_path_file_name, read_file_to_frequency_dict, file_encoding, get_key_list_with_frequency
+from libs.util_file import get_dir_path_file_name, read_file_to_frequency_dict, file_encoding, \
+    get_key_list_with_frequency
 from setting import *
 
 

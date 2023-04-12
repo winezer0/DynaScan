@@ -243,11 +243,11 @@ class RuleParser(object):
                         str_from_id = string.ascii_letters.index(option_from)
                         str_to_id = string.ascii_letters.index(option_to)
                     elif ord(option_from) < 91 and ord(option_to) < 91:  # 都是大写
-                        str_from_id = string.letters.target_index(option_from)
-                        str_to_id = string.letters.target_index(option_to)
+                        str_from_id = string.letters.index(option_from)
+                        str_to_id = string.letters.index(option_to)
                     elif ord(option_from) > 91 and ord(option_to) < 96:  # 开始小写，结束大写
-                        str_from_id = string.letters.target_index(option_from)
-                        str_to_id = string.letters.target_index(option_to)
+                        str_from_id = string.letters.index(option_from)
+                        str_to_id = string.letters.index(option_to)
                     else:
                         pass  # print '规则错误'
                     for i in range(str_from_id, str_to_id - length + 2):  # 平衡range分配id从0开始

@@ -6,12 +6,13 @@ import copy
 import os
 
 from libs.lib_rule_dict.util_dict import dict_content_base_rule_render
-from libs.util_file import get_dir_path_file_name, read_file_to_list, file_encoding, read_file_to_frequency_dict
+from libs.util_file import get_dir_path_file_name, read_file_to_list, file_encoding
 
 
 def set_base_var_dict(base_var_dir,
                       dict_suffix,
                       base_replace_dict):
+    # 保留原有字典
     base_var_replace_dict = copy.copy(base_replace_dict)
     # 获取文件名
     base_var_file_list = get_dir_path_file_name(base_var_dir, ext=dict_suffix)
@@ -38,6 +39,3 @@ def set_base_var_dict(base_var_dir,
     base_var_replace_dict = dict_content_base_rule_render(base_var_replace_dict)
 
     return base_var_replace_dict
-
-
-

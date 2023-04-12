@@ -221,7 +221,7 @@ def write_lines(file_path, data_list, encoding="utf-8", new_line=True, mode="a+"
         f_open.close()
 
 
-# 将命中的结果写入到文件中
+# 写入频率字典到文件中
 def write_hit_result_to_frequency_file(file_name=None,
                                        path_list=None,
                                        encoding='utf-8',

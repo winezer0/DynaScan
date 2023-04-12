@@ -5,6 +5,7 @@
 import re
 import urllib
 from urllib.parse import urlparse
+
 from tldextract import extract
 
 from libs.lib_log_print.logger_printer import output
@@ -102,6 +103,7 @@ def get_path_words_urlsplit(url, symbol_replace_dict=None, not_allowed_symbol=No
     return path_words_list
 
 
+# 获取基于域名的单词
 def get_domain_words(url, ignore_ip_format=True, symbol_replace_dict={}, not_allowed_symbol=None):
     """
     从URL中获取域名相关的单词
