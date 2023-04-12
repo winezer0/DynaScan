@@ -117,8 +117,8 @@ GB_PROXIES = {
     # "http": "socks5://192.168.88.1:1080",
 }
 
-# 采用流模式访问
-GB_STREAM_MODE = False
+# 采用流模式访问 流模式能够解决大文件读取问题
+GB_STREAM_MODE = True
 # 是否开启https服务器的证书校验
 GB_SSL_VERIFY = False
 # 超时时间 # URL重定向会严重影响程序的运行时间
