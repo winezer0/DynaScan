@@ -212,7 +212,7 @@ def get_dir_path_file_name(file_dir, ext_list=['.txt'], relative=True):
 def write_line(file_path, data, encoding="utf-8", new_line=True, mode="a+"):
     with open(file_path, mode=mode, encoding=encoding) as f_open:
         if new_line:  # 换行输出
-            data = f"{data}\n"
+            data = f"{data.strip()}\n"
         f_open.write(data)
         f_open.close()
 
