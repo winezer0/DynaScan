@@ -3,19 +3,20 @@
 
 from libs.lib_log_print.logger_printer import output
 from libs.lib_requests.requests_const import *
-from libs.lib_requests.requests_thread import multi_thread_requests_url_sign
+from libs.lib_requests.requests_thread import multi_thread_requests_url_sign, multi_thread_requests_url
 
 
 # 进行协议检查
 def check_protocol(req_host, req_path, req_method, req_headers, req_proxies, req_timeout, verify_ssl):
-    req_url_sign_list = []
-    for proto in ["https", "http"]:
-        req_url = f"{proto}://{req_host}{req_path}"
-        req_url_sign_list.append((req_url, proto))
+    req_url_task_list = []
+    for protocol in ["https", "http"]:
+        req_url = f"{protocol}://{req_host}{req_path}"
+        req_url_task_list.append((req_url, protocol))
 
     # 开始多线程请求
-    access_result_dict_list = multi_thread_requests_url_sign(task_list=req_url_sign_list,
-                                                             threads_count=len(req_url),
+    access_result_dict_list = multi_thread_requests_url_sign(task_list=req_url_task_list,
+                                                             threads_count=min(30, len(req_url)),
+                                                             thread_sleep=0.1,
                                                              req_method=req_method,
                                                              req_headers=req_headers,
                                                              req_data=None,
@@ -23,16 +24,19 @@ def check_protocol(req_host, req_path, req_method, req_headers, req_proxies, req
                                                              req_timeout=req_timeout,
                                                              verify_ssl=verify_ssl,
                                                              req_allow_redirects=True,
+                                                             req_stream=False,
                                                              retry_times=0,
-                                                             thread_sleep=0.1
+                                                             add_host_header=True,
+                                                             add_refer_header=True,
+                                                             ignore_chinese_error_msg=True
                                                              )
 
     # print(f"access_result_dict_list:{access_result_dict_list}")
 
     proto_result = {}
     for access_result_dict in access_result_dict_list:
-        proto = access_result_dict[CONST_SIGN]
-        proto_result[proto] = access_result_dict[RESP_STATUS]
+        protocol = access_result_dict[CONST_SIGN]
+        proto_result[protocol] = access_result_dict[RESP_STATUS]
 
     output(f"[*] PROTOCOL CHECK RESULT:{proto_result}")
 
@@ -54,17 +58,18 @@ def check_protocol(req_host, req_path, req_method, req_headers, req_proxies, req
 
 # 判断输入的URL列表是否添加协议头,及是否能够访问
 def check_proto_and_access(target_list,
+                           thread_sleep=0.1,
                            default_proto_head=None,
                            url_access_test=True,
+                           req_path="/",
                            req_method="GET",
                            req_headers=None,
                            req_proxies=None,
                            verify_ssl=False,
                            req_timeout=10,
-                           req_path="/",
                            req_allow_redirects=False,
                            retry_times=2,
-                           thread_sleep=0.1):
+                           ):
     # 1、对所有没有协议头的目标添加协议头。
     # 2、结果去重
     # 3、URL排除
@@ -114,18 +119,24 @@ def check_proto_and_access(target_list,
     else:
         output("[*] 批量访问筛选URL列表...", level="info")
         # 批量进行URL访问测试
-        task_list = [(url, url) for url in have_proto_head_host]
-        access_result_dict_list = multi_thread_requests_url_sign(task_list=task_list,
-                                                                 threads_count=10,
-                                                                 req_method="GET",
-                                                                 req_headers=req_headers,
-                                                                 req_data=None,
-                                                                 req_proxies=req_proxies,
-                                                                 req_timeout=10,
-                                                                 verify_ssl=verify_ssl,
-                                                                 req_allow_redirects=req_allow_redirects,
-                                                                 retry_times=retry_times,
-                                                                 thread_sleep=thread_sleep)
+        task_list = have_proto_head_host
+        access_result_dict_list = multi_thread_requests_url(task_list=task_list,
+                                                            threads_count=min(30, len(task_list)),
+                                                            thread_sleep=thread_sleep,
+                                                            req_method="GET",
+                                                            req_headers=req_headers,
+                                                            req_data=None,
+                                                            req_proxies=req_proxies,
+                                                            req_timeout=req_timeout,
+                                                            verify_ssl=verify_ssl,
+                                                            req_allow_redirects=req_allow_redirects,
+                                                            req_stream=False,
+                                                            retry_times=retry_times,
+                                                            const_sign=None,
+                                                            add_host_header=True,
+                                                            add_refer_header=True,
+                                                            ignore_chinese_error_msg=True,
+                                                            )
         # 分析多线程检测结果
         for access_result_dict in access_result_dict_list:
             req_url = access_result_dict[REQ_URL]

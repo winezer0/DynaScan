@@ -102,6 +102,9 @@ GB_RESULT_FILE_PATH = "auto"  # auto 根据主机名自动生成
 # 默认请求方法
 GB_REQ_METHOD = "get"
 
+# 默认请求数据
+GB_REQ_BODY = None
+
 # 默认线程数
 GB_THREADS_COUNT = 100
 

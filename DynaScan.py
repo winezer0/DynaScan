@@ -138,16 +138,22 @@ def gen_dynamic_exclude_dict(req_url):
     # 执行测试任务
     output(f"[+] 随机访问测试 {test_url_path_list}", level="info")
     test_result_dict_list = multi_thread_requests_url(task_list=test_url_path_list,
-                                                      threads_count=len(test_url_path_list),
+                                                      threads_count=min(len(test_url_path_list),30),
+                                                      thread_sleep=GB_THREAD_SLEEP,
                                                       req_method=GB_REQ_METHOD,
                                                       req_headers=GB_HEADERS,
-                                                      req_data=None,
+                                                      req_data=GB_REQ_BODY,
                                                       req_proxies=GB_PROXIES,
                                                       req_timeout=GB_TIMEOUT,
                                                       verify_ssl=GB_SSL_VERIFY,
                                                       req_allow_redirects=GB_ALLOW_REDIRECTS,
-                                                      retry_times=2,
-                                                      thread_sleep=0.2)
+                                                      req_stream=GB_STREAM_MODE,
+                                                      retry_times=GB_RETRY_TIMES,
+                                                      const_sign=None,
+                                                      add_host_header=GB_ADD_DYNAMIC_HOST,
+                                                      add_refer_header=GB_ADD_DYNAMIC_REFER,
+                                                      ignore_chinese_error_msg=GB_CHINESE_ENCODE
+                                                      )
 
     output(f"随机测试响应 {test_result_dict_list}", level="debug")
 
@@ -298,7 +304,7 @@ def dyna_scan(target_list):
         output(f"[*] 当前目标 {target_url} 所有URL访问开始进行...", level="info")
 
         # 组合爆破任务
-        brute_task_list = [(url, None, url) for url in current_url_list]
+        brute_task_list = [(url, url) for url in current_url_list]
 
         # 将任务列表拆分为多个任务列表 再逐步进行爆破,便于统一处理结果
         task_size = GB_THREADS_COUNT
@@ -320,14 +326,20 @@ def dyna_scan(target_list):
             output(f"[*] 任务进度 {sub_task_index + 1}/{len(brute_task_list)}", level="info")
             result_dict_list = multi_thread_requests_url_sign(task_list=sub_task_list,
                                                               threads_count=GB_THREADS_COUNT,
-                                                              task_method=GB_REQ_METHOD,
-                                                              task_headers=GB_HEADERS,
+                                                              thread_sleep=GB_THREAD_SLEEP,
+                                                              req_method=GB_REQ_METHOD,
+                                                              req_headers=GB_HEADERS,
+                                                              req_data=GB_REQ_BODY,
                                                               req_proxies=GB_PROXIES,
                                                               req_timeout=GB_TIMEOUT,
                                                               verify_ssl=GB_SSL_VERIFY,
-                                                              retry_times=GB_RETRY_TIMES,
                                                               req_allow_redirects=GB_ALLOW_REDIRECTS,
-                                                              thread_sleep=GB_THREAD_SLEEP)
+                                                              req_stream=GB_STREAM_MODE,
+                                                              retry_times=GB_RETRY_TIMES,
+                                                              add_host_header=GB_ADD_DYNAMIC_HOST,
+                                                              add_refer_header=GB_ADD_DYNAMIC_REFER,
+                                                              ignore_chinese_error_msg=GB_CHINESE_ENCODE
+                                                              )
 
             # 处理响应结果
             stop_run, HIT_URL_LIST = access_result_handle(result_dict_list=result_dict_list,
@@ -400,17 +412,17 @@ if __name__ == "__main__":
 
     # 尝试对输入的目标进行初次过滤、添加协议头、访问测试等处理
     accessible_target, inaccessible_target = check_proto_and_access(target_list=target_list,
+                                                                    thread_sleep=GB_THREAD_SLEEP,
                                                                     default_proto_head=GB_DEFAULT_PROTO_HEAD,
                                                                     url_access_test=GB_URL_ACCESS_TEST,
-                                                                    req_method=GB_REQ_METHOD,
                                                                     req_path="/",
+                                                                    req_method=GB_REQ_METHOD,
                                                                     req_headers=GB_HEADERS,
                                                                     req_proxies=GB_PROXIES,
                                                                     verify_ssl=GB_SSL_VERIFY,
                                                                     req_timeout=GB_TIMEOUT,
                                                                     req_allow_redirects=GB_ALLOW_REDIRECTS,
-                                                                    retry_times=GB_RETRY_TIMES,
-                                                                    thread_sleep=GB_THREAD_SLEEP
+                                                                    retry_times=GB_RETRY_TIMES
                                                                     )
 
     # 记录可以访问的目标到文件
