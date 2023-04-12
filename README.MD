@@ -304,17 +304,14 @@ dict/direct 目录存放的字典的规则内容会被【规则解析+基本变�
     
     optional arguments:
       -h, --help       show this help message and exit
-      -u TARGET        指定扫描目标URL, Example: http://www.baidu.com
-      -f TARGET_FILE   指定扫描目标URL文件, Example: target.txt
-      -p PROXY         指定请求时使用的HTTPS或SOCKS5的代理, Example: http://127.0.0.1:8080 or socks5://127.0.0.1:1080
-      -t thread        指定多线程池的最大线程数
+      -u TARGET        指定扫描目标URL|目标URL文件, Example: http://www.baidu.com | target.txt
       -d debug         显示程序运行时的所有调试信息,默认关闭
-      -v version       显示程序当前版本号
+    
     
     Examples:
       python3 DynaScan.py -u http://www.baidu.com
-      python3 DynaScan.py -f target.txt
-      python3 DynaScan.py -f target.txt -p http://127.0.0.1:8080
+      python3 DynaScan.py -u target.txt
+    
     
       其他控制细节参数请通过Setting.py进行配置
 
