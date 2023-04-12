@@ -200,7 +200,7 @@ def dyna_scan():
         brute_task_list = [(url, url) for url in current_url_list]
 
         # 将任务列表拆分为多个任务列表 再逐步进行爆破,便于统一处理结果
-        task_size = GB_THREADS_COUNT
+        task_size = GB_TASK_CHUNK_SIZE
         brute_task_list = [brute_task_list[i:i + task_size] for i in range(0, len(brute_task_list), task_size)]
         output(f"[*] 任务拆分 SIZE:[{task_size}] * NUM:[{len(brute_task_list)}]", level="info")
 

@@ -71,18 +71,22 @@ GB_RESULT_DIR = GB_BASE_DIR.joinpath("result")
 # GB_RESULT_FILE_PATH = os.path.join(GB_RESULT_DIR,f"result_{GB_RUN_TIME}.csv")
 GB_RESULT_FILE_PATH = "auto"  # auto 根据主机名自动生成
 #######################################################################
+# 请求速度限制
+# 默认线程数
+GB_THREADS_COUNT = 100
+
+# 每个线程之间的延迟 单位S秒
+GB_THREAD_SLEEP = 0
+
+# 任务分块大小 所有任务会被分为多个列表
+GB_TASK_CHUNK_SIZE = GB_THREADS_COUNT
+#######################################################################
 # HTTP请求相关默认配置
 # 默认请求方法
 GB_REQ_METHOD = "get"
 
 # 默认请求数据
 GB_REQ_BODY = None
-
-# 默认线程数
-GB_THREADS_COUNT = 100
-
-# 每个线程之间的延迟 单位S秒
-GB_THREAD_SLEEP = 0
 
 # 对外请求代理
 GB_PROXIES = {
