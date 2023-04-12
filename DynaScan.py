@@ -4,7 +4,8 @@ import argparse
 
 from pyfiglet import Figlet
 
-from libs.gen_path import gen_base_scan_path_list, product_urls_and_paths
+from libs.gen_path import gen_base_scan_path_list, product_urls_and_paths, path_list_handle, target_url_handle, \
+    url_list_handle
 from libs.lib_log_print.logger_printer import set_logger, output
 from libs.lib_requests.check_protocol import check_proto_and_access
 from libs.lib_requests.requests_const import *
@@ -12,12 +13,9 @@ from libs.lib_requests.requests_thread import multi_thread_requests_url, multi_t
 from libs.lib_requests.requests_tools import get_random_str, analysis_dict_same_keys, access_result_handle
 from libs.lib_rule_dict.base_key_replace import replace_list_has_key_str
 from libs.lib_rule_dict.util_depend_var import set_dependent_var_dict
-from libs.lib_url_analysis.url_tools import get_segment_urls_urlsplit, get_host_port, replace_multi_slashes, \
-    get_base_url
-from libs.lib_url_analysis.url_tools import remove_url_end_symbol, url_path_lowercase, url_path_chinese_encode
-from libs.lib_url_analysis.url_tools import specify_ext_store, specify_ext_delete, url_path_url_encode
-from libs.util_file import file_is_exist, write_hit_result_to_frequency_file
+from libs.lib_url_analysis.url_tools import get_host_port, get_base_url
 from libs.util_file import read_file_to_list, file_encoding, write_lines
+from libs.util_file import write_hit_result_to_frequency_file
 from libs.util_func import url_to_raw_rule_classify
 from setting import *  # setting.py中的变量
 
@@ -48,73 +46,6 @@ def parse_input():
     argument_parser.epilog = example.format(shell_name=argument_parser.prog, version=GB_VERSION)
 
     return argument_parser
-
-
-# 扫描前的URL过滤和格式化
-def url_list_handle(url_list, url_history_file):
-    # URL列表限额
-    if MAX_URL_NUM:
-        if isinstance(MAX_URL_NUM, int):
-            url_list = url_list[:MAX_URL_NUM]
-
-    if GB_EXCLUDE_HOST_HISTORY:
-        if file_is_exist(url_history_file):
-            accessed_url_list = read_file_to_list(file_path=url_history_file,
-                                                  encoding=file_encoding(url_history_file),
-                                                  de_strip=True,
-                                                  de_weight=True,
-                                                  de_unprintable=False)
-            url_list = list(set(url_list) - set(accessed_url_list))
-            output(f"[*] 历史访问URL {len(accessed_url_list)}个", level="info")
-
-        output(f"[*] 剔除历史URL 剩余URL:{len(url_list)}个", level="info")
-    return url_list
-
-
-# 拼接URL前的PATH过滤和格式化
-def path_list_handle(path_list):
-    # 对列表中的所有PATH添加指定前缀
-    if GB_ADD_CUSTOM_PREFIX:
-        path_list = product_urls_and_paths(GB_ADD_CUSTOM_PREFIX, path_list)
-        output(f"[*] 自定义前缀 剩余元素 {len(path_list)}个", level="info")
-
-    # 保留指定后缀的URL目标
-    if GB_ONLY_SCAN_SPECIFY_EXT:
-        path_list = specify_ext_store(path_list, GB_ONLY_SCAN_SPECIFY_EXT)
-        output(f"[*] 保留指定后缀  剩余元素 {len(path_list)}个", level="error")
-
-    # 移除指定后缀列表的内容
-    if GB_NO_SCAN_SPECIFY_EXT:
-        path_list = specify_ext_delete(path_list, GB_NO_SCAN_SPECIFY_EXT)
-        output(f"[*] 移除指定后缀 剩余元素 {len(path_list)}个", level="error")
-
-    # 是否开启结尾字符列表去除
-    if GB_REMOVE_SOME_SYMBOL:
-        path_list = remove_url_end_symbol(path_list, remove_symbol_list=GB_REMOVE_SOME_SYMBOL)
-        output(f"[*] 删除结尾字符 剩余元素 {len(path_list)}个", level="info")
-
-    # 是否开启REMOVE_MULTI_SLASHES,将多个////转换为一个/
-    if GB_REMOVE_MULTI_SLASHES:
-        url_list = replace_multi_slashes(path_list)
-        output(f"[*] 转换多个[/]为单[/] 剩余URL:{len(url_list)}个", level="info")
-
-    # 全部路径小写
-    if GB_URL_PATH_LOWERCASE:
-        path_list = url_path_lowercase(path_list)
-        output(f"[*] 全部路径小写 剩余元素 {len(path_list)}个", level="info")
-
-    # 批量解决字典中文乱码问题
-    if GB_CHINESE_ENCODE:
-        if GB_ONLY_ENCODE_CHINESE:
-            # 将URL字典中的中文路径进行多种编码的URL编码
-            path_list = url_path_chinese_encode(path_list, GB_CHINESE_ENCODE)
-            output(f"[+] 中文编码完毕 剩余元素 {len(path_list)}个", level="info")
-        else:
-            # 将URL字典的所有元素都进行多种编码的URL编码
-            path_list = url_path_url_encode(path_list, GB_CHINESE_ENCODE)
-            output(f"[+] URL编码完毕 剩余元素 {len(path_list)}个", level="info")
-
-    return path_list
 
 
 # 生成动态排除字典
@@ -159,18 +90,6 @@ def gen_dynamic_exclude_dict(req_url):
     dynamic_exclude_dict = analysis_dict_same_keys(test_result_dict_list, FILTER_MODULE_DEFAULT_VALUE_DICT)
     output(f"[+] 动态排除字典 {req_url} -> {dynamic_exclude_dict}", level="info")
     return dynamic_exclude_dict
-
-
-# 对输入的目标URL进行扩展
-def target_url_handle(url):
-    url_list = []
-    # 根据URL层级拆分为多个目标
-    if GB_SPLIT_TARGET_PATH:
-        url_list = get_segment_urls_urlsplit(url)
-        output(f"[*] 扩展目标URL 当前元素 {len(url_list)}个", level="info")
-    else:
-        url_list.append(url)
-    return url_list
 
 
 # 扫描主体
