@@ -10,7 +10,7 @@ from libs.gen_path import gen_base_scan_path_list, product_urls_and_paths
 from libs.lib_log_print.logger_printer import set_logger, output
 from libs.lib_requests.check_protocol import check_proto_and_access
 from libs.lib_requests.requests_const import *
-from libs.lib_requests.requests_thread import multi_thread_requests_url, multi_thread_requests_url_body_sign
+from libs.lib_requests.requests_thread import multi_thread_requests_url, multi_thread_requests_url_sign
 from libs.lib_requests.requests_tools import get_random_str, analysis_dict_same_keys
 from libs.lib_rule_dict.base_key_replace import replace_list_has_key_str
 from libs.lib_rule_dict.util_depend_var import set_dependent_var_dict
@@ -318,16 +318,16 @@ def dyna_scan(target_list):
         # 循环多线程请求操作
         for sub_task_index, sub_task_list in enumerate(brute_task_list):
             output(f"[*] 任务进度 {sub_task_index + 1}/{len(brute_task_list)}", level="info")
-            result_dict_list = multi_thread_requests_url_body_sign(task_list=sub_task_list,
-                                                                   threads_count=GB_THREADS_COUNT,
-                                                                   task_method=GB_REQ_METHOD,
-                                                                   task_headers=GB_HEADERS,
-                                                                   req_proxies=GB_PROXIES,
-                                                                   req_timeout=GB_TIMEOUT,
-                                                                   verify_ssl=GB_SSL_VERIFY,
-                                                                   retry_times=GB_RETRY_TIMES,
-                                                                   req_allow_redirects=GB_ALLOW_REDIRECTS,
-                                                                   thread_sleep=GB_THREAD_SLEEP)
+            result_dict_list = multi_thread_requests_url_sign(task_list=sub_task_list,
+                                                              threads_count=GB_THREADS_COUNT,
+                                                              task_method=GB_REQ_METHOD,
+                                                              task_headers=GB_HEADERS,
+                                                              req_proxies=GB_PROXIES,
+                                                              req_timeout=GB_TIMEOUT,
+                                                              verify_ssl=GB_SSL_VERIFY,
+                                                              retry_times=GB_RETRY_TIMES,
+                                                              req_allow_redirects=GB_ALLOW_REDIRECTS,
+                                                              thread_sleep=GB_THREAD_SLEEP)
 
             # 处理响应结果
             stop_run, HIT_URL_LIST = access_result_handle(result_dict_list=result_dict_list,
