@@ -199,7 +199,7 @@ def target_url_handle(url):
     # 根据URL层级拆分为多个目标
     if GB_SPLIT_TARGET_PATH:
         url_list = get_segment_urls_urlsplit(url)
-        output(f"[*] 扩展目标URL 当前元素 {len(url_list)}个", level="info")
+        output(f"[*] 扩展目标URL 当前元素 {len(url_list)}个", level=LOG_INFO)
     else:
         url_list.append(url)
     return url_list
@@ -219,9 +219,9 @@ def url_list_handle(url_list, url_history_file):
                                                   de_weight=True,
                                                   de_unprintable=False)
             url_list = list(set(url_list) - set(accessed_url_list))
-            output(f"[*] 历史访问URL {len(accessed_url_list)}个", level="info")
+            output(f"[*] 历史访问URL {len(accessed_url_list)}个", level=LOG_INFO)
 
-        output(f"[*] 剔除历史URL 剩余URL:{len(url_list)}个", level="info")
+        output(f"[*] 剔除历史URL 剩余URL:{len(url_list)}个", level=LOG_INFO)
     return url_list
 
 
@@ -230,43 +230,43 @@ def path_list_handle(path_list):
     # 对列表中的所有PATH添加指定前缀
     if GB_ADD_CUSTOM_PREFIX:
         path_list = product_urls_and_paths(GB_ADD_CUSTOM_PREFIX, path_list)
-        output(f"[*] 自定义前缀 剩余元素 {len(path_list)}个", level="info")
+        output(f"[*] 自定义前缀 剩余元素 {len(path_list)}个", level=LOG_INFO)
 
     # 保留指定后缀的URL目标
     if GB_ONLY_SCAN_SPECIFY_EXT:
         path_list = specify_ext_store(path_list, GB_ONLY_SCAN_SPECIFY_EXT)
-        output(f"[*] 保留指定后缀  剩余元素 {len(path_list)}个", level="error")
+        output(f"[*] 保留指定后缀  剩余元素 {len(path_list)}个", level=LOG_ERROR)
 
     # 移除指定后缀列表的内容
     if GB_NO_SCAN_SPECIFY_EXT:
         path_list = specify_ext_delete(path_list, GB_NO_SCAN_SPECIFY_EXT)
-        output(f"[*] 移除指定后缀 剩余元素 {len(path_list)}个", level="error")
+        output(f"[*] 移除指定后缀 剩余元素 {len(path_list)}个", level=LOG_ERROR)
 
     # 是否开启结尾字符列表去除
     if GB_REMOVE_SOME_SYMBOL:
         path_list = remove_url_end_symbol(path_list, remove_symbol_list=GB_REMOVE_SOME_SYMBOL)
-        output(f"[*] 删除结尾字符 剩余元素 {len(path_list)}个", level="info")
+        output(f"[*] 删除结尾字符 剩余元素 {len(path_list)}个", level=LOG_INFO)
 
     # 是否开启REMOVE_MULTI_SLASHES,将多个////转换为一个/
     if GB_REMOVE_MULTI_SLASHES:
         url_list = replace_multi_slashes(path_list)
-        output(f"[*] 转换多个[/]为单[/] 剩余URL:{len(url_list)}个", level="info")
+        output(f"[*] 转换多个[/]为单[/] 剩余URL:{len(url_list)}个", level=LOG_INFO)
 
     # 全部路径小写
     if GB_URL_PATH_LOWERCASE:
         path_list = url_path_lowercase(path_list)
-        output(f"[*] 全部路径小写 剩余元素 {len(path_list)}个", level="info")
+        output(f"[*] 全部路径小写 剩余元素 {len(path_list)}个", level=LOG_INFO)
 
     # 批量解决字典中文乱码问题
     if GB_CHINESE_ENCODE:
         if GB_ONLY_ENCODE_CHINESE:
             # 将URL字典中的中文路径进行多种编码的URL编码
             path_list = url_path_chinese_encode(path_list, GB_CHINESE_ENCODE)
-            output(f"[+] 中文编码完毕 剩余元素 {len(path_list)}个", level="info")
+            output(f"[+] 中文编码完毕 剩余元素 {len(path_list)}个", level=LOG_INFO)
         else:
             # 将URL字典的所有元素都进行多种编码的URL编码
             path_list = url_path_url_encode(path_list, GB_CHINESE_ENCODE)
-            output(f"[+] URL编码完毕 剩余元素 {len(path_list)}个", level="info")
+            output(f"[+] URL编码完毕 剩余元素 {len(path_list)}个", level=LOG_INFO)
 
     return path_list
 

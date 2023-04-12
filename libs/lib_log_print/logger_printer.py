@@ -2,12 +2,16 @@
 # encoding: utf-8
 
 import sys
-
 from loguru import logger
-
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
+# 日志级别常量
+LOG_DEBUG = "debug"
+LOG_INFO = "info"
+LOG_ERROR = "error"
 
+
+# 设置日志打印
 def set_logger(info_log_file_path=None, err_log_file_path=None, dbg_log_file_path=None, debug=None):
     # 初始化日志记录器
     logger.remove()  # remove()清除之前的设置
@@ -57,7 +61,7 @@ def set_logger(info_log_file_path=None, err_log_file_path=None, dbg_log_file_pat
 
 # 根据logger是否传递输出数据
 def output(*args, level="debug"):
-    if level in ["debug", "info", "error"]:
+    if level in [LOG_DEBUG, LOG_INFO, LOG_ERROR]:
         # 使用 getattr() 函数和 f-string 简化代码
         log_func = getattr(logger, level)
         log_func(f"{','.join(map(str, args))}")

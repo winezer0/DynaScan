@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 
 from tldextract import extract
 
-from libs.lib_log_print.logger_printer import output
+from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_DEBUG, LOG_ERROR
 from libs.lib_url_analysis.url_split_parser import UrlSplitParser
 
 
@@ -159,7 +159,7 @@ def get_domain_words(url, ignore_ip_format=True, symbol_replace_dict={}, not_all
 
         real_domain_val_list = list(set(real_domain_val_list))
     except Exception as e:
-        output(f"[!] Get Base Domain Occur UnKnow Error: {e} !!!", level="error")
+        output(f"[!] Get Base Domain Occur UnKnow Error: {e} !!!", level=LOG_ERROR)
     finally:
         return real_domain_val_list
 
@@ -250,7 +250,7 @@ def url_path_chinese_encode(path_list, encode_list=['utf-8']):
                     if path != new_path:
                         new_path_list.append(new_path)
                 except Exception as error:
-                    output(f"[-] 元素[{path}] 基于 [{encoding}] 进行中文编码时,发生错误:{error}", level="error")
+                    output(f"[-] 元素[{path}] 基于 [{encoding}] 进行中文编码时,发生错误:{error}", level=LOG_ERROR)
     new_path_list = list(set(new_path_list))
     return new_path_list
 
@@ -272,7 +272,7 @@ def url_path_url_encode(path_list, encode_list=['utf-8']):
                 if path != new_path:
                     new_path_list.append(new_path)
             except Exception as error:
-                output(f"[-] 元素 [{path}] 基于 [{encoding}] 进行URL编码时,发生错误:{error}", level="error")
+                output(f"[-] 元素 [{path}] 基于 [{encoding}] 进行URL编码时,发生错误:{error}", level=LOG_ERROR)
     new_path_list = list(set(new_path_list))
     return new_path_list
 

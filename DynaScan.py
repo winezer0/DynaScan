@@ -6,7 +6,7 @@ from pyfiglet import Figlet
 
 from libs.gen_path import gen_base_scan_path_list, product_urls_and_paths, path_list_handle, target_url_handle, \
     url_list_handle
-from libs.lib_log_print.logger_printer import set_logger, output
+from libs.lib_log_print.logger_printer import set_logger, output, LOG_DEBUG, LOG_INFO, LOG_ERROR
 from libs.lib_requests.check_protocol import check_proto_and_access
 from libs.lib_requests.requests_const import *
 from libs.lib_requests.requests_thread import multi_thread_requests_url, multi_thread_requests_url_sign
@@ -80,7 +80,7 @@ def gen_dynamic_exclude_dict(req_url):
     test_url_path_list = product_urls_and_paths([get_base_url(req_url)], test_path_list)
 
     # 执行测试任务
-    output(f"[+] 随机访问测试 {test_url_path_list}", level="info")
+    output(f"[+] 随机访问测试 {test_url_path_list}", level=LOG_INFO)
     test_result_dict_list = multi_thread_requests_url(task_list=test_url_path_list,
                                                       threads_count=min(len(test_url_path_list), 30),
                                                       thread_sleep=GB_THREAD_SLEEP,
@@ -99,11 +99,11 @@ def gen_dynamic_exclude_dict(req_url):
                                                       ignore_encode_error=GB_CHINESE_ENCODE
                                                       )
 
-    output(f"随机测试响应 {test_result_dict_list}", level="debug")
+    output(f"随机测试响应 {test_result_dict_list}", level=LOG_DEBUG)
 
     # 分析测试结果
     dynamic_exclude_dict = analysis_dict_same_keys(test_result_dict_list, FILTER_MODULE_DEFAULT_VALUE_DICT)
-    output(f"[+] 动态排除字典 {req_url} -> {dynamic_exclude_dict}", level="info")
+    output(f"[+] 动态排除字典 {req_url} -> {dynamic_exclude_dict}", level=LOG_INFO)
     return dynamic_exclude_dict
 
 
@@ -142,24 +142,24 @@ def dyna_scan():
 
     target_list = list(set(accessible_target))
 
-    output(f"[*] 当前整合URL 剩余目标 {len(target_list)}个", level="info")
+    output(f"[*] 当前整合URL 剩余目标 {len(target_list)}个", level=LOG_INFO)
 
     # 对输入的目标数量进行判断和处理
     if not target_list:
-        output("[-] 未输入任何有效目标,退出程序...", level="error")
+        output("[-] 未输入任何有效目标,退出程序...", level=LOG_ERROR)
         return
 
     # 读取路径字典 进行频率筛选、规则渲染、基本变量替换
-    output("[*] 读取路径字典 进行频率筛选、规则渲染、基本变量替换", level="info")
+    output("[*] 读取路径字典 进行频率筛选、规则渲染、基本变量替换", level=LOG_INFO)
     base_scan_path_list = gen_base_scan_path_list()
 
     # 对路径字典进行过滤和格式化
     base_scan_path_list = path_list_handle(base_scan_path_list)
-    output(f"[*] 字典处理完毕 剩余元素 {len(base_scan_path_list)}", level="info")
+    output(f"[*] 字典处理完毕 剩余元素 {len(base_scan_path_list)}", level=LOG_INFO)
 
     # 对每个目标进行分析因变量分析和因变量替换渲染
     for target_index, target_url in enumerate(target_list):
-        output(f"[+] 任务进度 {target_index + 1}/{len(target_list)} {target_url}", level="info")
+        output(f"[+] 任务进度 {target_index + 1}/{len(target_list)} {target_url}", level=LOG_INFO)
 
         # 开始进行URL测试,确定动态排除用的变量
         curr_dynamic_exclude_dict = gen_dynamic_exclude_dict(target_url)
@@ -172,7 +172,7 @@ def dyna_scan():
 
         # 合并urls列表和paths列表
         current_url_list = product_urls_and_paths(current_url_list, base_scan_path_list)
-        output(f"[*] 合并urls列表和paths列表 {len(current_url_list)}个", level="info")
+        output(f"[*] 合并urls列表和paths列表 {len(current_url_list)}个", level=LOG_INFO)
 
         # 基于URL解析因变量并进行替换
         current_dependent_dict = set_dependent_var_dict(target_url=target_url,
@@ -180,13 +180,13 @@ def dyna_scan():
                                                         ignore_ip_format=GB_IGNORE_IP_FORMAT,
                                                         symbol_replace_dict=GB_SYMBOL_REPLACE_DICT,
                                                         not_allowed_symbol=GB_NOT_ALLOW_SYMBOL)
-        output(f"[*] 因变量字典 {current_dependent_dict}", level="info")
+        output(f"[*] 因变量字典 {current_dependent_dict}", level=LOG_INFO)
         # 进行因变量替换
         current_url_list, replace_count_, running_time = replace_list_has_key_str(will_replace_list=current_url_list,
                                                                                   replace_used_dict_=current_dependent_dict,
                                                                                   remove_not_render_str=True,
                                                                                   keep_no_repl_key_str=True)
-        output(f"[*] 因变量替换 {len(current_url_list)}个", level="info")
+        output(f"[*] 因变量替换 {len(current_url_list)}个", level=LOG_INFO)
 
         # 历史记录文件路径 基于主机HOST动态生成
         curr_host_port_no_symbol = get_host_port(target_url, replace_symbol=True)
@@ -194,7 +194,7 @@ def dyna_scan():
 
         # 格式化和过滤当前的 current_url_list
         current_url_list = url_list_handle(current_url_list, curr_host_history_file)
-        output(f"[*] 当前目标 {target_url} 所有URL访问开始进行...", level="info")
+        output(f"[*] 当前目标 {target_url} 所有URL访问开始进行...", level=LOG_INFO)
 
         # 组合爆破任务
         brute_task_list = [(url, url) for url in current_url_list]
@@ -202,7 +202,7 @@ def dyna_scan():
         # 将任务列表拆分为多个任务列表 再逐步进行爆破,便于统一处理结果
         task_size = GB_TASK_CHUNK_SIZE
         brute_task_list = [brute_task_list[i:i + task_size] for i in range(0, len(brute_task_list), task_size)]
-        output(f"[*] 任务拆分 SIZE:[{task_size}] * NUM:[{len(brute_task_list)}]", level="info")
+        output(f"[*] 任务拆分 SIZE:[{task_size}] * NUM:[{len(brute_task_list)}]", level=LOG_INFO)
 
         # 直接被排除的请求记录
         ignore_file_path = os.path.join(GB_RESULT_DIR, f"{curr_host_port_no_symbol}.ignore.csv")
@@ -216,7 +216,7 @@ def dyna_scan():
         access_fail_count = 0
         # 循环多线程请求操作
         for sub_task_index, sub_task_list in enumerate(brute_task_list):
-            output(f"[*] 任务进度 {sub_task_index + 1}/{len(brute_task_list)}", level="info")
+            output(f"[*] 任务进度 {sub_task_index + 1}/{len(brute_task_list)}", level=LOG_INFO)
             result_dict_list = multi_thread_requests_url_sign(task_list=sub_task_list,
                                                               threads_count=GB_THREADS_COUNT,
                                                               thread_sleep=GB_THREAD_SLEEP,
@@ -267,10 +267,10 @@ def dyna_scan():
 
             # 停止扫描任务
             if stop_run:
-                output(f"[-] 错误次数超过阈值,停止扫描目标 {target_url}", level="info")
+                output(f"[-] 错误次数超过阈值,停止扫描目标 {target_url}", level=LOG_INFO)
                 break
 
-        output(f"[+] 测试完毕 [{target_url}]", level="info")
+        output(f"[+] 测试完毕 [{target_url}]", level=LOG_INFO)
 
 
 if __name__ == "__main__":
@@ -287,9 +287,9 @@ if __name__ == "__main__":
         globals_var_name = f"GB_{param_name.upper()}"
         try:
             globals()[globals_var_name] = param_value
-            # output(f"[*] INPUT:{globals_var_name} -> {param_value}", level="debug")
+            # output(f"[*] INPUT:{globals_var_name} -> {param_value}", level=LOG_DEBUG)
         except Exception as error:
-            output(f"[!] 输入参数信息: {param_name} {param_value} 未对应其全局变量!!!", level="error")
+            output(f"[!] 输入参数信息: {param_name} {param_value} 未对应其全局变量!!!", level=LOG_ERROR)
             exit()
 
     # 处理代理参数 如果输入了代理参数就会变为字符串
@@ -298,7 +298,7 @@ if __name__ == "__main__":
             GB_PROXIES = {'http': GB_PROXIES.replace('https://', 'http://'),
                           'https': GB_PROXIES.replace('http://', 'https://')}
         else:
-            output(f"[!] 输入的代理地址[{GB_PROXIES}]不正确,正确格式:Protocol://IP:PORT", level="error")
+            output(f"[!] 输入的代理地址[{GB_PROXIES}]不正确,正确格式:Protocol://IP:PORT", level=LOG_ERROR)
 
     # 根据用户输入的debug参数设置日志打印器属性 # 为主要是为了接受config.debug参数来配置输出颜色.
     set_logger(GB_INFO_LOG_FILE, GB_ERR_LOG_FILE, GB_DBG_LOG_FILE, GB_DEBUG_FLAG)
@@ -306,4 +306,4 @@ if __name__ == "__main__":
     # 开始扫描
     dyna_scan()
 
-    output(f"[+] 所有任务测试完毕", level="info")
+    output(f"[+] 所有任务测试完毕", level=LOG_INFO)

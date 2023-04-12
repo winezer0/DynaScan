@@ -6,7 +6,7 @@ import copy
 import random
 import re
 
-from libs.lib_log_print.logger_printer import output
+from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_DEBUG, LOG_ERROR
 from libs.lib_requests.requests_const import *
 from libs.util_file import write_line
 
@@ -81,9 +81,9 @@ def analysis_dict_same_keys(result_dict_list, default_value_dict={}):
                     output(f"[*] 所有字典的 [{key}] 值 [{value}] 相等 且不为默认或空值 [{default_value_dict[key]}]")
                     same_key_value_dict[key] = value
                 else:
-                    output(f"[-] 所有字典的 [{key}] 值 [{value}] 相等 但是默认或空值 [{default_value_dict[key]}]", level="debug")
+                    output(f"[-] 所有字典的 [{key}] 值 [{value}] 相等 但是默认或空值 [{default_value_dict[key]}]", level=LOG_DEBUG)
             else:
-                output(f"[!] 存在未预期的键{key},该键不在默认值字典[{list(default_value_dict.keys())}]内!!!", level="error")
+                output(f"[!] 存在未预期的键{key},该键不在默认值字典[{list(default_value_dict.keys())}]内!!!", level=LOG_ERROR)
     return same_key_value_dict
 
 
@@ -145,12 +145,12 @@ def access_result_handle(result_dict_list,
 
         if IGNORE_RESP:
             write_line(ignore_file, result_format % access_resp_values, encoding="utf-8", new_line=True, mode="a+")
-            output(f"[-] 忽略结果 [{saving_field}]", level="debug")
+            output(f"[-] 忽略结果 [{saving_field}]", level=LOG_DEBUG)
         else:
             # result_file_open = open(result_file, "a+", encoding="utf-8", buffering=1)
             # result_file_open.write(result_format % access_resp_values)
             write_line(result_file, result_format % access_resp_values, encoding="utf-8", new_line=True, mode="a+")
-            output(f"[+] 可能存在 [{saving_field}]", level="info")
+            output(f"[+] 可能存在 [{saving_field}]", level=LOG_INFO)
             # 加入到命中结果列表
             hit_result_list.append(saving_field)
 
@@ -163,7 +163,7 @@ def access_result_handle(result_dict_list,
 
         # 取消继续访问进程 错误太多 或者 已经爆破成功
         if isinstance(max_error_num, int) and access_fail_count >= max_error_num:
-            output(f"[*] 错误数量超过阈值 取消访问任务!!!", level="error")
+            output(f"[*] 错误数量超过阈值 取消访问任务!!!", level=LOG_ERROR)
             should_stop_run = True
 
     return should_stop_run, hit_result_list

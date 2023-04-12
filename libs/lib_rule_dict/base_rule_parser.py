@@ -10,7 +10,7 @@ import time
 import exrex
 import sre_yield
 
-from libs.lib_log_print.logger_printer import output
+from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_DEBUG, LOG_ERROR
 
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
@@ -337,16 +337,16 @@ def base_rule_render_list(rule_list):
                     rule_name, rule_type = rules.split('=')
                 except Exception as error:
                     if 'too many values to unpack' in str(error):
-                        output(f"[-] 规则 {rule_line} 发生编写错误,每条规则仅支持单个格式规则!!!", level="error")
+                        output(f"[-] 规则 {rule_line} 发生编写错误,每条规则仅支持单个格式规则!!!", level=LOG_ERROR)
                     else:
-                        output(f"[-] 规则 {rule_line} 发生未知解析错误!!! Error: {error}", level="error")
+                        output(f"[-] 规则 {rule_line} 发生未知解析错误!!! Error: {error}", level=LOG_ERROR)
                 else:
                     # 实际解析规则返回结果
                     parser_result = parser.parse()
                     result_list.extend(parser_result)
                     render_count = render_count + 1
             else:
-                output(f"[!] 字典 {rule_line} 疑似解析规则,可能存在编写错误...", level="error")
+                output(f"[!] 字典 {rule_line} 疑似解析规则,可能存在编写错误...", level=LOG_ERROR)
                 result_list.append(rule_line)
         else:
             # 不进行渲染

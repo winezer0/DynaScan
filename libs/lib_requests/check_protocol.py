@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from libs.lib_log_print.logger_printer import output
+from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_DEBUG, LOG_ERROR
 from libs.lib_requests.requests_const import *
 from libs.lib_requests.requests_thread import multi_thread_requests_url_sign, multi_thread_requests_url
 
@@ -87,8 +87,8 @@ def check_proto_and_access(target_list,
             have_proto_head_host.append(target)
         else:
             none_proto_head_host.append(target)
-    output(f"[*] 有协议头目标 {len(have_proto_head_host)}个 {have_proto_head_host}", level="info")
-    output(f"[-] 无协议头目标 {len(none_proto_head_host)}个 {none_proto_head_host}", level="info")
+    output(f"[*] 有协议头目标 {len(have_proto_head_host)}个 {have_proto_head_host}", level=LOG_INFO)
+    output(f"[-] 无协议头目标 {len(none_proto_head_host)}个 {none_proto_head_host}", level=LOG_INFO)
 
     # 对none_proto_head_host里面的目标进行协议判断处理
     for target in none_proto_head_host:
@@ -102,10 +102,10 @@ def check_proto_and_access(target_list,
                                       req_timeout=req_timeout,
                                       verify_ssl=verify_ssl)
             if protocol:
-                output(f"[+] 获取协议成功 [{target}]: [{protocol}]", level="info")
+                output(f"[+] 获取协议成功 [{target}]: [{protocol}]", level=LOG_INFO)
                 have_proto_head_host.append(f"{protocol}://{target}")
             else:
-                output(f"[-] 获取协议失败 [{target}] ,需手动检查重试!!!", level="error")
+                output(f"[-] 获取协议失败 [{target}] ,需手动检查重试!!!", level=LOG_ERROR)
         else:
             have_proto_head_host.append(f"{protocol}://{target}")
 
@@ -117,7 +117,7 @@ def check_proto_and_access(target_list,
     if not url_access_test:
         accessible_target = have_proto_head_host
     else:
-        output("[*] 批量访问筛选URL列表...", level="info")
+        output("[*] 批量访问筛选URL列表...", level=LOG_INFO)
         # 批量进行URL访问测试
         task_list = have_proto_head_host
         access_result_dict_list = multi_thread_requests_url(task_list=task_list,
@@ -142,10 +142,10 @@ def check_proto_and_access(target_list,
             req_url = access_result_dict[REQ_URL]
             resp_status = access_result_dict[RESP_STATUS]
             if resp_status > 0:
-                output(f"[*] 当前目标 {req_url} 将被添加 响应结果:{access_result_dict}", level="info")
+                output(f"[*] 当前目标 {req_url} 将被添加 响应结果:{access_result_dict}", level=LOG_INFO)
                 accessible_target.append(req_url)
             else:
-                output(f"[*] 当前目标 {req_url} 将被忽略 响应结果:{access_result_dict}", level="error")
+                output(f"[*] 当前目标 {req_url} 将被忽略 响应结果:{access_result_dict}", level=LOG_ERROR)
                 inaccessible_target.append(req_url)
 
     return accessible_target, inaccessible_target

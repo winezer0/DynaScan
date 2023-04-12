@@ -13,7 +13,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
-from libs.lib_log_print.logger_printer import output
+from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_DEBUG, LOG_ERROR
 from libs.lib_requests.requests_const import *
 from libs.lib_requests.requests_tools import list_ele_in_str
 
@@ -26,9 +26,9 @@ def show_requests_error(url_info, common_error_list, module_name, error_info):
     # 把常规错误的关键字加入列表common_error_list内,列表为空时都作为非常规错误处理
     common_error_flag = list_ele_in_str(common_error_list, str(error_info), default=False)
     if common_error_flag:
-        output(f"[-] 当前目标 {url_info} COMMON ERROR ON Acquire [{module_name}]: [{error_info}]", level="error")
+        output(f"[-] 当前目标 {url_info} COMMON ERROR ON Acquire [{module_name}]: [{error_info}]", level=LOG_ERROR)
     else:
-        output(f"[-] 当前目标 {url_info} OTHERS ERROR ON Acquire [{module_name}]: [{error_info}]", level="error")
+        output(f"[-] 当前目标 {url_info} OTHERS ERROR ON Acquire [{module_name}]: [{error_info}]", level=LOG_ERROR)
 
 
 # 支持重试等操作的请求库
@@ -87,7 +87,7 @@ def requests_plus(req_url,
 
         # 排除由于代理服务器导致的访问BUG
         if list_ele_in_str(ERROR_PAGE_KEY, resp.text.lower(), False):
-            output("[!] 当前由于代理服务器问题导致响应状态码错误...Fixed...", level="error")
+            output("[!] 当前由于代理服务器问题导致响应状态码错误...Fixed...", level=LOG_ERROR)
             resp_status = NUM_MINUS
     except Exception as error:
         # 当错误原因时一般需要重试的错误时,直接忽略输出,进行访问重试
@@ -107,22 +107,22 @@ def requests_plus(req_url,
             if ignore_encode_error:
                 # 不需要重试的结果 设置resp_status标记为1,
                 resp_status = NUM_ONE
-                output(f"[-] 当前目标 {req_url} 中文数据编码错误,但是已经开启中文编码处理功能,忽略本次错误!!!", level="debug")
+                output(f"[-] 当前目标 {req_url} 中文数据编码错误,但是已经开启中文编码处理功能,忽略本次错误!!!", level=LOG_DEBUG)
             else:
                 # 需要手动访问重试的结果
-                output(f"[-] 当前目标 {req_url} 中文数据编码错误,需要针对中文编码进行额外处理,返回固定结果!!!", level="error")
+                output(f"[-] 当前目标 {req_url} 中文数据编码错误,需要针对中文编码进行额外处理,返回固定结果!!!", level=LOG_ERROR)
         elif "No host supplied" in str(error):
             # 不需要重试的结果 设置resp_status标记为1,
             resp_status = NUM_ONE
-            output(f"[-] 当前目标 {req_url} 格式输入错误,忽略本次结果!!!", level="error")
+            output(f"[-] 当前目标 {req_url} 格式输入错误,忽略本次结果!!!", level=LOG_ERROR)
         else:
             # 如果服务器没有响应,但是也有可能存在能访问的URL,因此不能简单以状态码判断结果
             # 如果是其他访问错误,就进程访问重试
             if retry_times > 0:
                 if "Exceeded 30 redirects" in str(error):
                     req_headers = None
-                    output(f"[-] 当前目标 {req_url} 即将修改请求头为默认头后进行重试!!!", "error")
-                output(f"[-] 当前目标 {req_url} 开始进行倒数第 {retry_times} 次重试, TIMEOUT * 1.5...", level="error")
+                    output(f"[-] 当前目标 {req_url} 即将修改请求头为默认头后进行重试!!!", LOG_ERROR)
+                output(f"[-] 当前目标 {req_url} 开始进行倒数第 {retry_times} 次重试, TIMEOUT * 1.5...", level=LOG_ERROR)
                 return requests_plus(req_url=req_url,
                                      req_method=req_method,
                                      req_headers=req_headers,
@@ -140,7 +140,7 @@ def requests_plus(req_url,
 
             else:
                 # 如果重试次数为小于0,返回固定结果-1
-                output(f"[-] 当前目标 {req_url}  剩余重试次数为0,返回固定结果,需要后续手动进行验证...", level="error")
+                output(f"[-] 当前目标 {req_url}  剩余重试次数为0,返回固定结果,需要后续手动进行验证...", level=LOG_ERROR)
     else:
         # 当获取到响应结果时,获取三个响应关键匹配项目
         #############################################################
@@ -214,7 +214,7 @@ def requests_plus(req_url,
                 re_find_result_list = re.findall(r"<title.*?>(.+?)</title>", encode_content)
                 resp_text_title = ",".join(re_find_result_list)
                 # 解决所有系统下字符串无法编码输出的问题,比如windows下控制台gbk的情况下,不能gbk解码就是BUG
-                # output(f"当前控制台输出编码为:{sys.stdout.encoding}", level="error")
+                # output(f"当前控制台输出编码为:{sys.stdout.encoding}", level=SHOW_ERROR)
                 # 解决windows下韩文无法输出的问题,如果不能gbk解码就是window BUG
                 # if sys.platform.lower().startswith('win'):
                 try:
@@ -224,7 +224,7 @@ def requests_plus(req_url,
                     output(f"[!] 字符串使用当前控制台编码 {sys.stdout.encoding} 编码失败,"
                            f"自动转换为UTF-8型URL编码 {resp_text_title}, "
                            f"ERROR:{error}",
-                           level="error")
+                           level=LOG_ERROR)
                 if resp_text_title.strip() == "":
                     resp_text_title = BLANK_TITLE
         except Exception as error:
