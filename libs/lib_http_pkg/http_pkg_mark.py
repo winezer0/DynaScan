@@ -4,8 +4,8 @@ import sys
 
 from libs.lib_http_pkg.parse_http_pkg import parse_diff_content_type_body_simple, update_http_param_value, \
     parsed_query_params
-from libs.lib_log_print.logger_printer import output
 from libs.lib_http_pkg.parse_tools import list_ele_in_str
+from libs.lib_log_print.logger_printer import output
 
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 

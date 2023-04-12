@@ -24,7 +24,7 @@ def multi_thread_requests_url(task_list,
                               const_sign,
                               add_host_header,
                               add_refer_header,
-                              ignore_chinese_error_msg
+                              ignore_encode_error
                               ):
     """
     # 对URL列表进行访问测试,输出返回响应结果
@@ -50,7 +50,7 @@ def multi_thread_requests_url(task_list,
                                const_sign=const_sign,
                                add_host_header=add_host_header,
                                add_refer_header=add_refer_header,
-                               ignore_chinese_error_msg=ignore_chinese_error_msg)
+                               ignore_encode_error=ignore_encode_error)
             time.sleep(thread_sleep)
             all_task.append(task)
             output(f"[*] 当前进度 {task_index + 1}/{len(task_list)} {req_url}", level="info")
@@ -79,7 +79,7 @@ def multi_thread_requests_url_sign(task_list,
                                    # const_sign,
                                    add_host_header,
                                    add_refer_header,
-                                   ignore_chinese_error_msg
+                                   ignore_encode_error
                                    ):
     # 存储所有响应结果
     access_result_dict_list = []
@@ -100,7 +100,7 @@ def multi_thread_requests_url_sign(task_list,
                                const_sign=const_sign,
                                add_host_header=add_host_header,
                                add_refer_header=add_refer_header,
-                               ignore_chinese_error_msg=ignore_chinese_error_msg)
+                               ignore_encode_error=ignore_encode_error)
             time.sleep(thread_sleep)
             all_task.append(task)
             output(f"[*] 当前进度 {task_index + 1}/{len(task_list)} {const_sign}", level="info")
@@ -129,7 +129,7 @@ def multi_thread_requests_url_body_sign(task_list,
                                         # const_sign,
                                         add_host_header,
                                         add_refer_header,
-                                        ignore_chinese_error_msg
+                                        ignore_encode_error
                                         ):
     # 存储所有响应结果
     access_result_dict_list = []
@@ -149,7 +149,7 @@ def multi_thread_requests_url_body_sign(task_list,
                                const_sign=const_sign,
                                add_host_header=add_host_header,
                                add_refer_header=add_refer_header,
-                               ignore_chinese_error_msg=ignore_chinese_error_msg)
+                               ignore_encode_error=ignore_encode_error)
             time.sleep(thread_sleep)
             access_result_dict_list.append(task)
             output(f"[*] 当前进度 {task_index + 1}/{len(task_list)} {const_sign}", level="info")

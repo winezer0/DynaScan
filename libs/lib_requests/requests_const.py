@@ -44,8 +44,8 @@ DEFAULT_RESP_DICT = {
 ############################################################
 # 每个响应键的默认值或控制，在动态筛选时被忽略
 FILTER_MODULE_DEFAULT_VALUE_DICT = {
-    REQ_URL: [NONE,""],
-    CONST_SIGN: [NONE,""],
+    REQ_URL: [NONE, ""],
+    CONST_SIGN: [NONE, ""],
     RESP_STATUS: [NUM_MINUS, NUM_ZERO, NUM_ONE],
     RESP_BYTES_HEAD: [NULL_BYTES, BLANK_BYTES],
     RESP_CONTENT_LENGTH: [NUM_MINUS, NUM_ZERO],

@@ -138,7 +138,7 @@ def gen_dynamic_exclude_dict(req_url):
     # 执行测试任务
     output(f"[+] 随机访问测试 {test_url_path_list}", level="info")
     test_result_dict_list = multi_thread_requests_url(task_list=test_url_path_list,
-                                                      threads_count=min(len(test_url_path_list),30),
+                                                      threads_count=min(len(test_url_path_list), 30),
                                                       thread_sleep=GB_THREAD_SLEEP,
                                                       req_method=GB_REQ_METHOD,
                                                       req_headers=GB_HEADERS,
@@ -152,7 +152,7 @@ def gen_dynamic_exclude_dict(req_url):
                                                       const_sign=None,
                                                       add_host_header=GB_ADD_DYNAMIC_HOST,
                                                       add_refer_header=GB_ADD_DYNAMIC_REFER,
-                                                      ignore_chinese_error_msg=GB_CHINESE_ENCODE
+                                                      ignore_encode_error=GB_CHINESE_ENCODE
                                                       )
 
     output(f"随机测试响应 {test_result_dict_list}", level="debug")
@@ -338,7 +338,7 @@ def dyna_scan(target_list):
                                                               retry_times=GB_RETRY_TIMES,
                                                               add_host_header=GB_ADD_DYNAMIC_HOST,
                                                               add_refer_header=GB_ADD_DYNAMIC_REFER,
-                                                              ignore_chinese_error_msg=GB_CHINESE_ENCODE
+                                                              ignore_encode_error=GB_CHINESE_ENCODE
                                                               )
 
             # 处理响应结果

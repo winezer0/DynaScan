@@ -28,7 +28,7 @@ def check_protocol(req_host, req_path, req_method, req_headers, req_proxies, req
                                                              retry_times=0,
                                                              add_host_header=True,
                                                              add_refer_header=True,
-                                                             ignore_chinese_error_msg=True
+                                                             ignore_encode_error=True
                                                              )
 
     # print(f"access_result_dict_list:{access_result_dict_list}")
@@ -135,7 +135,7 @@ def check_proto_and_access(target_list,
                                                             const_sign=None,
                                                             add_host_header=True,
                                                             add_refer_header=True,
-                                                            ignore_chinese_error_msg=True,
+                                                            ignore_encode_error=True,
                                                             )
         # 分析多线程检测结果
         for access_result_dict in access_result_dict_list:

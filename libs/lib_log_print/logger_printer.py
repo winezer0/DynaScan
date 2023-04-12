@@ -57,7 +57,7 @@ def set_logger(info_log_file_path=None, err_log_file_path=None, dbg_log_file_pat
 
 # 根据logger是否传递输出数据
 def output(*args, level="debug"):
-    if level in ["debug","info","error"]:
+    if level in ["debug", "info", "error"]:
         # 使用 getattr() 函数和 f-string 简化代码
         log_func = getattr(logger, level)
         log_func(f"{','.join(map(str, args))}")

@@ -90,7 +90,7 @@ def read_dirs_frequency_rule_list(dict_dir=None,
                                                      encoding=file_encoding(base_var_file_path),
                                                      frequency_symbol=frequency_symbol,
                                                      annotation_symbol=annotation_symbol)
-        frequency_list = get_key_list_with_frequency(frequency_dict,frequency_min)
+        frequency_list = get_key_list_with_frequency(frequency_dict, frequency_min)
 
         rule_list.extend(frequency_list)
 
@@ -128,7 +128,7 @@ def gen_base_var_dict_frequency(base_var_dir,
                                                      encoding=file_encoding(base_var_file_path),
                                                      frequency_symbol=frequency_symbol,
                                                      annotation_symbol=annotation_symbol)
-        frequency_list = get_key_list_with_frequency(frequency_dict,frequency_min)
+        frequency_list = get_key_list_with_frequency(frequency_dict, frequency_min)
         # 组装 {基本变量名: [基本变量文件内容列表]}
         base_var_replace_dict[base_var_name] = frequency_list
 

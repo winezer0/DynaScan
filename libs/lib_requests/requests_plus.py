@@ -5,12 +5,14 @@ import re
 import sys
 import time
 import urllib
-import chardet
-import requests
 from binascii import b2a_hex
 from urllib.parse import urlparse
+
+import chardet
+import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
+
 from libs.lib_log_print.logger_printer import output
 from libs.lib_requests.requests_const import *
 from libs.lib_requests.requests_tools import list_ele_in_str
@@ -43,8 +45,7 @@ def requests_plus(req_url,
                   const_sign=None,
                   add_host_header=None,
                   add_refer_header=None,
-                  ignore_chinese_error_msg=None):
-
+                  ignore_encode_error=None):
     # 设置本请求默认标记 # const_sign 原样返回输入的值, 用来标记线程的信息
     # const_sign = const_sign if const_sign else time.time()
     const_sign = const_sign or str(time.time())
@@ -52,7 +53,7 @@ def requests_plus(req_url,
     # 设置默认请求头
     if not req_headers:
         req_headers = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)',
-                       'Accept-Encoding': '' }
+                       'Accept-Encoding': ''}
 
     # 需要动态添加host字段
     if add_host_header:
@@ -103,7 +104,7 @@ def requests_plus(req_url,
         if "codec can't encode" in str(error):
             # 如果是数据编码错误,就不再进行尝试 ,返回固定结果状态码
             # 'latin-1' codec can't encode characters in position 17-18: ordinal not in range(256)
-            if ignore_chinese_error_msg:
+            if ignore_encode_error:
                 # 不需要重试的结果 设置resp_status标记为1,
                 resp_status = NUM_ONE
                 output(f"[-] 当前目标 {req_url} 中文数据编码错误,但是已经开启中文编码处理功能,忽略本次错误!!!", level="debug")
@@ -131,7 +132,7 @@ def requests_plus(req_url,
                                      const_sign=const_sign,
                                      add_host_header=add_host_header,
                                      add_refer_header=add_refer_header,
-                                     ignore_chinese_error_msg=ignore_chinese_error_msg
+                                     ignore_encode_error=ignore_encode_error
                                      )
 
             else:

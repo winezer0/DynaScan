@@ -62,11 +62,11 @@ def chinese_str_to_encode(string, coding, url_encode, de_strip, only_chinese=Fal
 
 
 # 对 字符串列表 进行中文编码和URL编码
-def chinese_list_to_encode_by_char(string_list, 
-coding_list=['utf-8'], 
-url_encode=True, 
-de_strip=True,
-only_chinese=True):
+def chinese_list_to_encode_by_char(string_list,
+                                   coding_list=['utf-8'],
+                                   url_encode=True,
+                                   de_strip=True,
+                                   only_chinese=True):
     encode_str_list = []
     for string in string_list:
         for coding in coding_list:
@@ -81,11 +81,11 @@ only_chinese=True):
 
 
 # 对 元组列表 进行中文编码和URL编码
-def chinese_encode_tuple_list_by_char(tuple_list, 
-coding_list=["utf8"], 
-url_encode=True, 
-de_strip=True,
-only_chinese=True):
+def chinese_encode_tuple_list_by_char(tuple_list,
+                                      coding_list=["utf8"],
+                                      url_encode=True,
+                                      de_strip=True,
+                                      only_chinese=True):
     new_tuple_list = []
     for ele_1, ele_2 in tuple_list:
         for coding in coding_list:

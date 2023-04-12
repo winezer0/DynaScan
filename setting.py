@@ -30,13 +30,6 @@ GB_VERSION = "Ver 0.2.0 2023-04-11 20:23"
 # 停止扫描阈值[数字] # 如果每个目标的非正常响应超过这个阈值, 就停止任务
 GB_MAX_ERROR_NUM = None
 ##################################################################
-# 中文路径、特殊字符会以列表内的编码作为基础编码，再进行URL编码
-GB_CHINESE_ENCODE = ['utf-8']  # ['utf-8', 'gbk', 'gb2312']
-# 注意:gb2312编码繁体中文可能报错,此时可使用gbk编码,GBK与G2312编码结果相同
-
-# 是否仅对包含中文的路径使用URL编码模式,默认True 否则所有路径都会处理,所有特殊字符都会被编码,
-GB_ONLY_ENCODE_CHINESE = True
-##################################################################
 # 在配置文件中配置默认目标参数  支持文件 或 URL
 GB_TARGET = "target.txt"
 ##################################################################
@@ -70,26 +63,6 @@ GB_ACCESSIBLE_RECORD = LOG_FILE_PATH.replace('module', 'accessible')
 GB_PER_HOST_HISTORY_FILE = LOG_FILE_PATH.replace('module', 'history.{host_port}')
 # 每个HOST扫描URL的过滤,建议开启
 GB_EXCLUDE_HOST_HISTORY = True
-##################################################################
-# 最终生成的扫描路径处理
-# 替换路径中的多个//为一个/
-GB_REMOVE_MULTI_SLASHES = True
-
-# 去除以特定字符结尾的URL
-GB_REMOVE_SOME_SYMBOL = ['.']
-
-# URL路径全部小写
-GB_URL_PATH_LOWERCASE = True
-
-# 为每个路径添加自定义前缀 # 例如 ['/admin']
-GB_ADD_CUSTOM_PREFIX = None
-
-# 仅扫描指定后缀的URL目标,注意:后缀不需要加[.] # 例如 ['php','html']
-GB_ONLY_SCAN_SPECIFY_EXT = None
-
-# 仅移除指定后缀的URL, 注意:后缀不需要加[.] # 例如 ['php','html']
-GB_NO_SCAN_SPECIFY_EXT = None
-# 当保留指定后缀和移除指定后缀同时存在时,先进行指定后缀URL保留,后进行指定后缀URL排除
 ##################################################################
 # 设置输出结果文件目录
 GB_RESULT_DIR = GB_BASE_DIR.joinpath("result")

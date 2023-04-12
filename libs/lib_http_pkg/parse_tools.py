@@ -16,4 +16,3 @@ def list_ele_in_str(list_=None, str_=None, default=False):
     else:
         flag = default
     return flag
-

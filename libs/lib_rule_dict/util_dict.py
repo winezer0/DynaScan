@@ -228,4 +228,3 @@ def remove_dict_none_value_key(dict_, bracket=True):
         elif bracket and dict_.get(key) == '()':
             del dict_[key]
     return dict_
-
