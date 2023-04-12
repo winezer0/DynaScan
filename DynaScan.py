@@ -30,13 +30,24 @@ def parse_input():
     # description 程序描述信息
     argument_parser.description = Figlet().renderText("DynaScan")
 
-    argument_parser.add_argument("-u", dest="target", default=GB_TARGET, help="指定目标URL或目标文件")
-    argument_parser.add_argument("-d", dest="debug_flag", default=GB_DEBUG_FLAG, help="显示调试信息", action="store_true")
+    argument_parser.add_argument("-u", "--target", default=GB_TARGET,
+                                 help=f"Specify the target URL or target File, Default is [{GB_TARGET}]")
+
+    argument_parser.add_argument("-x", dest="proxies", default=GB_PROXIES,
+                                 help=f"Specifies http|https|socks5 proxies, Default is [{GB_PROXIES}]")
+
+    argument_parser.add_argument("-t", "--threads_count", default=GB_THREADS_COUNT, type=int,
+                                 help=f"Specifies request threads, Default is [{GB_THREADS_COUNT}]")
+
+    argument_parser.add_argument("-d", "--debug_flag", default=GB_DEBUG_FLAG, action="store_true",
+                                 help=f"Specifies Display Debug Info, Default is [{GB_DEBUG_FLAG}]", )
 
     example = """
              \rExamples:
-             \r  python3 {shell_name} -u https://www.baidu.com
              \r  python3 {shell_name} -u target.txt
+             \r  python3 {shell_name} -u https://www.baidu.com
+             \r  python3 {shell_name} -u https://www.baidu.com -p socks5://127.0.0.1:1080
+             \r  python3 {shell_name} -u https://www.baidu.com -t 100
              \r    
              \r  其他控制细节参数请通过setting.py进行配置
              \r    
@@ -93,7 +104,47 @@ def gen_dynamic_exclude_dict(req_url):
 
 
 # 扫描主体
-def dyna_scan(target_list):
+def dyna_scan():
+    # 读取用户输入的URL和目标文件参数
+    target_list = []
+    if os.path.isfile(GB_TARGET):
+        target_list = read_file_to_list(file_path=GB_TARGET,
+                                        encoding=file_encoding(GB_TARGET),
+                                        de_strip=True,
+                                        de_weight=True,
+                                        de_unprintable=True)
+    else:
+        target_list.append(GB_TARGET)
+
+    # 尝试对输入的目标进行初次过滤、添加协议头、访问测试等处理
+    accessible_target, inaccessible_target = check_proto_and_access(target_list=target_list,
+                                                                    thread_sleep=GB_THREAD_SLEEP,
+                                                                    default_proto_head=GB_DEFAULT_PROTO_HEAD,
+                                                                    url_access_test=GB_URL_ACCESS_TEST,
+                                                                    req_path="/",
+                                                                    req_method=GB_REQ_METHOD,
+                                                                    req_headers=GB_HEADERS,
+                                                                    req_proxies=GB_PROXIES,
+                                                                    verify_ssl=GB_SSL_VERIFY,
+                                                                    req_timeout=GB_TIMEOUT,
+                                                                    req_allow_redirects=GB_ALLOW_REDIRECTS,
+                                                                    retry_times=GB_RETRY_TIMES
+                                                                    )
+
+    # 记录可以访问的目标到文件
+    write_lines(GB_ACCESSIBLE_RECORD, accessible_target, encoding="utf-8", new_line=True, mode="a+")
+    # 记录不可访问的目标到文件
+    write_lines(GB_INACCESSIBLE_RECORD, inaccessible_target, encoding="utf-8", new_line=True, mode="a+")
+
+    target_list = list(set(accessible_target))
+
+    output(f"[*] 当前整合URL 剩余目标 {len(target_list)}个", level="info")
+
+    # 对输入的目标数量进行判断和处理
+    if not target_list:
+        output("[-] 未输入任何有效目标,退出程序...", level="error")
+        return
+
     # 读取路径字典 进行频率筛选、规则渲染、基本变量替换
     output("[*] 读取路径字典 进行频率筛选、规则渲染、基本变量替换", level="info")
     base_scan_path_list = gen_base_scan_path_list()
@@ -232,56 +283,23 @@ if __name__ == "__main__":
         globals_var_name = f"GB_{param_name.upper()}"
         try:
             globals()[globals_var_name] = param_value
-            # output(f"GB_{key.upper()} = {value}")
-            # output(globals()[f"GB_{key.upper()}"])
+            # output(f"[*] INPUT:{globals_var_name} -> {param_value}", level="debug")
         except Exception as error:
-            output(f"[!] 输入参数信息: {param_name} {param_value} -> {globals_var_name} 未对应!!!")
+            output(f"[!] 输入参数信息: {param_name} {param_value} 未对应其全局变量!!!", level="error")
             exit()
+
+    # 处理代理参数 如果输入了代理参数就会变为字符串
+    if GB_PROXIES and isinstance(GB_PROXIES, str):
+        if "socks" in GB_PROXIES or "http" in GB_PROXIES:
+            GB_PROXIES = {'http': GB_PROXIES.replace('https://', 'http://'),
+                          'https': GB_PROXIES.replace('http://', 'https://')}
+        else:
+            output(f"[!] 输入的代理地址[{GB_PROXIES}]不正确,正确格式:Protocol://IP:PORT", level="error")
 
     # 根据用户输入的debug参数设置日志打印器属性 # 为主要是为了接受config.debug参数来配置输出颜色.
     set_logger(GB_INFO_LOG_FILE, GB_ERR_LOG_FILE, GB_DBG_LOG_FILE, GB_DEBUG_FLAG)
 
-    # 读取用户输入的URL和目标文件参数
-    target_list = []
-    if os.path.isfile(GB_TARGET):
-        target_list = read_file_to_list(file_path=GB_TARGET,
-                                        encoding=file_encoding(GB_TARGET),
-                                        de_strip=True,
-                                        de_weight=True,
-                                        de_unprintable=True)
-    else:
-        target_list.append(GB_TARGET)
-
-    # 尝试对输入的目标进行初次过滤、添加协议头、访问测试等处理
-    accessible_target, inaccessible_target = check_proto_and_access(target_list=target_list,
-                                                                    thread_sleep=GB_THREAD_SLEEP,
-                                                                    default_proto_head=GB_DEFAULT_PROTO_HEAD,
-                                                                    url_access_test=GB_URL_ACCESS_TEST,
-                                                                    req_path="/",
-                                                                    req_method=GB_REQ_METHOD,
-                                                                    req_headers=GB_HEADERS,
-                                                                    req_proxies=GB_PROXIES,
-                                                                    verify_ssl=GB_SSL_VERIFY,
-                                                                    req_timeout=GB_TIMEOUT,
-                                                                    req_allow_redirects=GB_ALLOW_REDIRECTS,
-                                                                    retry_times=GB_RETRY_TIMES
-                                                                    )
-
-    # 记录可以访问的目标到文件
-    write_lines(GB_ACCESSIBLE_RECORD, accessible_target, encoding="utf-8", new_line=True, mode="a+")
-    # 记录不可访问的目标到文件
-    write_lines(GB_INACCESSIBLE_RECORD, inaccessible_target, encoding="utf-8", new_line=True, mode="a+")
-
-    target_list = list(set(accessible_target))
-
-    output(f"[*] 当前整合URL 剩余目标 {len(target_list)}个", level="info")
-
-    # 对输入的目标数量进行判断和处理
-    if not target_list:
-        output("[-] 未输入任何有效目标,即将退出程序...", level="error")
-        exit()
-
     # 开始扫描
-    dyna_scan(target_list)
+    dyna_scan()
 
     output(f"[+] 所有任务测试完毕", level="info")
