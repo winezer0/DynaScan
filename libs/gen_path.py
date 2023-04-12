@@ -82,7 +82,7 @@ def read_dirs_frequency_rule_list(dict_dir=None,
     # 存储所有规则
     rule_list = []
     # 获取文件名
-    base_var_file_list = get_dir_path_file_name(dict_dir, ext=dict_suffix)
+    base_var_file_list = get_dir_path_file_name(dict_dir, ext_list=dict_suffix)
     # 生成文件名对应基础变量
     # 并 同时读文件组装 {基本变量名: [基本变量文件内容列表]}
     for dict_file in base_var_file_list:
@@ -116,12 +116,12 @@ def gen_base_var_dict_frequency(base_var_dir,
     """
     base_var_replace_dict = copy.copy(base_replace_dict)
     # 获取文件名
-    base_var_file_list = get_dir_path_file_name(base_var_dir, ext=dict_suffix)
+    base_var_file_list = get_dir_path_file_name(base_var_dir, ext_list=dict_suffix)
 
     # 生成文件名对应基础变量
     # 并 同时读文件组装 {基本变量名: [基本变量文件内容列表]}
     for base_var_file_name in base_var_file_list:
-        base_file_pure_name = base_var_file_name.rsplit(dict_suffix, 1)[0]
+        base_file_pure_name = base_var_file_name.rsplit('.', 1)[0]
         base_var_name = f'%{base_file_pure_name}%'
 
         # 读文件到列表
@@ -146,7 +146,7 @@ def gen_base_scan_path_list():
     base_paths = []
     # 获取基本变量替换字典
     base_var_replace_dict = gen_base_var_dict_frequency(base_var_dir=GB_BASE_VAR_DIR,
-                                                        dict_suffix=GB_DICT_FILE_EXT,
+                                                        dict_suffix=GB_DICT_SUFFIX,
                                                         base_replace_dict=GB_BASE_VAR_REPLACE_DICT,
                                                         frequency_symbol=GB_FREQUENCY_SYMBOL,
                                                         annotation_symbol=GB_ANNOTATION_SYMBOL,
@@ -157,7 +157,7 @@ def gen_base_scan_path_list():
     if GB_ADD_DIRECT_DICT:
         # module = '读取直接追加路径'
         direct_path_list = read_dirs_frequency_rule_list(dict_dir=GB_DIRECT_PATH_DIR,
-                                                         dict_suffix=GB_DICT_FILE_EXT,
+                                                         dict_suffix=GB_DICT_SUFFIX,
                                                          frequency_symbol=GB_FREQUENCY_SYMBOL,
                                                          annotation_symbol=GB_ANNOTATION_SYMBOL,
                                                          frequency_min=FREQUENCY_MIN)
@@ -170,7 +170,7 @@ def gen_base_scan_path_list():
         # 按频率 读取笛卡尔积路径 -> 目录 字典下的所有文件,并进行解析
         # module = '读取笛卡尔积路径 -> 目录'
         group_folder_list = read_dirs_frequency_rule_list(dict_dir=GB_GROUP_FOLDER_DIR,
-                                                          dict_suffix=GB_DICT_FILE_EXT,
+                                                          dict_suffix=GB_DICT_SUFFIX,
                                                           frequency_symbol=GB_FREQUENCY_SYMBOL,
                                                           annotation_symbol=GB_ANNOTATION_SYMBOL,
                                                           frequency_min=FREQUENCY_MIN)
@@ -180,7 +180,7 @@ def gen_base_scan_path_list():
         # 按频率 读取笛卡尔积路径 -> 文件 字典下的所有文件,并进行解析
         # module = '读取笛卡尔积路径 -> 文件'
         group_files_list = read_dirs_frequency_rule_list(dict_dir=GB_GROUP_FILES_DIR,
-                                                         dict_suffix=GB_DICT_FILE_EXT,
+                                                         dict_suffix=GB_DICT_SUFFIX,
                                                          frequency_symbol=GB_FREQUENCY_SYMBOL,
                                                          annotation_symbol=GB_ANNOTATION_SYMBOL,
                                                          frequency_min=FREQUENCY_MIN)

@@ -39,6 +39,9 @@ def parse_input():
     argument_parser.add_argument("-t", "--threads_count", default=GB_THREADS_COUNT, type=int,
                                  help=f"Specifies request threads, Default is [{GB_THREADS_COUNT}]")
 
+    argument_parser.add_argument("-s", dest="dict_suffix", default=GB_DICT_SUFFIX, nargs='+',
+                                 help=f"Specifies Dict File Suffix List, Default is [{GB_DICT_SUFFIX}]")
+
     argument_parser.add_argument("-d", "--debug_flag", default=GB_DEBUG_FLAG, action="store_true",
                                  help=f"Specifies Display Debug Info, Default is [{GB_DEBUG_FLAG}]", )
 
@@ -46,8 +49,9 @@ def parse_input():
              \rExamples:
              \r  python3 {shell_name} -u target.txt
              \r  python3 {shell_name} -u https://www.baidu.com
-             \r  python3 {shell_name} -u https://www.baidu.com -p socks5://127.0.0.1:1080
              \r  python3 {shell_name} -u https://www.baidu.com -t 100
+             \r  python3 {shell_name} -u https://www.baidu.com -s txt lst 
+             \r  python3 {shell_name} -u https://www.baidu.com -p socks5://127.0.0.1:1080
              \r    
              \r  其他控制细节参数请通过setting.py进行配置
              \r    

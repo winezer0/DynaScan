@@ -15,13 +15,13 @@ def set_base_var_dict(base_var_dir,
     # 保留原有字典
     base_var_replace_dict = copy.copy(base_replace_dict)
     # 获取文件名
-    base_var_file_list = get_dir_path_file_name(base_var_dir, ext=dict_suffix)
+    base_var_file_list = get_dir_path_file_name(base_var_dir, ext_list=dict_suffix)
     # print(base_var_file_list)
 
     # 生成文件名对应基础变量
     # 并 同时读文件组装 {基本变量名: [基本变量文件内容列表]}
     for base_var_file_name in base_var_file_list:
-        base_file_pure_name = base_var_file_name.rsplit(dict_suffix, 1)[0]
+        base_file_pure_name = os.path.basename(base_var_file_name)
         base_var_name = f'%{base_file_pure_name}%'
 
         # 读文件到列表

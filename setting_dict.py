@@ -28,12 +28,8 @@ GB_GROUP_FILES_DIR = os.path.join(GB_DICT_PATH, "group_files")
 # 读取GROUP_XX目录下的字典
 GB_ADD_GROUP_DICT = True
 
-# 大中小字典模式 通过后缀区分  max|mid|min
-GB_DICT_FILE_MODE = 'mid'
-
-# 需要读取的字典文件后缀
-# GB_DICT_FILE_EXT = f'.{GB_DICT_FILE_MODE}.lst'
-GB_DICT_FILE_EXT = f'.lst'
+# 需要读取的字典文件后缀 通过file.endswith匹配
+GB_DICT_SUFFIX = ['.lst']
 ##################################################################
 # 存储自定义 基本变量
 GB_BASE_VAR_REPLACE_DICT = {"%BLANK%": ['']}

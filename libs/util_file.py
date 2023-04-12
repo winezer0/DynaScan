@@ -185,8 +185,12 @@ def read_file_to_str(file_name, encoding='utf-8', de_strip=False, de_unprintable
 
 
 # 获取目录下的文件列表,返回目录下的文件名列表【相对路径】
-def get_dir_path_file_name(file_dir, ext='.txt', relative=True):
+def get_dir_path_file_name(file_dir, ext_list=['.txt'], relative=True):
     """ 获取目录下的文件列表,返回目录下的文件名列表"""
+    # 处理 输入的扩展后缀, 预期是一个后缀列表
+    if ext_list and isinstance(ext_list, str):
+        ext_list = [ext_list]
+
     file_list = []
     for root, dirs, files in os.walk(file_dir):
         """
@@ -195,11 +199,12 @@ def get_dir_path_file_name(file_dir, ext='.txt', relative=True):
         files #当前路径下所有非目录子文件
         """
         for file in files:
-            if file.endswith(ext):
-                if relative:
-                    file_list.append(file)
-                else:
-                    file_list.append(os.path.join(root, file))
+            for ext in ext_list:
+                if file.endswith(ext):
+                    if relative:
+                        file_list.append(file)
+                    else:
+                        file_list.append(os.path.join(root, file))
     return file_list
 
 
