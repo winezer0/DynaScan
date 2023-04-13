@@ -46,6 +46,7 @@ def get_host_port(url, replace_symbol=False):
         host_port = host_port.replace(":", "_")
     return host_port
 
+
 # 获取URL中的目录单词
 def get_segment_urls_urlsplit(url):
     """
