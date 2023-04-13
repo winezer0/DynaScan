@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 # encoding: utf-8
-import copy
 
 from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_ERROR
 from libs.lib_rule_dict.base_key_replace import replace_list_has_key_str
 from libs.lib_rule_dict.base_rule_parser import base_rule_render_list
-from libs.lib_rule_dict.util_dict import dict_content_base_rule_render, cartesian_product_merging, frozen_tuple_list
+from libs.lib_rule_dict.util_base_var import gen_base_var_dict_frequency
+from libs.lib_rule_dict.util_dict_handle import cartesian_product_merging, frozen_tuple_list, get_key_list_with_frequency
 from libs.lib_url_analysis.url_tools import get_segment_urls_urlsplit, specify_ext_store, specify_ext_delete, \
     remove_url_end_symbol, replace_multi_slashes, url_path_lowercase, url_path_url_encode, url_path_chinese_encode
-from libs.util_file import get_dir_path_file_name, read_file_to_frequency_dict, file_encoding, \
-    get_key_list_with_frequency, file_is_exist, read_file_to_list
+from libs.util_file import get_dir_path_file_name, read_file_to_frequency_dict, file_encoding,  file_is_exist, read_file_to_list
 from setting import *
 
 
@@ -102,43 +101,82 @@ def read_dirs_frequency_rule_list(dict_dir=None,
     return rule_list
 
 
-# 获取基本变量替换字典
-def gen_base_var_dict_frequency(base_var_dir,
-                                dict_suffix,
-                                base_replace_dict,
-                                frequency_symbol,
-                                annotation_symbol,
-                                frequency_min):
-    """
-    # 1 读取 所有基本替换变量字典 到频率字典
-    # 2 按频率筛选 并加入到 基本变量替换字典
-    # 3 对 基本变量替换字典 进行规则解析
-    """
-    base_var_replace_dict = copy.copy(base_replace_dict)
-    # 获取文件名
-    base_var_file_list = get_dir_path_file_name(base_var_dir, ext_list=dict_suffix)
+# 对输入的目标URL进行扩展
+def target_url_handle(url):
+    url_list = []
+    # 根据URL层级拆分为多个目标
+    if GB_SPLIT_TARGET_PATH:
+        url_list = get_segment_urls_urlsplit(url)
+        output(f"[*] 扩展目标URL 当前元素 {len(url_list)}个", level=LOG_INFO)
+    else:
+        url_list.append(url)
+    return url_list
 
-    # 生成文件名对应基础变量
-    # 并 同时读文件组装 {基本变量名: [基本变量文件内容列表]}
-    for base_var_file_name in base_var_file_list:
-        base_file_pure_name = base_var_file_name.rsplit('.', 1)[0]
-        base_var_name = f'%{base_file_pure_name}%'
 
-        # 读文件到列表
-        base_var_file_path = os.path.join(base_var_dir, base_var_file_name)
-        # 获取频率字典 # 筛选频率字典
-        frequency_dict = read_file_to_frequency_dict(base_var_file_path,
-                                                     encoding=file_encoding(base_var_file_path),
-                                                     frequency_symbol=frequency_symbol,
-                                                     annotation_symbol=annotation_symbol)
-        frequency_list = get_key_list_with_frequency(frequency_dict, frequency_min)
-        # 组装 {基本变量名: [基本变量文件内容列表]}
-        base_var_replace_dict[base_var_name] = frequency_list
+# 拼接URL前的PATH过滤和格式化
+def path_list_handle(path_list):
+    # 对列表中的所有PATH添加指定前缀
+    if GB_ADD_CUSTOM_PREFIX:
+        path_list = product_urls_and_paths(GB_ADD_CUSTOM_PREFIX, path_list)
+        output(f"[*] 自定义前缀 剩余元素 {len(path_list)}个", level=LOG_INFO)
 
-    # 对 内容列表 中的规则进行 进行 动态解析
-    base_var_replace_dict = dict_content_base_rule_render(base_var_replace_dict)
+    # 保留指定后缀的URL目标
+    if GB_ONLY_SCAN_SPECIFY_EXT:
+        path_list = specify_ext_store(path_list, GB_ONLY_SCAN_SPECIFY_EXT)
+        output(f"[*] 保留指定后缀  剩余元素 {len(path_list)}个", level=LOG_ERROR)
 
-    return base_var_replace_dict
+    # 移除指定后缀列表的内容
+    if GB_NO_SCAN_SPECIFY_EXT:
+        path_list = specify_ext_delete(path_list, GB_NO_SCAN_SPECIFY_EXT)
+        output(f"[*] 移除指定后缀 剩余元素 {len(path_list)}个", level=LOG_ERROR)
+
+    # 是否开启结尾字符列表去除
+    if GB_REMOVE_SOME_SYMBOL:
+        path_list = remove_url_end_symbol(path_list, remove_symbol_list=GB_REMOVE_SOME_SYMBOL)
+        output(f"[*] 删除结尾字符 剩余元素 {len(path_list)}个", level=LOG_INFO)
+
+    # 是否开启REMOVE_MULTI_SLASHES,将多个////转换为一个/
+    if GB_REMOVE_MULTI_SLASHES:
+        url_list = replace_multi_slashes(path_list)
+        output(f"[*] 转换多个[/]为单[/] 剩余URL:{len(url_list)}个", level=LOG_INFO)
+
+    # 全部路径小写
+    if GB_URL_PATH_LOWERCASE:
+        path_list = url_path_lowercase(path_list)
+        output(f"[*] 全部路径小写 剩余元素 {len(path_list)}个", level=LOG_INFO)
+
+    # 批量解决字典中文乱码问题
+    if GB_CHINESE_ENCODE:
+        if GB_ONLY_ENCODE_CHINESE:
+            # 将URL字典中的中文路径进行多种编码的URL编码
+            path_list = url_path_chinese_encode(path_list, GB_CHINESE_ENCODE)
+            output(f"[+] 中文编码完毕 剩余元素 {len(path_list)}个", level=LOG_INFO)
+        else:
+            # 将URL字典的所有元素都进行多种编码的URL编码
+            path_list = url_path_url_encode(path_list, GB_CHINESE_ENCODE)
+            output(f"[+] URL编码完毕 剩余元素 {len(path_list)}个", level=LOG_INFO)
+
+    return path_list
+
+
+# 扫描前的URL过滤和格式化
+def url_list_handle(url_list, url_history_file):
+    # URL列表限额
+    if MAX_URL_NUM and isinstance(MAX_URL_NUM, int):
+        url_list = url_list[:MAX_URL_NUM]
+
+    if GB_EXCLUDE_HOST_HISTORY:
+        if file_is_exist(url_history_file):
+            accessed_url_list = read_file_to_list(file_path=url_history_file,
+                                                  encoding=file_encoding(url_history_file),
+                                                  de_strip=True,
+                                                  de_weight=True,
+                                                  de_unprintable=False)
+            url_list = list(set(url_list) - set(accessed_url_list))
+            output(f"[*] 历史访问URL {len(accessed_url_list)}个", level=LOG_INFO)
+
+        output(f"[*] 剔除历史URL 剩余URL:{len(url_list)}个", level=LOG_INFO)
+    return url_list
 
 
 # 生成基本扫描字典
@@ -191,84 +229,6 @@ def gen_base_scan_path_list():
         group_dict_list, run_time = product_folders_and_files(group_folder_list, group_files_list)
         base_paths.extend(group_dict_list)
     return base_paths
-
-
-# 对输入的目标URL进行扩展
-def target_url_handle(url):
-    url_list = []
-    # 根据URL层级拆分为多个目标
-    if GB_SPLIT_TARGET_PATH:
-        url_list = get_segment_urls_urlsplit(url)
-        output(f"[*] 扩展目标URL 当前元素 {len(url_list)}个", level=LOG_INFO)
-    else:
-        url_list.append(url)
-    return url_list
-
-
-# 扫描前的URL过滤和格式化
-def url_list_handle(url_list, url_history_file):
-    # URL列表限额
-    if MAX_URL_NUM and isinstance(MAX_URL_NUM, int):
-        url_list = url_list[:MAX_URL_NUM]
-
-    if GB_EXCLUDE_HOST_HISTORY:
-        if file_is_exist(url_history_file):
-            accessed_url_list = read_file_to_list(file_path=url_history_file,
-                                                  encoding=file_encoding(url_history_file),
-                                                  de_strip=True,
-                                                  de_weight=True,
-                                                  de_unprintable=False)
-            url_list = list(set(url_list) - set(accessed_url_list))
-            output(f"[*] 历史访问URL {len(accessed_url_list)}个", level=LOG_INFO)
-
-        output(f"[*] 剔除历史URL 剩余URL:{len(url_list)}个", level=LOG_INFO)
-    return url_list
-
-
-# 拼接URL前的PATH过滤和格式化
-def path_list_handle(path_list):
-    # 对列表中的所有PATH添加指定前缀
-    if GB_ADD_CUSTOM_PREFIX:
-        path_list = product_urls_and_paths(GB_ADD_CUSTOM_PREFIX, path_list)
-        output(f"[*] 自定义前缀 剩余元素 {len(path_list)}个", level=LOG_INFO)
-
-    # 保留指定后缀的URL目标
-    if GB_ONLY_SCAN_SPECIFY_EXT:
-        path_list = specify_ext_store(path_list, GB_ONLY_SCAN_SPECIFY_EXT)
-        output(f"[*] 保留指定后缀  剩余元素 {len(path_list)}个", level=LOG_ERROR)
-
-    # 移除指定后缀列表的内容
-    if GB_NO_SCAN_SPECIFY_EXT:
-        path_list = specify_ext_delete(path_list, GB_NO_SCAN_SPECIFY_EXT)
-        output(f"[*] 移除指定后缀 剩余元素 {len(path_list)}个", level=LOG_ERROR)
-
-    # 是否开启结尾字符列表去除
-    if GB_REMOVE_SOME_SYMBOL:
-        path_list = remove_url_end_symbol(path_list, remove_symbol_list=GB_REMOVE_SOME_SYMBOL)
-        output(f"[*] 删除结尾字符 剩余元素 {len(path_list)}个", level=LOG_INFO)
-
-    # 是否开启REMOVE_MULTI_SLASHES,将多个////转换为一个/
-    if GB_REMOVE_MULTI_SLASHES:
-        url_list = replace_multi_slashes(path_list)
-        output(f"[*] 转换多个[/]为单[/] 剩余URL:{len(url_list)}个", level=LOG_INFO)
-
-    # 全部路径小写
-    if GB_URL_PATH_LOWERCASE:
-        path_list = url_path_lowercase(path_list)
-        output(f"[*] 全部路径小写 剩余元素 {len(path_list)}个", level=LOG_INFO)
-
-    # 批量解决字典中文乱码问题
-    if GB_CHINESE_ENCODE:
-        if GB_ONLY_ENCODE_CHINESE:
-            # 将URL字典中的中文路径进行多种编码的URL编码
-            path_list = url_path_chinese_encode(path_list, GB_CHINESE_ENCODE)
-            output(f"[+] 中文编码完毕 剩余元素 {len(path_list)}个", level=LOG_INFO)
-        else:
-            # 将URL字典的所有元素都进行多种编码的URL编码
-            path_list = url_path_url_encode(path_list, GB_CHINESE_ENCODE)
-            output(f"[+] URL编码完毕 剩余元素 {len(path_list)}个", level=LOG_INFO)
-
-    return path_list
 
 
 if __name__ == '__main__':

@@ -15,7 +15,7 @@ from libs.lib_rule_dict.base_key_replace import replace_list_has_key_str
 from libs.lib_rule_dict.util_depend_var import set_dependent_var_dict
 from libs.lib_url_analysis.url_tools import get_host_port, get_base_url
 from libs.util_file import read_file_to_list, file_encoding, write_lines
-from libs.util_file import write_hit_result_to_frequency_file
+from libs.util_file import write_path_list_to_frequency_file
 from libs.util_func import url_to_raw_rule_classify
 from setting import *  # setting.py中的变量
 
@@ -249,7 +249,8 @@ def dyna_scan():
 
             # 写入命中结果
             if SAVE_HIT_RESULT and HIT_URL_LIST:
-                print(f"HIT_URL_LIST:{HIT_URL_LIST}")
+                # print(f"HIT_URL_LIST:{HIT_URL_LIST}")
+                # 分析命中的URL 并返回命中的path部分 path部分是字典 分类包括 后缀、路径、目录、文件
                 hit_classify_dict = url_to_raw_rule_classify(hit_url_list=HIT_URL_LIST,
                                                              reverse_replace_dict_list=[current_dependent_dict],
                                                              hit_ext_file=GB_HIT_EXT_FILE,
@@ -257,13 +258,14 @@ def dyna_scan():
                                                              hit_folder_file=GB_HIT_FOLDER_FILE,
                                                              hit_files_file=GB_HIT_FILES_FILE
                                                              )
+                # 将命中的路径分别写到不同的频率文件中
                 for file_name, path_list in hit_classify_dict.items():
-                    write_hit_result_to_frequency_file(file_name=file_name,
-                                                       path_list=path_list,
-                                                       encoding='utf-8',
-                                                       frequency_symbol=GB_FREQUENCY_SYMBOL,
-                                                       annotation_symbol=GB_ANNOTATION_SYMBOL,
-                                                       hit_over_write=GB_HIT_OVER_CALC)
+                    write_path_list_to_frequency_file(file_name=file_name,
+                                                      path_list=path_list,
+                                                      encoding='utf-8',
+                                                      frequency_symbol=GB_FREQUENCY_SYMBOL,
+                                                      annotation_symbol=GB_ANNOTATION_SYMBOL,
+                                                      hit_over_write=GB_HIT_OVER_CALC)
 
             # 停止扫描任务
             if stop_run:

@@ -3,7 +3,7 @@
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_DEBUG, LOG_ERROR
+from libs.lib_log_print.logger_printer import output, LOG_DEBUG
 from libs.lib_requests.requests_plus import requests_plus
 
 

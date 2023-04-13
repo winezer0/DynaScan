@@ -10,7 +10,7 @@ import time
 import exrex
 import sre_yield
 
-from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_DEBUG, LOG_ERROR
+from libs.lib_log_print.logger_printer import output, LOG_ERROR
 
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 

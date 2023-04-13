@@ -228,3 +228,14 @@ def remove_dict_none_value_key(dict_, bracket=True):
         elif bracket and dict_.get(key) == '()':
             del dict_[key]
     return dict_
+
+
+# 得到{"路径”:频率}字典中频率大于指定值的列表
+def get_key_list_with_frequency(frequency_dict, frequency_min):
+    if frequency_dict is None:
+        frequency_dict = {}
+    frequency_list = []
+    for key, value in frequency_dict.items():
+        if frequency_min <= value:
+            frequency_list.append(key)
+    return frequency_list

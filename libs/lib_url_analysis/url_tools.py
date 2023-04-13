@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 
 from tldextract import extract
 
-from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_DEBUG, LOG_ERROR
+from libs.lib_log_print.logger_printer import output, LOG_ERROR
 from libs.lib_url_analysis.url_split_parser import UrlSplitParser
 
 

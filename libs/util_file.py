@@ -110,17 +110,6 @@ def read_file_to_list(file_path, encoding='utf-8', de_strip=True, de_weight=Fals
     return result_list
 
 
-# 得到{"路径”:频率}字典中频率大于指定值的列表
-def get_key_list_with_frequency(frequency_dict, frequency_min):
-    if frequency_dict is None:
-        frequency_dict = {}
-    frequency_list = []
-    for key, value in frequency_dict.items():
-        if frequency_min <= value:
-            frequency_list.append(key)
-    return frequency_list
-
-
 # 读取一个文件内容并返回结果字典 {"路径”:频率}
 def read_file_to_frequency_dict(file_name,
                                 encoding='utf-8',
@@ -226,13 +215,13 @@ def write_lines(file_path, data_list, encoding="utf-8", new_line=True, mode="a+"
         f_open.close()
 
 
-# 写入频率字典到文件中
-def write_hit_result_to_frequency_file(file_name=None,
-                                       path_list=None,
-                                       encoding='utf-8',
-                                       frequency_symbol="<-->",
-                                       annotation_symbol="#",
-                                       hit_over_write=True):
+# 写入列表到频率文件中
+def write_path_list_to_frequency_file(file_name=None,
+                                      path_list=None,
+                                      encoding='utf-8',
+                                      frequency_symbol="<-->",
+                                      annotation_symbol="#",
+                                      hit_over_write=True):
     if not hit_over_write:
         # 不需要频率计算,直接追加
         result_str_list = [f"{path} {frequency_symbol} 1" for path in path_list]
@@ -249,7 +238,6 @@ def write_hit_result_to_frequency_file(file_name=None,
 
         # 遍历命中结果列表对结果列表进行添加
         for path in path_list:
-            print(path)
             if path in frequency_dict.keys():
                 frequency_dict[path] += 1
             else:

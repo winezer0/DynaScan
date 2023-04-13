@@ -13,7 +13,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
-from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_DEBUG, LOG_ERROR
+from libs.lib_log_print.logger_printer import output, LOG_DEBUG, LOG_ERROR
 from libs.lib_requests.requests_const import *
 from libs.lib_requests.requests_tools import list_ele_in_str
 

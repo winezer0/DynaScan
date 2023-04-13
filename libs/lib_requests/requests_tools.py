@@ -78,10 +78,10 @@ def analysis_dict_same_keys(result_dict_list, default_value_dict={}):
             value = value_list[0]
             if key in list(default_value_dict.keys()):
                 if value not in default_value_dict[key]:
-                    output(f"[*] 所有字典的 [{key}] 值 [{value}] 相等 且不为默认或空值 [{default_value_dict[key]}]")
+                    output(f"[*] 所有DICT [{key}] 值 [{value}] 相等 且不为默认或空值 [{default_value_dict[key]}]")
                     same_key_value_dict[key] = value
                 else:
-                    output(f"[-] 所有字典的 [{key}] 值 [{value}] 相等 但是默认或空值 [{default_value_dict[key]}]", level=LOG_DEBUG)
+                    output(f"[-] 所有DICT [{key}] 值 [{value}] 相等 但是默认或空值 [{default_value_dict[key]}]", level=LOG_DEBUG)
             else:
                 output(f"[!] 存在未预期的键{key},该键不在默认值字典[{list(default_value_dict.keys())}]内!!!", level=LOG_ERROR)
     return same_key_value_dict

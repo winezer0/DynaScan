@@ -2,7 +2,8 @@
 # encoding: utf-8
 
 # 格式化目录下的字典 （统计频率）
-from libs.util_file import write_hit_result_to_frequency_file, get_dir_path_file_name, file_encoding
+from libs.lib_log_print.logger_printer import output, LOG_INFO
+from libs.util_file import write_path_list_to_frequency_file, get_dir_path_file_name, file_encoding
 from setting import *
 
 
@@ -16,13 +17,13 @@ def format_dict_dir(dict_dir_list, file_ext_list):
             dict_file_list.extend(file_list)
 
     for dict_file in dict_file_list:
-        print(f"[*] 格式化 {dict_file}")
-        write_hit_result_to_frequency_file(file_name=dict_file,
-                                           path_list=[],
-                                           encoding=file_encoding(dict_file),
-                                           frequency_symbol=GB_FREQUENCY_SYMBOL,
-                                           annotation_symbol=GB_ANNOTATION_SYMBOL,
-                                           hit_over_write=True)
+        output(f"[*] 格式化 {dict_file}",level=LOG_INFO)
+        write_path_list_to_frequency_file(file_name=dict_file,
+                                          path_list=[],
+                                          encoding=file_encoding(dict_file),
+                                          frequency_symbol=GB_FREQUENCY_SYMBOL,
+                                          annotation_symbol=GB_ANNOTATION_SYMBOL,
+                                          hit_over_write=True)
 
 
 if __name__ == '__main__':

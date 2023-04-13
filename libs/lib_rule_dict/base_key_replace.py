@@ -4,7 +4,7 @@ import itertools
 import sys
 import time
 
-from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_DEBUG, LOG_ERROR
+from libs.lib_log_print.logger_printer import output
 
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
