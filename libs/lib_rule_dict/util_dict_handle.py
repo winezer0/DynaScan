@@ -157,7 +157,7 @@ def filter_pair_tuples_by_length(tuple_list,
 
 
 # 对字符串列表进行长度过滤
-def filter_string_list_by_length(string_list, min_len=3, max_len=16):
+def filter_string_list_by_length(string_list, min_len=3, max_len=16, ignore_empty=False):
     # 处理max_len赋值错误的情况
     if max_len <= min_len:
         max_len = 99
@@ -165,6 +165,10 @@ def filter_string_list_by_length(string_list, min_len=3, max_len=16):
     # 使用列表推导式获取长度在6到16之间的元素
     new_string_list = []
     for string in string_list:
+        # 忽略对空值的处理
+        if ignore_empty and len(string) == 0:
+            new_string_list.append(string)
+
         if min_len <= len(string) <= max_len:
             new_string_list.append(string)
     return new_string_list
