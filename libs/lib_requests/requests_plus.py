@@ -86,7 +86,7 @@ def requests_plus(req_url,
         resp_status = resp.status_code
 
         # 排除由于代理服务器导致的访问BUG
-        if list_ele_in_str(ERROR_PAGE_KEY, resp.text.lower(), False):
+        if list_ele_in_str(ERROR_PAGE_KEY, str(resp.text).lower(), False):
             output("[!] 当前由于代理服务器问题导致响应状态码错误...Fixed...", level=LOG_ERROR)
             resp_status = NUM_MINUS
     except Exception as error:

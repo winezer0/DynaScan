@@ -73,7 +73,7 @@ def replace_list_has_key_str(will_replace_list=[],
                     replace_key = practical_replace_keys[i]
                     replace_values = values[i]
                     # if replace_key in new_string: # 上面已经判断过了，因此肯定有的
-                    new_string = new_string.replace(replace_key, replace_values)
+                    new_string = str(new_string).replace(replace_key, replace_values)
                     replace_count_ += 1
                 result_list_.append(new_string)
 

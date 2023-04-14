@@ -92,7 +92,7 @@ def check_proto_and_access(target_list,
 
     # 对none_proto_head_host里面的目标进行协议判断处理
     for target in none_proto_head_host:
-        protocol = default_proto_head.lower()
+        protocol = str(default_proto_head).lower()
         if protocol == "auto":
             protocol = check_protocol(req_host=target,
                                       req_method=req_method,
