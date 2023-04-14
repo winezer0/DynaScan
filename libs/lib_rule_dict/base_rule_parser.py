@@ -139,7 +139,8 @@ class RuleParser(object):
                         concat_date = from_date + datetime.timedelta(days=day)
                         result.append(concat_date.strftime('%m-%d'))
                         result.append(concat_date.strftime('%m%d'))  # 保留前置零
-                result = list(set(result))
+                if result:
+                    result = list(set(result))
                 return result
             elif rule_type == 'year_mon_day':  # 年月日
                 result = []
@@ -162,7 +163,8 @@ class RuleParser(object):
                         result.append(concat_date.strftime('%Y-%m-%d'))
                         result.append(concat_date.strftime('%y%m%d'))  # 保留前置零
                         result.append(concat_date.strftime('%Y%m%d'))  # 保留前置零
-                result = list(set(result))
+                if result:
+                    result = list(set(result))
                 return result
             elif rule_type == 'mon_day_year':  # 月日年
                 result = []
@@ -184,7 +186,8 @@ class RuleParser(object):
                         result.append(concat_date.strftime('%Y-%m-%d'))
                         result.append(concat_date.strftime('%y%m%d'))  # 保留前置零
                         result.append(concat_date.strftime('%Y%m%d'))  # 保留前置零
-                result = list(set(result))
+                if result:
+                    result = list(set(result))
                 return result
 
         elif rule_name == 'int':  # 处理整数
@@ -352,7 +355,8 @@ def base_rule_render_list(rule_list):
             # 不进行渲染
             result_list.append(rule_line)
 
-    result_list = list(set(result_list))
+    if result_list:
+        result_list = list(set(result_list))
     end_time = time.time()
     run_time = end_time - start_time
     return result_list, render_count, run_time

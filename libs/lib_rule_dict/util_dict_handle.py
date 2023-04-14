@@ -29,7 +29,8 @@ def de_duplicate_tuple_list(tuple_list):
     # 最后再将集合转换回列表即可
     # frozenset(tuple) 会导致元组导致无序 # 不能用
     unique_lst = frozen_tuple_list(tuple_list, link_symbol="<-->")
-    unique_lst = list(set(unique_lst))
+    if unique_lst:
+        unique_lst = list(set(unique_lst))
     tuple_list = unfrozen_tuple_list(unique_lst, link_symbol="<-->")
     return tuple_list
 
@@ -53,7 +54,8 @@ def unfrozen_collect_list(str_list, link_symbol="<-->"):
 # 去重(不定长)集合列表
 def de_duplicate_collect_list(collect_list):
     unique_lst = frozen_collect_list(collect_list, link_symbol="<-->")
-    unique_lst = list(set(unique_lst))
+    if unique_lst:
+        unique_lst = list(set(unique_lst))
     collect_list = unfrozen_collect_list(unique_lst, link_symbol="<-->")
     return collect_list
 

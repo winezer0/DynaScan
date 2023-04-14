@@ -78,7 +78,8 @@ def replace_list_has_key_str(will_replace_list=[],
                 result_list_.append(new_string)
 
     # 去重
-    result_list_ = list(set(result_list_))
+    if result_list_:
+        result_list_ = list(set(result_list_))
 
     # 去除没有被渲染的变量
     if remove_not_render_str:

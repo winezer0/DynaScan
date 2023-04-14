@@ -53,7 +53,8 @@ def specify_ext_delete(url_list, ext_list):
 # 替换列表中所有元素的///为一个/
 def replace_multi_slashes(url_list):
     url_list = [re.sub("/+", '/', url) for url in url_list]
-    url_list = list(set(url_list))
+    if url_list:
+        url_list = list(set(url_list))
     return url_list
 
 
@@ -62,7 +63,8 @@ def remove_url_end_symbol(url_list, remove_symbol_list=[]):
     if remove_symbol_list:
         remove_symbol = ''.join(remove_symbol_list)
         url_list = [url.rstrip(remove_symbol) for url in url_list]
-        url_list = list(set(url_list))
+        if url_list:
+            url_list = list(set(url_list))
 
     return url_list
 
@@ -95,7 +97,8 @@ def url_path_chinese_encode(path_list, encode_list=['utf-8']):
                         new_path_list.append(new_path)
                 except Exception as error:
                     output(f"[-] 元素[{path}] 基于 [{encoding}] 进行中文编码时,发生错误:{error}", level=LOG_ERROR)
-    new_path_list = list(set(new_path_list))
+    if new_path_list:
+        new_path_list = list(set(new_path_list))
     return new_path_list
 
 

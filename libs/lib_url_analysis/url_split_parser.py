@@ -87,8 +87,10 @@ class UrlSplitParser(object):
         dependent.extend(self.get_paths()['path'])
         dependent.extend(self.domain_info)
         dependent.append(self.file_ext)
-        dependent = list(set(dependent))
-        if '' in dependent: dependent.remove('')
+        if dependent:
+            dependent = list(set(dependent))
+        if '' in dependent:
+            dependent.remove('')
         return dependent
 
     def get_extension(self):

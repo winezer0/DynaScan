@@ -89,7 +89,8 @@ def get_path_words_urlsplit(url, symbol_replace_dict=None, not_allowed_symbol=No
             for sysbol in value:
                 if key in path_var:
                     path_words_list.append(path_var.replace(key, sysbol))
-    path_words_list = list(set(path_words_list))
+    if path_words_list:
+        path_words_list = list(set(path_words_list))
 
     # 如果开启删除非路径字符开关
     if not_allowed_symbol:
@@ -156,7 +157,8 @@ def get_domain_words(url, ignore_ip_format=True, symbol_replace_dict={}, not_all
                     tmp_list.append(domain_val)
             real_domain_val_list = tmp_list
 
-        real_domain_val_list = list(set(real_domain_val_list))
+        if real_domain_val_list:
+            real_domain_val_list = list(set(real_domain_val_list))
     except Exception as e:
         output(f"[!] Get Base Domain Occur UnKnow Error: {e} !!!", level=LOG_ERROR)
     finally:
