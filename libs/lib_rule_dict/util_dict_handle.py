@@ -6,7 +6,6 @@ import itertools
 from libs.lib_rule_dict.base_rule_parser import base_rule_render_list
 
 
-
 # 冻结(账号-密码)集合列表, 将集合列表转为字符串列表
 def frozen_tuple_list(tuple_list, link_symbol="<-->"):
     unique_lst = []
@@ -152,7 +151,7 @@ def filter_pair_tuples_by_length(tuple_list,
 
 
 # 对字符串列表进行长度过滤
-def filter_pair_tuples_by_length(string_list, min_len=3, max_len=16):
+def filter_string_list_by_length(string_list, min_len=3, max_len=16):
     # 处理max_len赋值错误的情况
     if max_len <= min_len:
         max_len = 99
