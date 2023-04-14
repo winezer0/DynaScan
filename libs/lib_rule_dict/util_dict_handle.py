@@ -128,7 +128,8 @@ def filter_pair_tuples_by_length(tuple_list,
                                  name_min_len=3,
                                  name_max_len=16,
                                  pass_min_len=3,
-                                 pass_max_len=16):
+                                 pass_max_len=16,
+                                 ignore_empty=False):
     """
     tuple_list 元组列表
     ele_index   元素在元组内的索引
@@ -145,6 +146,11 @@ def filter_pair_tuples_by_length(tuple_list,
     for tuple_ in tuple_list:
         name_ = tuple_[0]
         pass_ = tuple_[1]
+
+        # 忽略对空值的处理
+        if ignore_empty and (len(name_) == 0 or len(pass_) == 0):
+            new_tuple_list.append(tuple_)
+
         if (name_min_len <= len(name_) <= name_max_len) and (pass_min_len <= len(pass_) <= pass_max_len):
             new_tuple_list.append(tuple_)
     return new_tuple_list

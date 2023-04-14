@@ -10,20 +10,21 @@ sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
 
 # 移除列表内包含未渲染字符串（ ["%%domain%%"] 等）的目标
-def remove_none_render_value(will_replace_list, replace_key_list):
+def remove_none_render_value(will_replace_list, replace_key_list, delete_flag="$$$DEL$$$"):
     """
-    # 移除列表内包含未渲染字符串（%%domain%%d等）的目标
+    # 移除列表内包含未渲染字符串（%%domain%%等）的目标
     """
+
     for replace_key in replace_key_list:
         if replace_key.startswith('%') and replace_key.endswith('%'):
             for index, string in enumerate(will_replace_list):
                 if replace_key in string:
                     output(f"[-] {string} 中关键字[{replace_key}]没有被成功替换,正在剔除...")
-                    will_replace_list[index] = ""
+                    will_replace_list[index] = delete_flag
         else:
             output(f"[-] 关键字[{replace_key}]没有遵循%key%或%%key%%命名规则...")
 
-    will_replace_list = [path for path in will_replace_list if len(path) > 0]
+    will_replace_list = [path for path in will_replace_list if path != delete_flag]
     return will_replace_list
 
 
