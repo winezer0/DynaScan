@@ -14,6 +14,22 @@ def frozen_tuple_list(tuple_list, link_symbol="<-->"):
     return unique_lst
 
 
+# 支持内部列表长度不确定的情况 支持列表、元祖
+def frozen_collect_list(tuple_list, link_symbol="<-->"):
+    unique_lst = []
+    for tpl in tuple_list:
+        unique_lst.append(link_symbol.join(map(str, tpl)))
+    return unique_lst
+
+
+# 支持内部列表长度不确定的情况 返回的是二维列表
+def unfrozen_collect_list(str_list, link_symbol="<-->"):
+    new_tuple_list = []
+    for str_str2 in str_list:
+        new_tuple_list.append(str_str2.split(link_symbol))
+    return new_tuple_list
+
+
 # 将字符串列表转为元组列表
 def unfrozen_tuple_list(str_list, link_symbol="<-->"):
     new_tuple_list = []
@@ -22,7 +38,7 @@ def unfrozen_tuple_list(str_list, link_symbol="<-->"):
     return new_tuple_list
 
 
-# 去重 元组|列表 列表
+# 去重 元组|列表 列表 # 列表元素如果是元组、可以直接set去重
 def de_duplicate_tuple_list(tuple_list):
     # 将元组转换为元素不可变的类型，字符串列表
     # 然后使用set()函数将其转换为集合，
