@@ -3,7 +3,9 @@
 
 # 格式化目录下的字典 （统计频率）
 from libs.lib_log_print.logger_printer import output, LOG_INFO
-from libs.util_file import write_path_list_to_frequency_file, get_dir_path_file_name, file_encoding
+from libs.lib_file_operate.file_write import write_path_list_to_frequency_file
+from libs.lib_file_operate.file_path import get_dir_path_file_name
+from libs.lib_file_operate.file_coding import file_encoding
 from setting import *
 
 

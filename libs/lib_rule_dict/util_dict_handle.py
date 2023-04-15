@@ -78,17 +78,6 @@ def cartesian_product_merging(name_list, pass_list):
     return cartesian_product_list
 
 
-# 对列表内的元素进行长度过滤
-def filter_list_by_length(string_list, min_len=0, max_len=99):
-    # 处理max_len赋值错误的情况
-    if max_len <= 0 or max_len <= min_len:
-        max_len = 99
-
-    # 使用列表推导式获取长度在6到16之间的元素
-    new_string_list = [s for s in string_list if min_len <= len(s) <= max_len]
-    return new_string_list
-
-
 # 对 替换规则字典中的 值列表 进行 动态规则解析
 def dict_content_base_rule_render(var_dict):
     # 对 替换规则字典中的 值列表 进行 动态规则解析

@@ -7,7 +7,7 @@ import time
 
 from libs.lib_requests.requests_const import USER_AGENTS
 from libs.lib_requests.requests_tools import random_useragent, random_x_forwarded_for
-from libs.util_file import auto_make_dir
+from libs.lib_file_operate.file_path import auto_make_dir
 from setting_dict import *
 
 sys.dont_write_bytecode = True  # 设置不生成pyc文件

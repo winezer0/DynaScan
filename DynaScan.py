@@ -14,8 +14,9 @@ from libs.lib_requests.requests_tools import get_random_str, analysis_dict_same_
 from libs.lib_rule_dict.base_key_replace import replace_list_has_key_str
 from libs.lib_rule_dict.util_depend_var import set_dependent_var_dict
 from libs.lib_url_analysis.url_tools import get_host_port, get_base_url
-from libs.util_file import read_file_to_list, file_encoding, write_lines
-from libs.util_file import write_path_list_to_frequency_file
+from libs.lib_file_operate.file_write import write_lines, write_path_list_to_frequency_file
+from libs.lib_file_operate.file_read import read_file_to_list
+from libs.lib_file_operate.file_coding import file_encoding
 from libs.util_func import url_to_raw_rule_classify
 from setting import *  # setting.py中的变量
 

@@ -6,7 +6,9 @@ import copy
 import os
 
 from libs.lib_rule_dict.util_dict_handle import dict_content_base_rule_render, get_key_list_with_frequency
-from libs.util_file import get_dir_path_file_name, read_file_to_list, file_encoding, read_file_to_frequency_dict
+from libs.lib_file_operate.file_read import read_file_to_list, read_file_to_frequency_dict
+from libs.lib_file_operate.file_path import get_dir_path_file_name
+from libs.lib_file_operate.file_coding import file_encoding
 
 
 def set_base_var_dict(base_var_dir,
