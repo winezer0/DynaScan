@@ -130,7 +130,7 @@ class UrlSplitParser(object):
             for path_line in self.paths:
                 if path_line == self.paths[-1]:
                     if '.' in path_line:  # 最后一个是文件，判断是否存在扩展名
-                        right_strip_path = path_line.replace(('.' + self.file_ext), '')
+                        right_strip_path = str(path_line).replace(('.' + self.file_ext), '')
                         paths.append(right_strip_path)
                     else:
                         paths.append(path_line)

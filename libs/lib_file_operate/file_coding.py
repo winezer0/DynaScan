@@ -15,12 +15,7 @@ def file_type(file_path):
 
 
 def file_encoding(file_path: str):
-    """
-    获取文件编码类型
-
-    :param file_path: 文件路径
-    :return:
-    """
+    # 获取文件编码类型
     if file_is_exist(file_path):
         with open(file_path, 'rb') as f:
             return string_encoding(f.read())
@@ -35,12 +30,6 @@ def string_encoding(data: bytes):
     # UTF-8 BOM前缀字节
     UTF_8_BOM = b'\xef\xbb\xbf'
 
-    """
-    获取字符编码类型
-
-    :param data: 字节数据
-    :return:
-    """
     # 遍历编码类型
     for code in CODES:
         try:

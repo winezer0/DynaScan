@@ -1,8 +1,9 @@
-from libs.lib_file_operate.file_path import file_is_exist
 from libs.lib_file_operate.file_read import read_file_to_frequency_dict
+from libs.lib_file_operate.file_path import file_is_exist
 
 
 def write_line(file_path, data, encoding="utf-8", new_line=True, mode="a+"):
+    # 文本文件写入数据 默认追加
     with open(file_path, mode=mode, encoding=encoding) as f_open:
         if new_line:  # 换行输出
             data = f"{data.strip()}\n"
@@ -11,6 +12,7 @@ def write_line(file_path, data, encoding="utf-8", new_line=True, mode="a+"):
 
 
 def write_lines(file_path, data_list, encoding="utf-8", new_line=True, mode="a+"):
+    # 文本文件写入数据 默认追加
     with open(file_path, mode=mode, encoding=encoding) as f_open:
         if new_line:  # 换行输出
             data_list = [f"{data}\n" for data in data_list]
@@ -24,6 +26,7 @@ def write_path_list_to_frequency_file(file_name=None,
                                       frequency_symbol="<-->",
                                       annotation_symbol="#",
                                       hit_over_write=True):
+    # 写入列表到频率文件中
     if not hit_over_write:
         # 不需要频率计算,直接追加
         result_str_list = [f"{path} {frequency_symbol} 1" for path in path_list]

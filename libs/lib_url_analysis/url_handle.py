@@ -71,7 +71,7 @@ def remove_url_end_symbol(url_list, remove_symbol_list=[]):
 
 # 对列表中的所有URL小写处理并去重
 def url_path_lowercase(url_list):
-    url_list = [url.lower() for url in url_list]
+    url_list = [str(url).lower() for url in url_list]
     return url_list
 
 

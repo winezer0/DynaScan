@@ -43,7 +43,7 @@ def get_host_port(url, replace_symbol=False):
     path_obj = urlparse(url)
     host_port = path_obj.netloc
     if replace_symbol:
-        host_port = host_port.replace(":", "_")
+        host_port = str(host_port).replace(":", "_")
     return host_port
 
 
@@ -88,7 +88,7 @@ def get_path_words_urlsplit(url, symbol_replace_dict=None, not_allowed_symbol=No
         for key, value in symbol_replace_dict.items():
             for sysbol in value:
                 if key in path_var:
-                    path_words_list.append(path_var.replace(key, sysbol))
+                    path_words_list.append(str(path_var).replace(key, sysbol))
     if path_words_list:
         path_words_list = list(set(path_words_list))
 
@@ -145,7 +145,7 @@ def get_domain_words(url, ignore_ip_format=True, symbol_replace_dict={}, not_all
             for domain_val in real_domain_val_list:
                 for old_symbol, new_symbol_list in symbol_replace_dict.items():
                     for symbol in new_symbol_list:
-                        new_domain_val = domain_val.replace(old_symbol, symbol)
+                        new_domain_val = str(domain_val).replace(old_symbol, symbol)
                         tmp_list.append(new_domain_val)
             real_domain_val_list = tmp_list
 

@@ -4,7 +4,10 @@ from libs.lib_file_operate.file_coding import file_encoding
 
 
 def remove_unprintable_chars(str_):
-    """去除列表元素的\u200b等字符 https://blog.csdn.net/lly1122334/article/details/107615950 """
+    """
+    去除列表元素的\u200b等字符
+    https://blog.csdn.net/lly1122334/article/details/107615950
+    """
     if str_.isprintable():
         return str_
     else:
@@ -13,7 +16,7 @@ def remove_unprintable_chars(str_):
 
 
 def read_file_to_list(file_path, encoding='utf-8', de_strip=True, de_weight=False, de_unprintable=False):
-    """文本文件处理 读文件到列表"""
+    # 文本文件处理 读文件到列表
     result_list = []
     if os.path.exists(file_path):
         with open(file_path, 'r', encoding=encoding) as f:
@@ -39,7 +42,7 @@ def read_file_to_frequency_dict(file_name,
                                 frequency_symbol='<-->',
                                 annotation_symbol='#'):
     """
-    读取文件内容并返回结果字典
+    读取一个文件内容并返回结果字典 {"路径”:频率}
     文件的每一行格式类似 path frequency_symbol 10
     frequency_symbol 指定切割每一行的字符串 没有 frequency_symbol 的默认为1
     annotation_symbol = '#' 如果启用注释,对#号开头的行,和频率字符串后面的#号都会进行删除
@@ -77,9 +80,7 @@ def read_file_to_frequency_dict(file_name,
 
 
 def read_file_to_str(file_name, encoding='utf-8', de_strip=False, de_unprintable=False):
-    """
-    读取文件内容并返回字符串
-    """
+    # 读取文件内容并返回字符串
     result_str = ""
     with open(file_name, 'r', encoding=encoding) as f_obj:
         result_str = f_obj.read()
