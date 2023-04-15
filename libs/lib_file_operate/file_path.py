@@ -45,6 +45,3 @@ def get_dir_path_file_name(file_dir, ext_list=['.txt'], relative=True):
                     else:
                         file_list.append(os.path.join(root, file))
     return file_list
-
-
-

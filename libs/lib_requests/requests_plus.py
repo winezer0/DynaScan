@@ -285,7 +285,6 @@ def request_retry(req_url,
                   req_stream=False,
                   clear_cookies=True
                   ):
-
     if not retry_times > 0:
         # 使用常规请求模式
         try:

@@ -6,6 +6,9 @@ from pyfiglet import Figlet
 
 from libs.gen_path import gen_base_scan_path_list, product_urls_and_paths, path_list_handle, target_url_handle, \
     url_list_handle
+from libs.lib_file_operate.file_coding import file_encoding
+from libs.lib_file_operate.file_read import read_file_to_list
+from libs.lib_file_operate.file_write import write_lines, write_path_list_to_frequency_file
 from libs.lib_log_print.logger_printer import set_logger, output, LOG_DEBUG, LOG_INFO, LOG_ERROR
 from libs.lib_requests.check_protocol import check_proto_and_access
 from libs.lib_requests.requests_const import *
@@ -14,9 +17,6 @@ from libs.lib_requests.requests_tools import get_random_str, analysis_dict_same_
 from libs.lib_rule_dict.base_key_replace import replace_list_has_key_str
 from libs.lib_rule_dict.util_depend_var import set_dependent_var_dict
 from libs.lib_url_analysis.url_tools import get_host_port, get_base_url
-from libs.lib_file_operate.file_write import write_lines, write_path_list_to_frequency_file
-from libs.lib_file_operate.file_read import read_file_to_list
-from libs.lib_file_operate.file_coding import file_encoding
 from libs.util_func import url_to_raw_rule_classify
 from setting import *  # setting.py中的变量
 

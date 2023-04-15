@@ -1,5 +1,5 @@
-from libs.lib_file_operate.file_read import read_file_to_frequency_dict
 from libs.lib_file_operate.file_path import file_is_exist
+from libs.lib_file_operate.file_read import read_file_to_frequency_dict
 
 
 def write_line(file_path, data, encoding="utf-8", new_line=True, mode="a+"):

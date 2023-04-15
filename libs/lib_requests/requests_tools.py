@@ -6,9 +6,9 @@ import copy
 import random
 import re
 
+from libs.lib_file_operate.file_write import write_line
 from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_DEBUG, LOG_ERROR
 from libs.lib_requests.requests_const import *
-from libs.lib_file_operate.file_write import write_line
 
 
 # 判断列表内的元素是否存在有包含在字符串内的

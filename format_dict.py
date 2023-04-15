@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from libs.lib_file_operate.file_coding import file_encoding
+from libs.lib_file_operate.file_path import get_dir_path_file_name
+from libs.lib_file_operate.file_write import write_path_list_to_frequency_file
 # 格式化目录下的字典 （统计频率）
 from libs.lib_log_print.logger_printer import output, LOG_INFO
-from libs.lib_file_operate.file_write import write_path_list_to_frequency_file
-from libs.lib_file_operate.file_path import get_dir_path_file_name
-from libs.lib_file_operate.file_coding import file_encoding
 from setting import *
 
 
@@ -19,7 +19,7 @@ def format_dict_dir(dict_dir_list, file_ext_list):
             dict_file_list.extend(file_list)
 
     for dict_file in dict_file_list:
-        output(f"[*] 格式化 {dict_file}",level=LOG_INFO)
+        output(f"[*] 格式化 {dict_file}", level=LOG_INFO)
         write_path_list_to_frequency_file(file_name=dict_file,
                                           path_list=[],
                                           encoding=file_encoding(dict_file),
