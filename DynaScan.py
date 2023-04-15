@@ -14,8 +14,8 @@ from libs.lib_requests.check_protocol import check_proto_and_access
 from libs.lib_requests.requests_const import *
 from libs.lib_requests.requests_thread import multi_thread_requests_url, multi_thread_requests_url_sign
 from libs.lib_requests.requests_tools import get_random_str, analysis_dict_same_keys, access_result_handle
-from libs.lib_rule_dict.base_key_replace import replace_list_has_key_str
-from libs.lib_rule_dict.util_depend_var import set_dependent_var_dict
+from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
+from libs.lib_dyna_rule.set_dependent_var import set_dependent_var_dict
 from libs.lib_url_analysis.url_tools import get_host_port, get_base_url
 from libs.util_func import url_to_raw_rule_classify
 from setting import *  # setting.py中的变量

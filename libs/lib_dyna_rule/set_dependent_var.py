@@ -6,7 +6,7 @@
 import copy
 
 from libs.lib_log_print.logger_printer import output, LOG_ERROR
-from libs.lib_rule_dict.util_dict_handle import dict_content_base_rule_render
+from libs.lib_dyna_rule.dyna_rule_tools import dict_content_base_rule_render
 from libs.lib_url_analysis.url_tools import get_domain_words, get_path_words_urlsplit
 
 

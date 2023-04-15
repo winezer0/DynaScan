@@ -3,7 +3,7 @@
 
 import itertools
 
-from libs.lib_rule_dict.base_rule_parser import base_rule_render_list
+from libs.lib_dyna_rule.base_rule_parser import base_rule_render_list
 
 
 # 判断列表内的元素是否存在有包含在字符串内的

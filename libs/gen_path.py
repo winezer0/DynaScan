@@ -5,10 +5,10 @@ from libs.lib_file_operate.file_coding import file_encoding
 from libs.lib_file_operate.file_path import file_is_exist, get_dir_path_file_name
 from libs.lib_file_operate.file_read import read_file_to_list, read_file_to_frequency_dict
 from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_ERROR
-from libs.lib_rule_dict.base_key_replace import replace_list_has_key_str
-from libs.lib_rule_dict.base_rule_parser import base_rule_render_list
-from libs.lib_rule_dict.util_base_var import gen_base_var_dict_frequency
-from libs.lib_rule_dict.util_dict_handle import cartesian_product_merging, frozen_tuple_list, \
+from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
+from libs.lib_dyna_rule.base_rule_parser import base_rule_render_list
+from libs.lib_dyna_rule.set_basic_var import set_base_var_dict_frequency
+from libs.lib_dyna_rule.dyna_rule_tools import cartesian_product_merging, frozen_tuple_list, \
     get_key_list_with_frequency
 from libs.lib_url_analysis.url_handle import specify_ext_store, specify_ext_delete, replace_multi_slashes, \
     remove_url_end_symbol, url_path_lowercase, url_path_chinese_encode, url_path_url_encode
@@ -187,7 +187,7 @@ def url_list_handle(url_list, url_history_file):
 def gen_base_scan_path_list():
     base_paths = []
     # 获取基本变量替换字典
-    base_var_replace_dict = gen_base_var_dict_frequency(base_var_dir=GB_BASE_VAR_DIR,
+    base_var_replace_dict = set_base_var_dict_frequency(base_var_dir=GB_BASE_VAR_DIR,
                                                         dict_suffix=GB_DICT_SUFFIX,
                                                         base_replace_dict=GB_BASE_VAR_REPLACE_DICT,
                                                         frequency_symbol=GB_FREQUENCY_SYMBOL,
