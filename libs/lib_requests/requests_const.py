@@ -4,30 +4,30 @@
 ############################################################
 
 # 响应需要的内容
-CONST_SIGN = "const_sign"
-REQ_URL = "req_url"
-RESP_REDIRECT_URL = "resp_redirect_url"
-RESP_TEXT_HASH = "resp_text_hash"
-RESP_TEXT_TITLE = "resp_text_title"
-RESP_TEXT_SIZE = "resp_text_size"
-RESP_CONTENT_LENGTH = "resp_content_length"
-RESP_BYTES_HEAD = "resp_bytes_head"
-RESP_STATUS = "resp_status"
+CONST_SIGN = "CONST_SIGN"
+REQ_URL = "REQ_URL"
+RESP_REDIRECT_URL = "RESP_REDIRECT_URL"
+RESP_TEXT_HASH = "RESP_TEXT_HASH"
+RESP_TEXT_TITLE = "RESP_TEXT_TITLE"
+RESP_TEXT_SIZE = "RESP_TEXT_SIZE"
+RESP_CONTENT_LENGTH = "RESP_CONTENT_LENGTH"
+RESP_BYTES_HEAD = "RESP_BYTES_HEAD"
+RESP_STATUS = "RESP_STATUS"
 ############################################################
 # 一些响应值的常量
 NONE = None
-RAW_REDIRECT_URL = "Raw-Redirect-Url"
-NULL_REDIRECT_URL = "Null-Redirect-Url"
-BLANK_BYTES = "Blank-Bytes"
-NULL_BYTES = "Null-Bytes"
+RAW_REDIRECT_URL = "RAW_REDIRECT_URL"
+NULL_REDIRECT_URL = "NULL_REDIRECT_URL"
+BLANK_BYTES = "BLANK_BYTES"
+NULL_BYTES = "NULL_BYTES"
 NUM_ZERO = 0
 NUM_MINUS = -1
 NUM_ONE = 1
-IGNORE_TEXT_HASH = "Ignore-Text-Hash"
-NULL_TEXT_HASH = "Null-Text-Hash"
-BLANK_TITLE = "Blank-Title"
-NULL_TITLE = "Null-Title"
-IGNORE_TITLE = "Ignore-Title"
+IGNORE_TEXT_HASH = "IGNORE_TEXT_HASH"
+NULL_TEXT_HASH = "NULL_TEXT_HASH"
+BLANK_TITLE = "BLANK_TITLE"
+NULL_TITLE = "NULL_TITLE"
+IGNORE_TITLE = "IGNORE_TITLE"
 ############################################################
 # 默认的响应字典,使用前被copy一份
 DEFAULT_RESP_DICT = {

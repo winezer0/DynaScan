@@ -2,6 +2,16 @@ from libs.lib_file_operate.file_path import file_is_exist
 from libs.lib_file_operate.file_read import read_file_to_frequency_dict
 
 
+def write_title(file_path, title, encoding="utf-8", new_line=True, mode="a+"):
+    # 文本文件写入表头,仅在文件不存在时,写入
+    if not file_is_exist(file_path):
+        with open(file_path, mode=mode, encoding=encoding) as f_open:
+            if new_line:  # 换行输出
+                title = f"{title.strip()}\n"
+            f_open.write(title)
+            f_open.close()
+
+
 def write_line(file_path, data, encoding="utf-8", new_line=True, mode="a+"):
     # 文本文件写入数据 默认追加
     with open(file_path, mode=mode, encoding=encoding) as f_open:

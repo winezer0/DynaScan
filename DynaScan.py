@@ -18,7 +18,7 @@ from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
 from libs.lib_dyna_rule.set_depend_var import set_dependent_var_dict
 from libs.lib_url_analysis.url_tools import get_host_port, get_base_url
 from libs.util_func import url_to_raw_rule_classify
-from setting import *  # setting.py中的变量
+from setting_total import *  # setting.py中的变量
 
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 

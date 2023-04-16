@@ -6,7 +6,7 @@ from libs.lib_file_operate.file_path import get_dir_path_file_name
 from libs.lib_file_operate.file_write import write_path_list_to_frequency_file
 # 格式化目录下的字典 （统计频率）
 from libs.lib_log_print.logger_printer import output, LOG_INFO
-from setting import *
+from setting_total import *
 
 
 # 去除不可见字符、频率倒序计算

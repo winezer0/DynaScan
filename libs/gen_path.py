@@ -13,7 +13,7 @@ from libs.lib_dyna_rule.dyna_rule_tools import cartesian_product_merging, frozen
 from libs.lib_url_analysis.url_handle import specify_ext_store, specify_ext_delete, replace_multi_slashes, \
     remove_url_end_symbol, url_path_lowercase, url_path_chinese_encode, url_path_url_encode
 from libs.lib_url_analysis.url_tools import get_segment_urls_urlsplit
-from setting import *
+from setting_total import *
 
 
 # 合并folders目录字典列表和files目录字典列表

@@ -84,16 +84,12 @@ def requests_plus(req_url,
                              req_stream=req_stream)
 
         resp_status = resp.status_code
-
-        # 排除由于代理服务器导致的访问BUG
-        if list_ele_in_str(ERROR_PAGE_KEY, str(resp.text).lower(), False):
-            output("[!] 当前由于代理服务器问题导致响应状态码错误...Fixed...", level=LOG_ERROR)
-            resp_status = NUM_MINUS
     except Exception as error:
         # 当错误原因时一般需要重试的错误时,直接忽略输出,进行访问重试
         current_module = RESP_STATUS
         # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
-        module_common_error_list = ["retries",
+        module_common_error_list = ["without response",
+                                    "retries",
                                     "Read timed out",
                                     "codec can't encode",
                                     "No host supplied",
@@ -143,6 +139,11 @@ def requests_plus(req_url,
                 output(f"[-] 当前目标 {req_url}  剩余重试次数为0,返回固定结果,需要后续手动进行验证...", level=LOG_ERROR)
     else:
         # 当获取到响应结果时,获取三个响应关键匹配项目
+        #############################################################
+        # 排除由于代理服务器导致的访问BUG
+        if list_ele_in_str(ERROR_PAGE_KEY, str(resp.text).lower(), False):
+            output("[!] 当前由于代理服务器问题导致响应状态码错误...Fixed...", level=LOG_ERROR)
+            resp_status = NUM_MINUS
         #############################################################
         # 1、resp_bytes_head 获取响应内容的前十字节 # 需要流模式才能获取
         current_module = RESP_BYTES_HEAD
@@ -245,10 +246,10 @@ def requests_plus(req_url,
                 module_common_error_list = []  # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
                 show_requests_error(req_url, module_common_error_list, current_module, error)
         #############################################################
-        # 6、resp_redirect_url 获取重定向后的URL
+        # 6、resp_redirect_url 获取重定向后的URL 通过判断请求的URL是不是响应的URL
         current_module = RESP_REDIRECT_URL
         try:
-            if req_url.strip() == resp_redirect_url.strip():
+            if req_url.strip() == resp.url.strip():
                 resp_redirect_url = RAW_REDIRECT_URL
             else:
                 resp_redirect_url = resp.url.strip()
@@ -287,20 +288,16 @@ def request_retry(req_url,
                   ):
     if not retry_times > 0:
         # 使用常规请求模式
-        try:
-            response = requests.request(url=req_url,
-                                        method=req_method,
-                                        headers=req_headers,
-                                        data=req_data,
-                                        proxies=req_proxies,
-                                        timeout=req_timeout,
-                                        verify=verify_ssl,
-                                        allow_redirects=req_allow_redirects,
-                                        stream=req_stream)
-            return response
-        except Exception as error:
-            output(f"error:{error}")
-            return None
+        response = requests.request(url=req_url,
+                                    method=req_method,
+                                    headers=req_headers,
+                                    data=req_data,
+                                    proxies=req_proxies,
+                                    timeout=req_timeout,
+                                    verify=verify_ssl,
+                                    allow_redirects=req_allow_redirects,
+                                    stream=req_stream)
+        return response
     else:
         # 使用session回话模式
         retry_strategy = Retry(
@@ -318,21 +315,16 @@ def request_retry(req_url,
             session.cookies.clear()  # 清除 session 中的 cookies
         session.mount("https://", adapter)
         session.mount("http://", adapter)
-
-        try:
-            response = session.request(url=req_url,
-                                       method=req_method,
-                                       headers=req_headers,
-                                       data=req_data,
-                                       proxies=req_proxies,
-                                       timeout=req_timeout,
-                                       verify=verify_ssl,
-                                       allow_redirects=req_allow_redirects,
-                                       stream=req_stream)
-            return response
-        except Exception as error:
-            output(f"error:{error}")
-            return None
+        response = session.request(url=req_url,
+                                   method=req_method,
+                                   headers=req_headers,
+                                   data=req_data,
+                                   proxies=req_proxies,
+                                   timeout=req_timeout,
+                                   verify=verify_ssl,
+                                   allow_redirects=req_allow_redirects,
+                                   stream=req_stream)
+        return response
 
 # if __name__ == '__main__':
 #     target_url_path_list = ['http://www.baidu.com/201902.iso',

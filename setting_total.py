@@ -25,7 +25,7 @@ GB_DEBUG_FLAG = False
 MAX_URL_NUM = None
 ##################################################################
 # 版本号配置
-GB_VERSION = "Ver 0.2.1 2023-04-12 18:00"
+GB_VERSION = "Ver 0.2.2 2023-04-17 01:00"
 ##################################################################
 # 停止扫描阈值[数字] # 如果每个目标的非正常响应超过这个阈值, 就停止任务
 GB_MAX_ERROR_NUM = None
@@ -104,7 +104,7 @@ GB_SSL_VERIFY = False
 # 超时时间 # URL重定向会严重影响程序的运行时间
 GB_TIMEOUT = 5
 # 是否允许URL重定向 # URL重定向会严重影响程序的运行时间
-GB_ALLOW_REDIRECTS = True
+GB_ALLOW_REDIRECTS = False
 # 访问没有结果时,自动重试的最大次数
 GB_RETRY_TIMES = 3
 

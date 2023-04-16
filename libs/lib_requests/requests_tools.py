@@ -6,7 +6,7 @@ import copy
 import random
 import re
 
-from libs.lib_file_operate.file_write import write_line
+from libs.lib_file_operate.file_write import write_line, write_title
 from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_DEBUG, LOG_ERROR
 from libs.lib_requests.requests_const import *
 
@@ -144,11 +144,13 @@ def access_result_handle(result_dict_list,
                     break
 
         if IGNORE_RESP:
+            # 写入结果表头
+            write_title(ignore_file, result_format % tuple(key_order_list), encoding="utf-8", new_line=True, mode="a+")
             write_line(ignore_file, result_format % access_resp_values, encoding="utf-8", new_line=True, mode="a+")
             output(f"[-] 忽略结果 [{saving_field}]", level=LOG_DEBUG)
         else:
-            # result_file_open = open(result_file, "a+", encoding="utf-8", buffering=1)
-            # result_file_open.write(result_format % access_resp_values)
+            # 写入结果表头
+            write_title(result_file, result_format % tuple(key_order_list), encoding="utf-8", new_line=True, mode="a+")
             write_line(result_file, result_format % access_resp_values, encoding="utf-8", new_line=True, mode="a+")
             output(f"[+] 可能存在 [{saving_field}]", level=LOG_INFO)
             # 加入到命中结果列表
