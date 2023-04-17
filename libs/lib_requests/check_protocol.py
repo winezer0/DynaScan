@@ -35,8 +35,8 @@ def check_protocol(req_host, req_path, req_method, req_headers, req_proxies, req
 
     proto_result = {}
     for access_result_dict in access_result_dict_list:
-        protocol = access_result_dict[CONST_SIGN]
-        proto_result[protocol] = access_result_dict[RESP_STATUS]
+        protocol = access_result_dict[HTTP_CONST_SIGN]
+        proto_result[protocol] = access_result_dict[HTTP_RESP_STATUS]
 
     output(f"[*] PROTOCOL CHECK RESULT:{proto_result}")
 
@@ -139,8 +139,8 @@ def check_proto_and_access(target_list,
                                                             )
         # 分析多线程检测结果
         for access_result_dict in access_result_dict_list:
-            req_url = access_result_dict[REQ_URL]
-            resp_status = access_result_dict[RESP_STATUS]
+            req_url = access_result_dict[HTTP_REQ_URL]
+            resp_status = access_result_dict[HTTP_RESP_STATUS]
             if resp_status > 0:
                 output(f"[*] 当前目标 {req_url} 将被添加 响应结果:{access_result_dict}", level=LOG_INFO)
                 accessible_target.append(req_url)

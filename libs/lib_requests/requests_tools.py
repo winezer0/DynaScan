@@ -97,12 +97,12 @@ def access_result_handle(result_dict_list,
                          exclude_status_list,
                          exclude_title_regexp,
                          max_error_num,
-                         hit_saving_field=CONST_SIGN):
+                         hit_saving_field=HTTP_CONST_SIGN):
     # 错误结果超出阈值
     should_stop_run = False
 
     # 访问失败的结果 # 就是除去URL和SING之外都是默认值
-    access_fail_resp_dict = copy.copy(DEFAULT_RESP_DICT)
+    access_fail_resp_dict = copy.copy(HTTP_DEFAULT_RESP_DICT)
 
     # 本次扫描的所有命中结果 默认保存的是 请求响应的 CONST_SIGN 属性
     hit_result_list = []
@@ -115,7 +115,7 @@ def access_result_handle(result_dict_list,
         # 写入历史爆破记录文件 CONST_SIGN == URL
         # history_file_open = open(history_file, "a+", encoding="utf-8", buffering=1)
         # history_file_open.write(f"{access_resp_dict[CONST_SIGN]}\n")
-        write_line(history_file, f"{access_resp_dict[CONST_SIGN]}", encoding="utf-8", new_line=True, mode="a+")
+        write_line(history_file, f"{access_resp_dict[HTTP_CONST_SIGN]}", encoding="utf-8", new_line=True, mode="a+")
 
         # 按照指定的顺序获取 dict 的 values
         key_order_list = list(access_resp_dict.keys())
@@ -123,8 +123,8 @@ def access_result_handle(result_dict_list,
         access_resp_values = tuple([access_resp_dict[key] for key in key_order_list])
 
         # 当前请求的标记
-        resp_status = access_resp_dict[RESP_STATUS]
-        resp_text_title = access_resp_dict[RESP_TEXT_TITLE]
+        resp_status = access_resp_dict[HTTP_RESP_STATUS]
+        resp_text_title = access_resp_dict[HTTP_RESP_TEXT_TITLE]
         # 当前需要保存和显示的字段
         saving_field = access_resp_dict[hit_saving_field]
 
@@ -136,7 +136,7 @@ def access_result_handle(result_dict_list,
             for filter_key in list(dynamic_exclude_dict.keys()):
                 filter_value = dynamic_exclude_dict[filter_key]  # 被排除的值
                 access_resp_value = access_resp_dict[filter_key]
-                ignore_value_list = FILTER_MODULE_DEFAULT_VALUE_DICT[filter_key]
+                ignore_value_list = HTTP_FILTER_VALUE_DICT[filter_key]
 
                 if access_resp_value != filter_value and access_resp_value not in ignore_value_list:
                     # 存在和排除关键字不同的项, 并且 这个值不是被忽略的值时 写入结果文件
@@ -157,8 +157,8 @@ def access_result_handle(result_dict_list,
             hit_result_list.append(saving_field)
 
         # 判断请求是否错误（排除url和const_sign）
-        access_fail_resp_dict[CONST_SIGN] = access_resp_dict[CONST_SIGN]
-        access_fail_resp_dict[REQ_URL] = access_resp_dict[REQ_URL]
+        access_fail_resp_dict[HTTP_CONST_SIGN] = access_resp_dict[HTTP_CONST_SIGN]
+        access_fail_resp_dict[HTTP_REQ_URL] = access_resp_dict[HTTP_REQ_URL]
         # 字典可以直接使用 == 运算符进行比较，要求 字典中的键必须是可哈希的（即不可变类型）
         if access_resp_dict == access_fail_resp_dict:
             access_fail_count += 1

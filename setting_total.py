@@ -6,7 +6,7 @@ import sys
 import time
 
 from libs.lib_file_operate.file_path import auto_make_dir
-from libs.lib_requests.requests_const import USER_AGENTS
+from libs.lib_requests.requests_const import HTTP_USER_AGENTS
 from libs.lib_requests.requests_tools import random_useragent, random_x_forwarded_for
 from setting_dict import *
 
@@ -22,7 +22,7 @@ GB_BASE_DIR = pathlib.Path(__file__).parent.resolve()
 GB_DEBUG_FLAG = False
 ##################################################################
 # 每个目标的最大扫描URL阈值[数字] 辅助调试 或 其他用途
-MAX_URL_NUM = None
+GB_MAX_URL_NUM = None
 ##################################################################
 # 版本号配置
 GB_VERSION = "Ver 0.2.2 2023-04-17 01:00"
@@ -45,22 +45,22 @@ GB_SPLIT_TARGET_PATH = False
 # 示例：https://XXX/item/DD/ 会被分解为 https://XXX/item/DD/,https://XXX/item/,https://XXX/
 ##################################################################
 # 设置日志输出文件路径 #目录不存在会自动创建
-LOG_FILE_DIR = str(GB_BASE_DIR.joinpath("runtime"))
+GB_LOG_FILE_DIR = str(GB_BASE_DIR.joinpath("runtime"))
 
-LOG_FILE_PATH = os.path.join(LOG_FILE_DIR, "runtime_module.log")
+GB_LOG_FILE_PATH = os.path.join(GB_LOG_FILE_DIR, "runtime_module.log")
 # LOG_FILE_PATH = os.path.join(LOG_FILE_DIR, "runtime_{GB_RUN_TIME}_module.log")
 
-GB_INFO_LOG_FILE = LOG_FILE_PATH.replace('module', 'info')
-GB_DBG_LOG_FILE = LOG_FILE_PATH.replace('module', 'debug')
-GB_ERR_LOG_FILE = LOG_FILE_PATH.replace('module', 'error')
+GB_INFO_LOG_FILE = GB_LOG_FILE_PATH.replace('module', 'info')
+GB_DBG_LOG_FILE = GB_LOG_FILE_PATH.replace('module', 'debug')
+GB_ERR_LOG_FILE = GB_LOG_FILE_PATH.replace('module', 'error')
 
 # 记录不可访问的目标 # 没啥用
-GB_INACCESSIBLE_RECORD = LOG_FILE_PATH.replace('module', 'inaccessible')
+GB_INACCESSIBLE_RECORD = GB_LOG_FILE_PATH.replace('module', 'inaccessible')
 # 记录可以访问的目标 # 没啥用
-GB_ACCESSIBLE_RECORD = LOG_FILE_PATH.replace('module', 'accessible')
+GB_ACCESSIBLE_RECORD = GB_LOG_FILE_PATH.replace('module', 'accessible')
 
 # 记录扫描已完成的URL 针对每个目标生成不同的记录文件
-GB_PER_HOST_HISTORY_FILE = LOG_FILE_PATH.replace('module', 'history.{host_port}')
+GB_PER_HOST_HISTORY_FILE = GB_LOG_FILE_PATH.replace('module', 'history.{host_port}')
 # 每个HOST扫描URL的过滤,建议开启
 GB_EXCLUDE_HOST_HISTORY = True
 ##################################################################
@@ -119,7 +119,7 @@ GB_ADD_RANDOM_XFF = True
 
 # HTTP 头设置
 GB_HEADERS = {
-    'User-Agent': random_useragent(USER_AGENTS, GB_ADD_RANDOM_USERAGENT),
+    'User-Agent': random_useragent(HTTP_USER_AGENTS, GB_ADD_RANDOM_USERAGENT),
     'X_FORWARDED_FOR': random_x_forwarded_for(GB_ADD_RANDOM_XFF),
     'Accept-Encoding': ''
 }

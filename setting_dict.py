@@ -39,7 +39,7 @@ GB_DICT_SUFFIX = ['.lst']
 GB_FREQUENCY_SYMBOL = '<-->'
 
 # 要提取的最小路径频率阈值，大于等于 FREQUENCY_MIN 小于等于 FREQUENCY_MAX 的字典会被提取
-FREQUENCY_MIN = 1
+GB_FREQUENCY_MIN = 1
 
 # 字典文件的行注释符号
 GB_ANNOTATION_SYMBOL = '#'
@@ -73,7 +73,7 @@ GB_HIT_FOLDER_FILE = os.path.join(GB_HIT_FILE_DIR, 'HIT_FOLDER.hit')
 GB_HIT_FILES_FILE = os.path.join(GB_HIT_FILE_DIR, 'HIT_FILE.hit')
 
 # 是否保存命中结果到HIT_XXX文件
-SAVE_HIT_RESULT = True
+GB_SAVE_HIT_RESULT = True
 
 # 命中结果文件追加模式
 GB_HIT_OVER_CALC = True

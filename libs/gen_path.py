@@ -166,8 +166,8 @@ def path_list_handle(path_list):
 # 扫描前的URL过滤和格式化
 def url_list_handle(url_list, url_history_file):
     # URL列表限额
-    if MAX_URL_NUM and isinstance(MAX_URL_NUM, int):
-        url_list = url_list[:MAX_URL_NUM]
+    if GB_MAX_URL_NUM and isinstance(GB_MAX_URL_NUM, int):
+        url_list = url_list[:GB_MAX_URL_NUM]
 
     if GB_EXCLUDE_HOST_HISTORY:
         if file_is_exist(url_history_file):
@@ -202,7 +202,7 @@ def gen_base_scan_path_list():
                                                          dict_suffix=GB_DICT_SUFFIX,
                                                          frequency_symbol=GB_FREQUENCY_SYMBOL,
                                                          annotation_symbol=GB_ANNOTATION_SYMBOL,
-                                                         frequency_min=FREQUENCY_MIN)
+                                                         frequency_min=GB_FREQUENCY_MIN)
         # 4、对每个元素进行规则替换
         direct_path_list, replace_count, run_time = replace_list_has_key_str(direct_path_list, base_var_replace_dict)
         base_paths.extend(direct_path_list)
@@ -215,7 +215,7 @@ def gen_base_scan_path_list():
                                                           dict_suffix=GB_DICT_SUFFIX,
                                                           frequency_symbol=GB_FREQUENCY_SYMBOL,
                                                           annotation_symbol=GB_ANNOTATION_SYMBOL,
-                                                          frequency_min=FREQUENCY_MIN)
+                                                          frequency_min=GB_FREQUENCY_MIN)
         # 对每个元素进行规则替换
         group_folder_list, replace_count, run_time = replace_list_has_key_str(group_folder_list, base_var_replace_dict)
 
@@ -225,7 +225,7 @@ def gen_base_scan_path_list():
                                                          dict_suffix=GB_DICT_SUFFIX,
                                                          frequency_symbol=GB_FREQUENCY_SYMBOL,
                                                          annotation_symbol=GB_ANNOTATION_SYMBOL,
-                                                         frequency_min=FREQUENCY_MIN)
+                                                         frequency_min=GB_FREQUENCY_MIN)
         # 4、对每个元素进行规则替换
         group_files_list, replace_count, run_time = replace_list_has_key_str(group_files_list, base_var_replace_dict)
 

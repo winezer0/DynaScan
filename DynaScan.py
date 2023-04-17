@@ -103,7 +103,7 @@ def gen_dynamic_exclude_dict(req_url):
     output(f"随机测试响应 {test_result_dict_list}", level=LOG_DEBUG)
 
     # 分析测试结果
-    dynamic_exclude_dict = analysis_dict_same_keys(test_result_dict_list, FILTER_MODULE_DEFAULT_VALUE_DICT)
+    dynamic_exclude_dict = analysis_dict_same_keys(test_result_dict_list, HTTP_FILTER_VALUE_DICT)
     output(f"[+] 动态排除字典 {req_url} -> {dynamic_exclude_dict}", level=LOG_INFO)
     return dynamic_exclude_dict
 
@@ -245,11 +245,11 @@ def dyna_scan():
                                                           exclude_status_list=GB_EXCLUDE_STATUS,
                                                           exclude_title_regexp=GB_EXCLUDE_REGEXP,
                                                           max_error_num=GB_MAX_ERROR_NUM,
-                                                          hit_saving_field=CONST_SIGN
+                                                          hit_saving_field=HTTP_CONST_SIGN
                                                           )
 
             # 写入命中结果
-            if SAVE_HIT_RESULT and HIT_URL_LIST:
+            if GB_SAVE_HIT_RESULT and HIT_URL_LIST:
                 # print(f"HIT_URL_LIST:{HIT_URL_LIST}")
                 # 分析命中的URL 并返回命中的path部分 path部分是字典 分类包括 后缀、路径、目录、文件
                 hit_classify_dict = url_to_raw_rule_classify(hit_url_list=HIT_URL_LIST,

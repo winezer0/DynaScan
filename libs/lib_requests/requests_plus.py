@@ -64,13 +64,13 @@ def requests_plus(req_url,
         req_headers["Referer"] = req_url
 
     # 设置需要接受的参数的默认值 #如果返回结果是默认值,说明程序异常没有获取到
-    resp_status = DEFAULT_RESP_DICT[RESP_STATUS]  # 响应状态码 赋值默认值 NUM_MINUS
-    resp_bytes_head = DEFAULT_RESP_DICT[RESP_BYTES_HEAD]  # 响应头字节 赋值默认值 NULL_BYTES
-    resp_content_length = DEFAULT_RESP_DICT[RESP_CONTENT_LENGTH]  # 响应内容长度 赋值默认值 NUM_MINUS
-    resp_text_size = DEFAULT_RESP_DICT[RESP_TEXT_SIZE]  # 响应内容大小 赋值默认值 NUM_MINUS
-    resp_text_title = DEFAULT_RESP_DICT[RESP_TEXT_TITLE]  # 响应文本标题 赋值默认值 NULL_TITLE
-    resp_text_hash = DEFAULT_RESP_DICT[RESP_TEXT_HASH]  # 响应文本HASH 赋值默认值 NULL_TEXT_HASH
-    resp_redirect_url = DEFAULT_RESP_DICT[RESP_REDIRECT_URL]  # 响应重定向URL 赋值默认值 NULL_REDIRECT_URL
+    resp_status = HTTP_DEFAULT_RESP_DICT[HTTP_RESP_STATUS]  # 响应状态码 赋值默认值 NUM_MINUS
+    resp_bytes_head = HTTP_DEFAULT_RESP_DICT[HTTP_RESP_BYTES_HEAD]  # 响应头字节 赋值默认值 NULL_BYTES
+    resp_content_length = HTTP_DEFAULT_RESP_DICT[HTTP_RESP_CONTENT_LENGTH]  # 响应内容长度 赋值默认值 NUM_MINUS
+    resp_text_size = HTTP_DEFAULT_RESP_DICT[HTTP_RESP_TEXT_SIZE]  # 响应内容大小 赋值默认值 NUM_MINUS
+    resp_text_title = HTTP_DEFAULT_RESP_DICT[HTTP_RESP_TEXT_TITLE]  # 响应文本标题 赋值默认值 NULL_TITLE
+    resp_text_hash = HTTP_DEFAULT_RESP_DICT[HTTP_RESP_TEXT_HASH]  # 响应文本HASH 赋值默认值 NULL_TEXT_HASH
+    resp_redirect_url = HTTP_DEFAULT_RESP_DICT[HTTP_RESP_REDIRECT_URL]  # 响应重定向URL 赋值默认值 NULL_REDIRECT_URL
 
     try:
         resp = request_retry(req_url=req_url,
@@ -86,7 +86,7 @@ def requests_plus(req_url,
         resp_status = resp.status_code
     except Exception as error:
         # 当错误原因时一般需要重试的错误时,直接忽略输出,进行访问重试
-        current_module = RESP_STATUS
+        current_module = HTTP_RESP_STATUS
         # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
         module_common_error_list = ["without response",
                                     "retries",
@@ -102,14 +102,14 @@ def requests_plus(req_url,
             # 'latin-1' codec can't encode characters in position 17-18: ordinal not in range(256)
             if ignore_encode_error:
                 # 不需要重试的结果 设置resp_status标记为1,
-                resp_status = NUM_ONE
+                resp_status = HTTP_NUM_ONE
                 output(f"[-] 当前目标 {req_url} 中文数据编码错误,但是已经开启中文编码处理功能,忽略本次错误!!!", level=LOG_DEBUG)
             else:
                 # 需要手动访问重试的结果
                 output(f"[-] 当前目标 {req_url} 中文数据编码错误,需要针对中文编码进行额外处理,返回固定结果!!!", level=LOG_ERROR)
         elif "No host supplied" in str(error):
             # 不需要重试的结果 设置resp_status标记为1,
-            resp_status = NUM_ONE
+            resp_status = HTTP_NUM_ONE
             output(f"[-] 当前目标 {req_url} 格式输入错误,忽略本次结果!!!", level=LOG_ERROR)
         else:
             # 如果服务器没有响应,但是也有可能存在能访问的URL,因此不能简单以状态码判断结果
@@ -141,16 +141,16 @@ def requests_plus(req_url,
         # 当获取到响应结果时,获取三个响应关键匹配项目
         #############################################################
         # 排除由于代理服务器导致的访问BUG
-        if list_ele_in_str(ERROR_PAGE_KEY, str(resp.text).lower(), False):
+        if list_ele_in_str(HTTP_ERROR_PAGE_KEY, str(resp.text).lower(), False):
             output("[!] 当前由于代理服务器问题导致响应状态码错误...Fixed...", level=LOG_ERROR)
-            resp_status = NUM_MINUS
+            resp_status = HTTP_NUM_MINUS
         #############################################################
         # 1、resp_bytes_head 获取响应内容的前十字节 # 需要流模式才能获取
-        current_module = RESP_BYTES_HEAD
+        current_module = HTTP_RESP_BYTES_HEAD
         try:
             resp_bytes_head = b2a_hex(resp.raw.read(10)).decode()
             if resp_bytes_head.strip() == "":
-                resp_bytes_head = BLANK_BYTES
+                resp_bytes_head = HTTP_BLANK_BYTES
             else:
                 pass
                 # output(RESP_BYTES_HEAD, resp_bytes_head) #需要流模式才能获取resp_bytes_head
@@ -160,7 +160,7 @@ def requests_plus(req_url,
             show_requests_error(req_url, module_common_error_list, current_module, error)
         #############################################################
         # 2、resp_content_length 获取响应的content_length头部
-        current_module = RESP_CONTENT_LENGTH
+        current_module = HTTP_RESP_CONTENT_LENGTH
         try:
             resp_content_length = int(str(resp.headers.get('Content-Length')))
         except Exception as error:
@@ -168,7 +168,7 @@ def requests_plus(req_url,
             show_requests_error(req_url, module_common_error_list, current_module, error)
         #############################################################
         # 3、resp_text_size 获取响应内容实际长度,如果响应长度过大就放弃读取,从resp_content_length进行读取
-        current_module = RESP_TEXT_SIZE
+        current_module = HTTP_RESP_TEXT_SIZE
 
         if resp_content_length >= 1024000 * 5:
             # 结果文本长度太大,不进行实际获取
@@ -184,13 +184,13 @@ def requests_plus(req_url,
                 show_requests_error(req_url, module_common_error_list, current_module, error)
         #############################################################
         # 4、resp_text_title 获取网页标题,如果resp_text_size获取到了就直接获取
-        current_module = RESP_TEXT_TITLE
+        current_module = HTTP_RESP_TEXT_TITLE
         # 如果resp_text_size没有获取到,说明没有resp_text 不参考上级处理结果
         encode_content = ""
         try:
             if resp_content_length >= 1024000 * 5:
                 # 如果返回值太大,就忽略获取结果
-                resp_text_title = IGNORE_TITLE
+                resp_text_title = HTTP_IGNORE_TITLE
             else:
                 # 解决响应解码问题
                 # 0、使用import chardet
@@ -227,19 +227,19 @@ def requests_plus(req_url,
                            f"ERROR:{error}",
                            level=LOG_ERROR)
                 if resp_text_title.strip() == "":
-                    resp_text_title = BLANK_TITLE
+                    resp_text_title = HTTP_BLANK_TITLE
         except Exception as error:
             module_common_error_list = []  # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
             show_requests_error(req_url, module_common_error_list, current_module, error)
         #############################################################
         # 5、resp_text_hash 获取网页内容hash
-        current_module = RESP_TEXT_HASH
+        current_module = HTTP_RESP_TEXT_HASH
         # 如果resp_text_title是空值,说明结果存在问题
-        if resp_text_title != NULL_TITLE and encode_content != "":
+        if resp_text_title != HTTP_NULL_TITLE and encode_content != "":
             try:
                 if resp_content_length >= 1024000 * 5:
                     # 如果返回值太大,就忽略获取结果
-                    resp_text_hash = IGNORE_TEXT_HASH
+                    resp_text_hash = HTTP_IGNORE_TEXT_HASH
                 else:
                     resp_text_hash = hashlib.md5(resp.content).hexdigest()
             except Exception as error:
@@ -247,10 +247,10 @@ def requests_plus(req_url,
                 show_requests_error(req_url, module_common_error_list, current_module, error)
         #############################################################
         # 6、resp_redirect_url 获取重定向后的URL 通过判断请求的URL是不是响应的URL
-        current_module = RESP_REDIRECT_URL
+        current_module = HTTP_RESP_REDIRECT_URL
         try:
             if req_url.strip() == resp.url.strip():
-                resp_redirect_url = RAW_REDIRECT_URL
+                resp_redirect_url = HTTP_RAW_REDIRECT_URL
             else:
                 resp_redirect_url = resp.url.strip()
         except Exception as error:
@@ -259,15 +259,15 @@ def requests_plus(req_url,
     finally:
         # 最终合并所有获取到的结果
         current_resp_dict = {
-            REQ_URL: req_url,  # 请求的URL
-            CONST_SIGN: const_sign,  # 请求的标记,自定义标记,原样返回
-            RESP_STATUS: resp_status,  # 响应状态码
-            RESP_BYTES_HEAD: resp_bytes_head,  # 响应头字节
-            RESP_CONTENT_LENGTH: resp_content_length,  # 响应内容长度
-            RESP_TEXT_SIZE: resp_text_size,  # 响应内容大小
-            RESP_TEXT_TITLE: resp_text_title,  # 响应文本标题
-            RESP_TEXT_HASH: resp_text_hash,  # 响应文本HASH
-            RESP_REDIRECT_URL: resp_redirect_url,  # 响应重定向URL
+            HTTP_REQ_URL: req_url,  # 请求的URL
+            HTTP_CONST_SIGN: const_sign,  # 请求的标记,自定义标记,原样返回
+            HTTP_RESP_STATUS: resp_status,  # 响应状态码
+            HTTP_RESP_BYTES_HEAD: resp_bytes_head,  # 响应头字节
+            HTTP_RESP_CONTENT_LENGTH: resp_content_length,  # 响应内容长度
+            HTTP_RESP_TEXT_SIZE: resp_text_size,  # 响应内容大小
+            HTTP_RESP_TEXT_TITLE: resp_text_title,  # 响应文本标题
+            HTTP_RESP_TEXT_HASH: resp_text_hash,  # 响应文本HASH
+            HTTP_RESP_REDIRECT_URL: resp_redirect_url,  # 响应重定向URL
         }
         output(f"[*] 当前目标 {req_url} 请求返回结果集合:{current_resp_dict}")
         return current_resp_dict
