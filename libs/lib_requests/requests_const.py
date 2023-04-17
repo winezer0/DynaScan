@@ -16,15 +16,20 @@ RESP_STATUS = "RESP_STATUS"
 ############################################################
 # 一些响应值的常量
 NONE = None
-RAW_REDIRECT_URL = "RAW_REDIRECT_URL"
+# 状态码常量
+NUM_MINUS = -1
+NUM_ZERO = 0
+NUM_ONE = 1
+# 重定向常量
 NULL_REDIRECT_URL = "NULL_REDIRECT_URL"
+RAW_REDIRECT_URL = "RAW_REDIRECT_URL"
+# 响应内容常量
 BLANK_BYTES = "BLANK_BYTES"
 NULL_BYTES = "NULL_BYTES"
-NUM_ZERO = 0
-NUM_MINUS = -1
-NUM_ONE = 1
+# 文本HASH常量
 IGNORE_TEXT_HASH = "IGNORE_TEXT_HASH"
 NULL_TEXT_HASH = "NULL_TEXT_HASH"
+# 文本标题常量
 BLANK_TITLE = "BLANK_TITLE"
 NULL_TITLE = "NULL_TITLE"
 IGNORE_TITLE = "IGNORE_TITLE"
@@ -42,7 +47,7 @@ DEFAULT_RESP_DICT = {
     RESP_REDIRECT_URL: NULL_REDIRECT_URL,  # 响应重定向URL 赋值默认值
 }
 ############################################################
-# 每个响应键的默认值或控制，在动态筛选时被忽略
+# 每个响应键的默认值或空值，在动态筛选时被忽略
 FILTER_MODULE_DEFAULT_VALUE_DICT = {
     REQ_URL: [NONE, ""],
     CONST_SIGN: [NONE, ""],
