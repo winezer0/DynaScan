@@ -10,20 +10,23 @@ import pathlib
 ##################################################################
 # 获取setting.py脚本所在路径作为的基本路径
 GB_BASE_DIR = pathlib.Path(__file__).parent.resolve()
-
+##################################################################
+# 基本变量文件路径
 GB_BASE_VAR_DIR = GB_BASE_DIR.joinpath("dict_base")
+
 # 设置默认调用的字典目录
 GB_DICT_PATH = GB_BASE_DIR.joinpath("dict_rule")
+
 # 常规直接字典路径
 GB_DIRECT_PATH_DIR = os.path.join(GB_DICT_PATH, "direct_path")
-
-# 读取DIRECT目录下的字典
-GB_ADD_DIRECT_DICT = True
 
 # 组合-目录字典路径
 GB_GROUP_FOLDER_DIR = os.path.join(GB_DICT_PATH, "group_folder")
 # 组合-文件 字典路径
 GB_GROUP_FILES_DIR = os.path.join(GB_DICT_PATH, "group_files")
+##################################################################
+# 读取DIRECT目录下的字典
+GB_ADD_DIRECT_DICT = True
 
 # 读取GROUP_XX目录下的字典
 GB_ADD_GROUP_DICT = True
@@ -31,10 +34,20 @@ GB_ADD_GROUP_DICT = True
 # 需要读取的字典文件后缀 通过file.endswith匹配
 GB_DICT_SUFFIX = ['.lst']
 ##################################################################
+# 读取字典文件时的处理
+# 指定path和频率的分隔符,如果每一行的内容为/xxx/xxx  <-->10,那么切割符为'<-->'
+GB_FREQUENCY_SYMBOL = '<-->'
+
+# 要提取的最小路径频率阈值，大于等于 FREQUENCY_MIN 小于等于 FREQUENCY_MAX 的字典会被提取
+FREQUENCY_MIN = 1
+
+# 字典文件的行注释符号
+GB_ANNOTATION_SYMBOL = '#'
+##################################################################
 # 存储自定义 基本变量
 GB_BASE_VAR_REPLACE_DICT = {"%BLANK%": ['']}
 
-# 存储自定义 因变量
+# 存储自定义 因变量 # 考虑都合并到 DEPENDENT
 GB_DEPENDENT_VAR_REPLACE_DICT = {"%%DEPENDENT%%": ['admin', 'product', 'wwwroot', 'www', '网站']}
 # 程序内置 %%DOMAIN%% 在URL中,域名因变量列表所代表的字符串
 # 程序内置 %%PATH%% 在URL中,路径因变量列表所代表的字符串
@@ -45,17 +58,8 @@ GB_SYMBOL_REPLACE_DICT = {":": ["_"], ".": ["_"]}
 # 删除带有 特定符号 的因变量（比如:）的元素
 GB_NOT_ALLOW_SYMBOL = [":"]
 
+# 当域名是IP时,忽略从域名获取因变量
 GB_IGNORE_IP_FORMAT = True
-##################################################################
-# 读取字典文件时的处理
-# 指定path和频率的分隔符,如果每一行的内容为/xxx/xxx  <-->10,那么切割符为'<-->'
-GB_FREQUENCY_SYMBOL = '<-->'
-
-# 要提取的最小路径频率阈值，大于等于 FREQUENCY_MIN 小于等于 FREQUENCY_MAX 的字典会被提取
-FREQUENCY_MIN = 1
-
-# 字典的行注释符号
-GB_ANNOTATION_SYMBOL = '#'
 ##################################################################
 # 命中文件保存路径
 GB_HIT_FILE_DIR = GB_BASE_DIR.joinpath("dict_hit")
