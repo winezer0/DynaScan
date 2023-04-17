@@ -57,19 +57,16 @@ def check_protocol(req_host, req_path, req_method, req_headers, req_proxies, req
 
 
 # 判断输入的URL列表是否添加协议头,及是否能够访问
-def check_proto_and_access(target_list,
-                           thread_sleep=0.1,
-                           default_proto_head=None,
-                           url_access_test=True,
-                           req_path="/",
-                           req_method="GET",
-                           req_headers=None,
-                           req_proxies=None,
-                           verify_ssl=False,
-                           req_timeout=10,
-                           req_allow_redirects=False,
-                           retry_times=2,
-                           ):
+def check_url_list_access(target_list,
+                          thread_sleep=0.1,
+                          url_access_test=True,
+                          req_method=None,
+                          req_headers=None,
+                          req_proxies=None,
+                          verify_ssl=False,
+                          req_timeout=10,
+                          req_allow_redirects=False,
+                          retry_times=2):
     # 1、对所有没有协议头的目标添加协议头。
     # 2、结果去重
     # 3、URL排除
@@ -78,52 +75,21 @@ def check_proto_and_access(target_list,
     # 4.2 如果开启访问测试就继续访问
     # 4.3 对访问结果进行筛选
 
-    have_proto_head_host = []  # 存储有http头的目标
-    none_proto_head_host = []  # 存储没有http头的目标
-
-    # 目标熟悉判断
-    for target in target_list:
-        if target.startswith("http"):
-            have_proto_head_host.append(target)
-        else:
-            none_proto_head_host.append(target)
-    output(f"[*] 有协议头目标 {len(have_proto_head_host)}个 {have_proto_head_host}", level=LOG_INFO)
-    output(f"[-] 无协议头目标 {len(none_proto_head_host)}个 {none_proto_head_host}", level=LOG_INFO)
-
-    # 对none_proto_head_host里面的目标进行协议判断处理
-    for target in none_proto_head_host:
-        protocol = str(default_proto_head).lower()
-        if protocol == "auto":
-            protocol = check_protocol(req_host=target,
-                                      req_method=req_method,
-                                      req_path=req_path,
-                                      req_headers=req_headers,
-                                      req_proxies=req_proxies,
-                                      req_timeout=req_timeout,
-                                      verify_ssl=verify_ssl)
-            if protocol:
-                output(f"[+] 获取协议成功 [{target}]: [{protocol}]", level=LOG_INFO)
-                have_proto_head_host.append(f"{protocol}://{target}")
-            else:
-                output(f"[-] 获取协议失败 [{target}] ,需手动检查重试!!!", level=LOG_ERROR)
-        else:
-            have_proto_head_host.append(f"{protocol}://{target}")
-
     # 存储最终可以访问的URL列表
     accessible_target = []
     # 存储最终的不可访问的URL列表
     inaccessible_target = []
 
     if not url_access_test:
-        accessible_target = have_proto_head_host
+        accessible_target = target_list
     else:
         output("[*] 批量访问筛选URL列表...", level=LOG_INFO)
         # 批量进行URL访问测试
-        task_list = have_proto_head_host
-        access_result_dict_list = multi_thread_requests_url(task_list=task_list,
-                                                            threads_count=min(30, len(task_list)),
+        target_list = target_list
+        access_result_dict_list = multi_thread_requests_url(task_list=target_list,
+                                                            threads_count=min(30, len(target_list)),
                                                             thread_sleep=thread_sleep,
-                                                            req_method="GET",
+                                                            req_method=req_method,
                                                             req_headers=req_headers,
                                                             req_data=None,
                                                             req_proxies=req_proxies,
@@ -149,6 +115,38 @@ def check_proto_and_access(target_list,
                 inaccessible_target.append(req_url)
 
     return accessible_target, inaccessible_target
+
+
+def check_host_list_proto(target_list, req_method, req_path, req_headers, req_proxies, req_timeout, verify_ssl, default_proto):
+    have_proto_head_host = []  # 存储有http头的目标
+    none_proto_head_host = []  # 存储没有http头的目标
+    # 目标熟悉判断
+    for target in target_list:
+        if target.startswith("http"):
+            have_proto_head_host.append(target)
+        else:
+            none_proto_head_host.append(target)
+    output(f"[*] 有协议头目标 {len(have_proto_head_host)}个 {have_proto_head_host}", level=LOG_INFO)
+    output(f"[-] 无协议头目标 {len(none_proto_head_host)}个 {none_proto_head_host}", level=LOG_INFO)
+    # 对none_proto_head_host里面的目标进行协议判断处理
+    for target in none_proto_head_host:
+        protocol = str(default_proto).lower()
+        if protocol == "auto":
+            protocol = check_protocol(req_host=target,
+                                      req_method=req_method,
+                                      req_path=req_path,
+                                      req_headers=req_headers,
+                                      req_proxies=req_proxies,
+                                      req_timeout=req_timeout,
+                                      verify_ssl=verify_ssl)
+            if protocol:
+                output(f"[+] 获取协议成功 [{target}]: [{protocol}]", level=LOG_INFO)
+                have_proto_head_host.append(f"{protocol}://{target}")
+            else:
+                output(f"[-] 获取协议失败 [{target}] ,需手动检查重试!!!", level=LOG_ERROR)
+        else:
+            have_proto_head_host.append(f"{protocol}://{target}")
+    return have_proto_head_host
 
 
 if __name__ == "__main__":

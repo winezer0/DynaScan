@@ -102,14 +102,14 @@ def requests_plus(req_url,
             # 'latin-1' codec can't encode characters in position 17-18: ordinal not in range(256)
             if ignore_encode_error:
                 # 不需要重试的结果 设置resp_status标记为1,
-                resp_status = HTTP_NUM_ONE
+                resp_status = HTTP_STATUS_ONE
                 output(f"[-] 当前目标 {req_url} 中文数据编码错误,但是已经开启中文编码处理功能,忽略本次错误!!!", level=LOG_DEBUG)
             else:
                 # 需要手动访问重试的结果
                 output(f"[-] 当前目标 {req_url} 中文数据编码错误,需要针对中文编码进行额外处理,返回固定结果!!!", level=LOG_ERROR)
         elif "No host supplied" in str(error):
             # 不需要重试的结果 设置resp_status标记为1,
-            resp_status = HTTP_NUM_ONE
+            resp_status = HTTP_STATUS_ONE
             output(f"[-] 当前目标 {req_url} 格式输入错误,忽略本次结果!!!", level=LOG_ERROR)
         else:
             # 如果服务器没有响应,但是也有可能存在能访问的URL,因此不能简单以状态码判断结果
@@ -143,7 +143,7 @@ def requests_plus(req_url,
         # 排除由于代理服务器导致的访问BUG
         if list_ele_in_str(HTTP_ERROR_PAGE_KEY, str(resp.text).lower(), False):
             output("[!] 当前由于代理服务器问题导致响应状态码错误...Fixed...", level=LOG_ERROR)
-            resp_status = HTTP_NUM_MINUS
+            resp_status = HTTP_STATUS_MINUS
         #############################################################
         # 1、resp_bytes_head 获取响应内容的前十字节 # 需要流模式才能获取
         current_module = HTTP_RESP_BYTES_HEAD

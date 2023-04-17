@@ -10,7 +10,7 @@ from libs.lib_file_operate.file_coding import file_encoding
 from libs.lib_file_operate.file_read import read_file_to_list
 from libs.lib_file_operate.file_write import write_lines, write_path_list_to_frequency_file
 from libs.lib_log_print.logger_printer import set_logger, output, LOG_DEBUG, LOG_INFO, LOG_ERROR
-from libs.lib_requests.check_protocol import check_proto_and_access
+from libs.lib_requests.check_protocol import check_url_list_access, check_host_list_proto
 from libs.lib_requests.requests_const import *
 from libs.lib_requests.requests_thread import multi_thread_requests_url, multi_thread_requests_url_sign
 from libs.lib_requests.requests_tools import get_random_str, analysis_dict_same_keys, access_result_handle
@@ -121,20 +121,27 @@ def dyna_scan():
     else:
         target_list.append(GB_TARGET)
 
-    # 尝试对输入的目标进行初次过滤、添加协议头、访问测试等处理
-    accessible_target, inaccessible_target = check_proto_and_access(target_list=target_list,
-                                                                    thread_sleep=GB_THREAD_SLEEP,
-                                                                    default_proto_head=GB_DEFAULT_PROTO_HEAD,
-                                                                    url_access_test=GB_URL_ACCESS_TEST,
-                                                                    req_path="/",
-                                                                    req_method=GB_REQ_METHOD,
-                                                                    req_headers=GB_HEADERS,
-                                                                    req_proxies=GB_PROXIES,
-                                                                    verify_ssl=GB_SSL_VERIFY,
-                                                                    req_timeout=GB_TIMEOUT,
-                                                                    req_allow_redirects=GB_ALLOW_REDIRECTS,
-                                                                    retry_times=GB_RETRY_TIMES
-                                                                    )
+    # 尝试对输入的目标进行HOST头添加
+    target_list = check_host_list_proto(target_list=target_list,
+                                        req_method=GB_REQ_METHOD,
+                                        req_path="/",
+                                        req_headers=GB_HEADERS,
+                                        req_proxies=GB_PROXIES,
+                                        req_timeout=GB_TIMEOUT,
+                                        verify_ssl=GB_SSL_VERIFY,
+                                        default_proto=GB_DEFAULT_PROTO_HEAD)
+
+    # 尝试对输入的目标访问测试等处理
+    accessible_target, inaccessible_target = check_url_list_access(target_list=target_list,
+                                                                   thread_sleep=GB_THREAD_SLEEP,
+                                                                   url_access_test=GB_URL_ACCESS_TEST,
+                                                                   req_method=GB_REQ_METHOD,
+                                                                   req_headers=GB_HEADERS,
+                                                                   req_proxies=GB_PROXIES,
+                                                                   verify_ssl=GB_SSL_VERIFY,
+                                                                   req_timeout=GB_TIMEOUT,
+                                                                   req_allow_redirects=GB_ALLOW_REDIRECTS,
+                                                                   retry_times=GB_RETRY_TIMES)
 
     # 记录可以访问的目标到文件
     write_lines(GB_ACCESSIBLE_RECORD, accessible_target, encoding="utf-8", new_line=True, mode="a+")
