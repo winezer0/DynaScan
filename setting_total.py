@@ -44,50 +44,18 @@ GB_URL_ACCESS_TEST = True
 GB_SPLIT_TARGET_PATH = False
 # 示例：https://XXX/item/DD/ 会被分解为 https://XXX/item/DD/,https://XXX/item/,https://XXX/
 ##################################################################
-# 设置日志输出文件路径 #目录不存在会自动创建
-GB_LOG_FILE_DIR = str(GB_BASE_DIR.joinpath("runtime"))
-
-GB_LOG_FILE_PATH = os.path.join(GB_LOG_FILE_DIR, "runtime_module.log")
-# LOG_FILE_PATH = os.path.join(LOG_FILE_DIR, "runtime_{GB_RUN_TIME}_module.log")
-
-GB_INFO_LOG_FILE = GB_LOG_FILE_PATH.replace('module', 'info')
-GB_DBG_LOG_FILE = GB_LOG_FILE_PATH.replace('module', 'debug')
-GB_ERR_LOG_FILE = GB_LOG_FILE_PATH.replace('module', 'error')
-
-# 记录不可访问的目标 # 没啥用
-GB_INACCESSIBLE_RECORD = GB_LOG_FILE_PATH.replace('module', 'inaccessible')
-# 记录可以访问的目标 # 没啥用
-GB_ACCESSIBLE_RECORD = GB_LOG_FILE_PATH.replace('module', 'accessible')
-
-# 记录扫描已完成的URL 针对每个目标生成不同的记录文件
-GB_PER_HOST_HISTORY_FILE = GB_LOG_FILE_PATH.replace('module', 'history.{host_port}')
-# 每个HOST扫描URL的过滤,建议开启
-GB_EXCLUDE_HOST_HISTORY = True
-##################################################################
-# 设置输出结果文件目录
-GB_RESULT_DIR = GB_BASE_DIR.joinpath("result")
-
-# 结果文件名称
-# GB_RESULT_FILE_PATH = os.path.join(GB_RESULT_DIR,f"result_{GB_RUN_TIME}.csv")
-GB_RESULT_FILE_PATH = "auto"  # auto 根据主机名自动生成
-#######################################################################
-# 请求速度限制
+# HTTP请求相关配置
 # 默认线程数
 GB_THREADS_COUNT = 100
-
 # 每个线程之间的延迟 单位S秒
 GB_THREAD_SLEEP = 0
-
 # 任务分块大小 所有任务会被分为多个列表
 GB_TASK_CHUNK_SIZE = GB_THREADS_COUNT
-#######################################################################
-# HTTP请求相关默认配置
+########################
 # 默认请求方法
 GB_REQ_METHOD = "get"
-
 # 默认请求数据
 GB_REQ_BODY = None
-
 # 对外请求代理
 GB_PROXIES = {
     # "http": "http://127.0.0.1:8080",
@@ -123,7 +91,6 @@ GB_HEADERS = {
     'X_FORWARDED_FOR': random_x_forwarded_for(GB_ADD_RANDOM_XFF),
     'Accept-Encoding': ''
 }
-
 ########################扩展的调用函数###################################
 # 排除指定结果
 # 判断URI不存在的状态码，多个以逗号隔开,符合该状态码的响应将不会写入结果文件
@@ -132,6 +99,33 @@ GB_EXCLUDE_STATUS = [404, 401, 403, 405, 406, 410, 500, 501, 502, 503]
 # 判断URI是否不存在的正则，如果页面标题存在如下定义的内容，将从Result结果中剔除到ignore结果中 #re.IGNORECASE 忽略大小写
 GB_EXCLUDE_REGEXP = r"页面不存在|未找到|not[ -]found|403|404|410"
 ##################################################################
+# 设置日志输出文件路径 #目录不存在会自动创建
+GB_LOG_FILE_DIR = str(GB_BASE_DIR.joinpath("runtime"))
+
+GB_LOG_FILE_PATH = os.path.join(GB_LOG_FILE_DIR, "runtime_module.log")
+# LOG_FILE_PATH = os.path.join(LOG_FILE_DIR, "runtime_{GB_RUN_TIME}_module.log")
+
+GB_INFO_LOG_FILE = GB_LOG_FILE_PATH.replace('module', 'info')
+GB_DBG_LOG_FILE = GB_LOG_FILE_PATH.replace('module', 'debug')
+GB_ERR_LOG_FILE = GB_LOG_FILE_PATH.replace('module', 'error')
+
+# 记录不可访问的目标 # 没啥用
+GB_INACCESSIBLE_RECORD = GB_LOG_FILE_PATH.replace('module', 'inaccessible')
+# 记录可以访问的目标 # 没啥用
+GB_ACCESSIBLE_RECORD = GB_LOG_FILE_PATH.replace('module', 'accessible')
+
+# 记录扫描已完成的URL 针对每个目标生成不同的记录文件
+GB_PER_HOST_HISTORY_FILE = GB_LOG_FILE_PATH.replace('module', 'history.{host_port}')
+# 每个HOST扫描URL的过滤,建议开启
+GB_EXCLUDE_HOST_HISTORY = True
+##################################################################
+# 设置输出结果文件目录
+GB_RESULT_DIR = GB_BASE_DIR.joinpath("result")
+
+# 结果文件名称
+# GB_RESULT_FILE_PATH = os.path.join(GB_RESULT_DIR,f"result_{GB_RUN_TIME}.csv")
+GB_RESULT_FILE_PATH = "auto"  # auto 根据主机名自动生成
+#######################################################################
 auto_make_dir(GB_HIT_FILE_DIR)
 auto_make_dir(GB_RESULT_DIR)
 ########################扩展的调用函数###################################
