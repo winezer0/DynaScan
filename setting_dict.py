@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
-##################################################################
-# 扫描字典设置
-# 基本变量字典目录
 import os
 import pathlib
 
@@ -11,6 +7,7 @@ import pathlib
 # 获取setting.py脚本所在路径作为的基本路径
 GB_BASE_DIR = pathlib.Path(__file__).parent.resolve()
 ##################################################################
+# 扫描字典设置
 # 基本变量文件路径
 GB_BASE_VAR_DIR = GB_BASE_DIR.joinpath("dict_base")
 # 设置默认调用的字典目录
