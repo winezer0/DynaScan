@@ -24,6 +24,7 @@ def set_base_var_dict(base_var_dir,
     # 并 同时读文件组装 {基本变量名: [基本变量文件内容列表]}
     for base_var_file_name in base_var_file_list:
         base_file_pure_name = os.path.basename(base_var_file_name)
+        base_file_pure_name = base_file_pure_name.rsplit('.',1)[0]
         base_var_name = f'%{base_file_pure_name}%'
 
         # 读文件到列表
@@ -63,6 +64,7 @@ def set_base_var_dict_frequency(base_var_dir,
     # 并 同时读文件组装 {基本变量名: [基本变量文件内容列表]}
     for base_var_file_name in base_var_file_list:
         base_file_pure_name = base_var_file_name.rsplit('.', 1)[0]
+        base_file_pure_name = base_file_pure_name.rsplit('.',1)[0]
         base_var_name = f'%{base_file_pure_name}%'
 
         # 读文件到列表
