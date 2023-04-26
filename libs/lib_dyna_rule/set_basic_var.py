@@ -6,7 +6,7 @@ import copy
 import os
 
 from libs.lib_file_operate.file_coding import file_encoding
-from libs.lib_file_operate.file_path import get_dir_path_file_name
+from libs.lib_file_operate.file_path import get_dir_path_file_name, file_name_remove_ext_list
 from libs.lib_file_operate.file_read import read_file_to_list, read_file_to_frequency_dict
 from libs.lib_dyna_rule.dyna_rule_tools import dict_content_base_rule_render, get_key_list_with_frequency
 
@@ -23,8 +23,7 @@ def set_base_var_dict(base_var_dir,
     # 生成文件名对应基本变量
     # 并 同时读文件组装 {基本变量名: [基本变量文件内容列表]}
     for base_var_file_name in base_var_file_list:
-        base_file_pure_name = os.path.basename(base_var_file_name)
-        base_file_pure_name = base_file_pure_name.rsplit('.',1)[0]
+        base_file_pure_name = file_name_remove_ext_list(base_var_file_name, dict_suffix)
         base_var_name = f'%{base_file_pure_name}%'
 
         # 读文件到列表
@@ -63,8 +62,7 @@ def set_base_var_dict_frequency(base_var_dir,
     # 生成文件名对应基本变量
     # 并 同时读文件组装 {基本变量名: [基本变量文件内容列表]}
     for base_var_file_name in base_var_file_list:
-        base_file_pure_name = base_var_file_name.rsplit('.', 1)[0]
-        base_file_pure_name = base_file_pure_name.rsplit('.',1)[0]
+        base_file_pure_name = file_name_remove_ext_list(base_var_file_name, dict_suffix)
         base_var_name = f'%{base_file_pure_name}%'
 
         # 读文件到列表

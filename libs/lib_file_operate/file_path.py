@@ -45,3 +45,22 @@ def get_dir_path_file_name(file_dir, ext_list=['.txt'], relative=True):
                     else:
                         file_list.append(os.path.join(root, file))
     return file_list
+
+
+# 切割去除文件名的后缀,支持后缀列表
+def file_name_remove_ext_list(file_name, ext_list):
+    """
+    切割去除文件名的后缀,支持后缀列表
+    :param file_name: 文件名
+    :param ext_list: 后缀名列表
+    :return: 无后缀的文件名
+    """
+    # 去除文件名中的路径
+    file_name = os.path.basename(file_name)
+    # 去重并按长度排序后缀列表
+    ext_list = sorted(list(set(ext_list)), key=len, reverse=True)
+    for ext in ext_list:
+        if ext in file_name:
+            file_name = file_name.rsplit(ext, 1)[0]
+            break
+    return file_name
