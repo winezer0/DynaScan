@@ -21,7 +21,7 @@ def write_line(file_path, data, encoding="utf-8", new_line=True, mode="a+"):
         f_open.close()
 
 
-def write_lines(file_path, data_list, encoding="utf-8", new_line=True, mode="a+"):
+def write_lines(file_path, data_list, encoding="utf-8", new_line=True, mode="w+"):
     # 文本文件写入数据 默认追加
     with open(file_path, mode=mode, encoding=encoding) as f_open:
         if new_line:  # 换行输出
