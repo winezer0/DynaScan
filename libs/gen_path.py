@@ -2,8 +2,8 @@
 # encoding: utf-8
 
 from libs.lib_file_operate.file_coding import file_encoding
-from libs.lib_file_operate.file_path import file_is_exist, get_dir_path_file_name
-from libs.lib_file_operate.file_read import read_file_to_list, read_file_to_frequency_dict
+from libs.lib_file_operate.file_path import file_is_exist, get_dir_path_file_info_dict
+from libs.lib_file_operate.file_read import read_file_to_list, read_file_to_frequency_dict, read_files_to_frequency_dict
 from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_ERROR
 from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
 from libs.lib_dyna_rule.base_rule_parser import base_rule_render_list
@@ -69,40 +69,6 @@ def product_urls_and_paths(urls, paths):
     url_add_path_list = cartesian_product_merging(urls, paths)
     url_add_path_list = frozen_tuple_list(url_add_path_list, link_symbol="")
     return url_add_path_list
-
-
-# 按频率 读取直接路径 -> 全路径 字典下的所有文件,并进行 解析
-def read_dirs_frequency_rule_list(dict_dir=None,
-                                  dict_suffix=".lst",
-                                  frequency_symbol="<-->",
-                                  annotation_symbol="#",
-                                  frequency_min=0):
-    """
-    # 1 读取 所有基本替换变量字典 到频率字典
-    # 2 按频率筛选 并加入到 基本变量替换字典
-    # 3 对 基本变量替换字典 进行规则解析
-    """
-    # 存储所有规则
-    rule_list = []
-    # 获取文件名
-    base_var_file_list = get_dir_path_file_name(dict_dir, ext_list=dict_suffix)
-    # 生成文件名对应基础变量
-    # 并 同时读文件组装 {基本变量名: [基本变量文件内容列表]}
-    for dict_file in base_var_file_list:
-        # 读文件到列表
-        base_var_file_path = os.path.join(dict_dir, dict_file)
-        # 获取频率字典 # 筛选频率字典
-        frequency_dict = read_file_to_frequency_dict(base_var_file_path,
-                                                     encoding=file_encoding(base_var_file_path),
-                                                     frequency_symbol=frequency_symbol,
-                                                     annotation_symbol=annotation_symbol)
-        frequency_list = get_key_list_with_frequency(frequency_dict, frequency_min)
-
-        rule_list.extend(frequency_list)
-
-    # 对 列表 中的规则进行 进行 动态解析
-    rule_list, render_count, run_time = base_rule_render_list(rule_list)
-    return rule_list
 
 
 # 对输入的目标URL进行扩展
@@ -183,54 +149,78 @@ def url_list_handle(url_list, url_history_file):
     return url_list
 
 
+# 按频率读取目录下的所有字典文件,并进行动态解析
+def read_path_files_and_rule_parse_frequency(dir_path,
+                                             ext_list,
+                                             frequency_symbol,
+                                             annotation_symbol,
+                                             frequency_min,
+                                             replace_dict):
+    # 获取目录下所有文件名
+    path_files = get_dir_path_file_info_dict(dir_path=dir_path, ext_list=ext_list)
+
+    # 读取目录下所有文件内容到频率字典
+    path_frequency_dict = read_files_to_frequency_dict(list(path_files.values()),
+                                                       frequency_symbol=frequency_symbol,
+                                                       annotation_symbol=annotation_symbol)
+    # 筛选频率字典
+    path_frequency_list = get_key_list_with_frequency(path_frequency_dict, frequency_min)
+
+    # 对 列表 中的规则进行 进行 动态解析
+    path_frequency_list, _, _ = base_rule_render_list(path_frequency_list)
+
+    # 对每个元素进行规则替换
+    path_frequency_list, _, _ = replace_list_has_key_str(path_frequency_list, replace_dict)
+
+    return path_frequency_list
+
+
 # 生成基本扫描字典
 def gen_base_scan_path_list():
     base_paths = []
-    # 获取基本变量替换字典
+
+    # 1、获取基本变量替换字典
     base_var_replace_dict = set_base_var_dict_frequency(base_var_dir=GB_BASE_VAR_DIR,
-                                                        dict_suffix=GB_DICT_SUFFIX,
+                                                        ext_list=GB_DICT_SUFFIX,
                                                         base_replace_dict=GB_BASE_VAR_REPLACE_DICT,
                                                         frequency_symbol=GB_FREQUENCY_SYMBOL,
                                                         annotation_symbol=GB_ANNOTATION_SYMBOL,
                                                         frequency_min=1
                                                         )
 
-    # 2、读取直接追加字典
+    # 2、读取直接追加字典 并进行规则解析、变量替换处理
     if GB_ADD_DIRECT_DICT:
         # module = '读取直接追加路径'
-        direct_path_list = read_dirs_frequency_rule_list(dict_dir=GB_DIRECT_PATH_DIR,
-                                                         dict_suffix=GB_DICT_SUFFIX,
-                                                         frequency_symbol=GB_FREQUENCY_SYMBOL,
-                                                         annotation_symbol=GB_ANNOTATION_SYMBOL,
-                                                         frequency_min=GB_FREQUENCY_MIN)
-        # 4、对每个元素进行规则替换
-        direct_path_list, replace_count, run_time = replace_list_has_key_str(direct_path_list, base_var_replace_dict)
+        direct_path_list = read_path_files_and_rule_parse_frequency(dir_path=GB_DIRECT_PATH_DIR,
+                                                                    ext_list=GB_DICT_SUFFIX,
+                                                                    frequency_symbol=GB_FREQUENCY_SYMBOL,
+                                                                    annotation_symbol=GB_ANNOTATION_SYMBOL,
+                                                                    frequency_min=GB_FREQUENCY_MIN,
+                                                                    replace_dict=base_var_replace_dict)
         base_paths.extend(direct_path_list)
 
-    # 3、读取笛卡尔积路径 字典
+    # 3、读取笛卡尔积路径 字典 并进行规则解析、变量替换处理
     if GB_ADD_GROUP_DICT:
         # 按频率 读取笛卡尔积路径 -> 目录 字典下的所有文件,并进行解析
         # module = '读取笛卡尔积路径 -> 目录'
-        group_folder_list = read_dirs_frequency_rule_list(dict_dir=GB_GROUP_FOLDER_DIR,
-                                                          dict_suffix=GB_DICT_SUFFIX,
-                                                          frequency_symbol=GB_FREQUENCY_SYMBOL,
-                                                          annotation_symbol=GB_ANNOTATION_SYMBOL,
-                                                          frequency_min=GB_FREQUENCY_MIN)
-        # 对每个元素进行规则替换
-        group_folder_list, replace_count, run_time = replace_list_has_key_str(group_folder_list, base_var_replace_dict)
+        group_folder_list = read_path_files_and_rule_parse_frequency(dir_path=GB_GROUP_FOLDER_DIR,
+                                                                     ext_list=GB_DICT_SUFFIX,
+                                                                     frequency_symbol=GB_FREQUENCY_SYMBOL,
+                                                                     annotation_symbol=GB_ANNOTATION_SYMBOL,
+                                                                     frequency_min=GB_FREQUENCY_MIN,
+                                                                     replace_dict=base_var_replace_dict)
 
         # 按频率 读取笛卡尔积路径 -> 文件 字典下的所有文件,并进行解析
         # module = '读取笛卡尔积路径 -> 文件'
-        group_files_list = read_dirs_frequency_rule_list(dict_dir=GB_GROUP_FILES_DIR,
-                                                         dict_suffix=GB_DICT_SUFFIX,
-                                                         frequency_symbol=GB_FREQUENCY_SYMBOL,
-                                                         annotation_symbol=GB_ANNOTATION_SYMBOL,
-                                                         frequency_min=GB_FREQUENCY_MIN)
-        # 4、对每个元素进行规则替换
-        group_files_list, replace_count, run_time = replace_list_has_key_str(group_files_list, base_var_replace_dict)
+        group_files_list = read_path_files_and_rule_parse_frequency(dir_path=GB_GROUP_FILES_DIR,
+                                                                    ext_list=GB_DICT_SUFFIX,
+                                                                    frequency_symbol=GB_FREQUENCY_SYMBOL,
+                                                                    annotation_symbol=GB_ANNOTATION_SYMBOL,
+                                                                    frequency_min=GB_FREQUENCY_MIN,
+                                                                    replace_dict=base_var_replace_dict)
 
         # 组合 group_folder_list group_files_list
-        group_dict_list, run_time = product_folders_and_files(group_folder_list, group_files_list)
+        group_dict_list, _ = product_folders_and_files(group_folder_list, group_files_list)
         base_paths.extend(group_dict_list)
     return base_paths
 

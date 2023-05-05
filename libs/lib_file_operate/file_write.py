@@ -30,7 +30,7 @@ def write_lines(file_path, data_list, encoding="utf-8", new_line=True, mode="w+"
         f_open.close()
 
 
-def write_path_list_to_frequency_file(file_name=None,
+def write_path_list_to_frequency_file(file_path=None,
                                       path_list=None,
                                       encoding='utf-8',
                                       frequency_symbol="<-->",
@@ -40,13 +40,13 @@ def write_path_list_to_frequency_file(file_name=None,
     if not hit_over_write:
         # 不需要频率计算,直接追加
         result_str_list = [f"{path} {frequency_symbol} 1" for path in path_list]
-        write_lines(file_name, result_str_list, encoding=encoding, new_line=True, mode="a+")
+        write_lines(file_path, result_str_list, encoding=encoding, new_line=True, mode="a+")
     else:
         # 存储最终的频率字典
         frequency_dict = {}
         # 先读取以前的命中文件文件内容
-        if file_is_exist(file_name):
-            frequency_dict = read_file_to_frequency_dict(file_name=file_name,
+        if file_is_exist(file_path):
+            frequency_dict = read_file_to_frequency_dict(file_path=file_path,
                                                          encoding=encoding,
                                                          frequency_symbol=frequency_symbol,
                                                          annotation_symbol=annotation_symbol)
@@ -62,5 +62,5 @@ def write_path_list_to_frequency_file(file_name=None,
         sorted_dict = dict(sorted(frequency_dict.items(), key=lambda item: item[1], reverse=True))
         # 将结果字典写入文件
         result_str_list = [f"{path}  {frequency_symbol}{frequency}" for path, frequency in sorted_dict.items()]
-        write_lines(file_name, result_str_list, encoding=encoding, new_line=True, mode="w+")
+        write_lines(file_path, result_str_list, encoding=encoding, new_line=True, mode="w+")
     return True

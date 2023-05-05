@@ -257,7 +257,6 @@ def dyna_scan():
 
             # 写入命中结果
             if GB_SAVE_HIT_RESULT and HIT_URL_LIST:
-                # print(f"HIT_URL_LIST:{HIT_URL_LIST}")
                 # 分析命中的URL 并返回命中的path部分 path部分是字典 分类包括 后缀、路径、目录、文件
                 hit_classify_dict = url_to_raw_rule_classify(hit_url_list=HIT_URL_LIST,
                                                              reverse_replace_dict_list=[current_dependent_dict],
@@ -268,13 +267,13 @@ def dyna_scan():
                                                              )
                 # 将命中的路径分别写到不同的频率文件中
                 for file_name, path_list in hit_classify_dict.items():
-                    write_path_list_to_frequency_file(file_name=file_name,
+                    write_path_list_to_frequency_file(file_path=file_name,
                                                       path_list=path_list,
                                                       encoding='utf-8',
                                                       frequency_symbol=GB_FREQUENCY_SYMBOL,
                                                       annotation_symbol=GB_ANNOTATION_SYMBOL,
                                                       hit_over_write=GB_HIT_OVER_CALC)
-
+                output(f"[*] 记录命中结果: {list(hit_classify_dict.values())}", level=LOG_DEBUG)
             # 停止扫描任务
             if stop_run:
                 output(f"[-] 错误次数超过阈值,停止扫描目标 {target_url}", level=LOG_INFO)
