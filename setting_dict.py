@@ -2,6 +2,7 @@
 # encoding: utf-8
 import os
 import pathlib
+from libs.lib_dyna_rule.dyna_rule_const import *
 
 ##################################################################
 # 获取setting.py脚本所在路径作为的基本路径
@@ -38,9 +39,12 @@ GB_ANNOTATION_SYMBOL = '#'
 GB_BASE_VAR_REPLACE_DICT = {"%BLANK%": ['']}
 #########################
 # 存储自定义 因变量 # 考虑都合并到 DEPENDENT
-GB_DEPENDENT_VAR_REPLACE_DICT = {"%%DEPENDENT%%": ['admin', 'product', 'wwwroot', 'www', '网站']}
-# 程序内置 %%DOMAIN%% 在URL中,域名因变量列表所代表的字符串
-# 程序内置 %%PATH%% 在URL中,路径因变量列表所代表的字符串
+GB_DEPENDENT_VAR_REPLACE_DICT = {
+    STR_VAR_DEPENDENT:['admin', 'product', 'wwwroot', 'www', '网站'],  # 存储自定义因变量
+    # STR_VAR_DOMAIN: [],  # 存储动态PATH因变量-无需处理
+    # STR_VAR_PATH: [],  # 存储动态域名因变量-无需处理
+}
+
 # DOMAIN PATH 因变量中的 符号替换规则, 替换后追加到域名因子列表
 GB_SYMBOL_REPLACE_DICT = {":": ["_"], ".": ["_"]}
 # 删除带有 特定符号 的因变量（比如:）的元素

@@ -328,7 +328,7 @@ def base_rule_render_list(rule_list):
 
     result_list = []
     for rule_line in rule_list:
-        # 直接判断规则应该有的多个元素同时在列表内
+        # 直接判断规则应该有的多个元素同时在列表内   # issubset 用于判断一个集合是否是另一个集合的子集。
         if {'{', '=', ':', '}', '$'}.issubset(set(list(rule_line))):
             # 如果行内存在合法的解析规则
             parser = RuleParser(rule_line)
