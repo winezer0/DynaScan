@@ -148,8 +148,8 @@ def dyna_scan():
     # 记录不可访问的目标到文件
     write_lines(GB_INACCESSIBLE_RECORD, inaccessible_target, encoding="utf-8", new_line=True, mode="a+")
 
+    # 需要扫描的目标列表
     target_list = list(set(accessible_target))
-
     output(f"[*] 当前整合URL 剩余目标 {len(target_list)}个", level=LOG_INFO)
 
     # 对输入的目标数量进行判断和处理
@@ -175,7 +175,9 @@ def dyna_scan():
         # 扩展输入的URL列表
         current_url_list = target_url_handle(target_url)
 
-        # 处理目标URL格式,最后的一个/不需要
+        # 处理目标URL格式,处理最后所有的/
+        # current_url_list = list(set([url.rstrip("/") for url in current_url_list]))
+        # 处理目标URL格式,仅处理最后的一个/
         current_url_list = list(set([url[:-1] if url.endswith('/') else url for url in current_url_list]))
 
         # 合并urls列表和paths列表

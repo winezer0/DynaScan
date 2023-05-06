@@ -107,8 +107,8 @@ def path_list_handle(path_list):
 
     # 是否开启REMOVE_MULTI_SLASHES,将多个////转换为一个/
     if GB_REMOVE_MULTI_SLASHES:
-        url_list = replace_multi_slashes(path_list)
-        output(f"[*] 转换多个[/]为单[/] 剩余URL:{len(url_list)}个", level=LOG_INFO)
+        path_list = replace_multi_slashes(path_list)
+        output(f"[*] 转换多个[/]为单[/] 剩余URL:{len(path_list)}个", level=LOG_INFO)
 
     # 全部路径小写
     if GB_URL_PATH_LOWERCASE:
