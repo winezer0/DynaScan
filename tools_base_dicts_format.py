@@ -4,22 +4,21 @@
 from libs.lib_file_operate.file_coding import file_encoding
 from libs.lib_file_operate.file_path import get_dir_path_file_info_dict
 from libs.lib_file_operate.file_write import write_path_list_to_frequency_file
-# 格式化目录下的字典 （统计频率）
-from libs.lib_log_print.logger_printer import output, LOG_INFO
+from libs.lib_log_print.logger_printer import output, LOG_INFO, set_logger
 from setting_total import *
 
 
-# 去除不可见字符、频率倒序计算
-def format_dict_dirs(dict_dir_list, file_ext_list):
+def format_dicts(dict_dirs):
+    """去除不可见字符、频率倒序计算"""
     dict_file_list = []
-    for dir_path in dict_dir_list:
-        for dict_ext in file_ext_list:
+    for dir_path, ext_list in dict_dirs.items():
+        for dict_ext in ext_list:
             # 获取目录下所有【指定后缀的】文件
             file_info_dict = get_dir_path_file_info_dict(dir_path, ext_list=dict_ext)
             dict_file_list.extend(list(file_info_dict.values()))
 
     for dict_file in dict_file_list:
-        output(f"[*] 格式化 {dict_file}", level=LOG_INFO)
+        output(f"[*] 格式化字典文件 {dict_file}")
         write_path_list_to_frequency_file(file_path=dict_file,
                                           path_list=[],
                                           encoding=file_encoding(dict_file),
@@ -29,6 +28,16 @@ def format_dict_dirs(dict_dir_list, file_ext_list):
 
 
 if __name__ == '__main__':
-    dict_dir_list = [GB_HIT_FILE_DIR, GB_BASE_VAR_DIR, GB_DIRECT_PATH_DIR, GB_GROUP_FOLDER_DIR, GB_GROUP_FILES_DIR]
-    dict_ext_list = [GB_DICT_SUFFIX]  # '.txt'
-    format_dict_dirs(dict_dir_list, dict_ext_list)
+    # 根据用户输入的debug参数设置日志打印器属性 # 为主要是为了接受config.debug参数来配置输出颜色.
+    set_logger(GB_INFO_LOG_FILE, GB_ERR_LOG_FILE, GB_DBG_LOG_FILE, True)
+
+    dirs_dict = {
+        GB_HIT_FILE_DIR: GB_DICT_SUFFIX,  # 命中文件目录
+        GB_BASE_VAR_DIR: GB_DICT_SUFFIX,  # 基本变量目录
+        GB_DIRECT_PATH_DIR: GB_DICT_SUFFIX,  # 直接字典
+        GB_GROUP_FOLDER_DIR: GB_DICT_SUFFIX,  # 合并目录
+        GB_GROUP_FILES_DIR: GB_DICT_SUFFIX,  # 合并文件
+    }
+
+    # 格式化目录下的字典 （统计频率）
+    format_dicts(dirs_dict)
