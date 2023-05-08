@@ -32,10 +32,10 @@ def frozen_tuple_list(tuple_list, link_symbol="<-->"):
 
 # 解冻(账号-密码)字符串列表, 将字符串列表转为元组列表
 def unfrozen_tuple_list(str_list, link_symbol="<-->"):
-    new_tuple_list = []
-    for str_str2 in str_list:
-        new_tuple_list.append(str_str2.split(link_symbol, 1))
-    return new_tuple_list
+    tuple_list = []
+    for str_ in str_list:
+        tuple_list.append(tuple(str_.split(link_symbol, 1)))
+    return tuple_list
 
 
 # 去重(账号-密码)元组列表  PS:列表元素如果是元组也可以直接set去重
@@ -61,10 +61,10 @@ def frozen_collect_list(tuple_list, link_symbol="<-->"):
 
 # 解冻(不定长)字符串列表, 将字符串列表转为元组列表
 def unfrozen_collect_list(str_list, link_symbol="<-->"):
-    new_tuple_list = []
-    for str_str2 in str_list:
-        new_tuple_list.append(str_str2.split(link_symbol))
-    return new_tuple_list
+    tuple_list = []
+    for str_ in str_list:
+        tuple_list.append(tuple(str_.split(link_symbol)))
+    return tuple_list
 
 
 # 去重(不定长)集合列表
@@ -114,3 +114,15 @@ def get_key_list_with_frequency(frequency_dict, frequency_min):
         if frequency_min <= value:
             frequency_list.append(key)
     return frequency_list
+
+
+# 去除已经爆破过的元素
+def reduce_str_str_tuple_list(str_str_tuple_list, history_tuple_list, str_link_symbol):
+    """去除已经爆破过的元素"""
+    if str_str_tuple_list and history_tuple_list:
+        # 去重 user_name_pass_pair_list 中 被  history_user_pass_tuple_list包含的元素
+        history_tuple_list = frozen_tuple_list(history_tuple_list, link_symbol=str_link_symbol)
+        str_str_tuple_list = frozen_tuple_list(str_str_tuple_list, link_symbol=str_link_symbol)
+        str_str_tuple_list = list(set(str_str_tuple_list) - set(history_tuple_list))
+        str_str_tuple_list = unfrozen_tuple_list(str_str_tuple_list, link_symbol=str_link_symbol)
+    return str_str_tuple_list

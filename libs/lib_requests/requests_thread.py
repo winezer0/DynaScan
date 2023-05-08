@@ -155,3 +155,48 @@ def multi_thread_requests_url_body_sign(task_list,
             output(f"[*] 当前进度 {task_index + 1}/{len(task_list)} {const_sign}", level=LOG_DEBUG)
         access_result_dict_list = [task.result() for task in access_result_dict_list]
     return access_result_dict_list
+
+
+# 执行测试任务
+def multi_thread_requests_url_body_headers_sign(task_list,
+                                                threads_count,
+                                                thread_sleep,
+                                                # req_url,
+                                                req_method,
+                                                # req_headers,
+                                                # req_data,
+                                                req_proxies,
+                                                req_timeout,
+                                                verify_ssl,
+                                                req_allow_redirects,
+                                                req_stream,
+                                                retry_times,
+                                                # const_sign,
+                                                add_host_header,
+                                                add_refer_header,
+                                                ignore_encode_error
+                                                ):
+    # 存储所有响应结果
+    access_result_dict_list = []
+    with ThreadPoolExecutor(max_workers=threads_count) as pool:
+        for task_index, (req_url, req_data, req_headers, const_sign) in enumerate(task_list):
+            task = pool.submit(requests_plus,
+                               req_url=req_url,
+                               req_method=req_method,
+                               req_headers=req_headers,
+                               req_data=req_data,
+                               req_proxies=req_proxies,
+                               req_timeout=req_timeout,
+                               verify_ssl=verify_ssl,
+                               req_allow_redirects=req_allow_redirects,
+                               req_stream=req_stream,
+                               retry_times=retry_times,
+                               const_sign=const_sign,
+                               add_host_header=add_host_header,
+                               add_refer_header=add_refer_header,
+                               ignore_encode_error=ignore_encode_error)
+            time.sleep(thread_sleep)
+            access_result_dict_list.append(task)
+            output(f"[*] 当前进度 {task_index + 1}/{len(task_list)} {const_sign}", level=LOG_DEBUG)
+        access_result_dict_list = [task.result() for task in access_result_dict_list]
+    return access_result_dict_list
