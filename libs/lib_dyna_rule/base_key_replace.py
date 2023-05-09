@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+import copy
 import itertools
 import sys
 import time
@@ -88,6 +89,28 @@ def replace_list_has_key_str(will_replace_list=[],
     end_time = time.time()
     running_time = end_time - start_time
     return result_list_, replace_count_, running_time
+
+
+def remove_not_used_key(replace_used_dict, rule_str_list):
+    """
+    删除不会被字典规则使用的键
+    :param replace_used_dict:
+    :param rule_str_list:
+    :return:
+    """
+    # 处理输入的是二维数组的情况
+    for index, str_ in enumerate(rule_str_list):
+        if isinstance(rule_str_list, list):
+            rule_str_list[index] = str(str_)
+
+    # 深度拷贝原始字典
+    new_replace_used_dict = copy.deepcopy(replace_used_dict)
+
+    # 逐个判断字典的键值对是否在规则字典内
+    for key in replace_used_dict.keys():
+        if replace_used_dict[key] and str(key) not in str(rule_str_list):
+            del new_replace_used_dict[key]
+    return new_replace_used_dict
 
 
 if __name__ == '__main__':
