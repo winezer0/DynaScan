@@ -3,15 +3,15 @@ from libs.lib_file_operate.file_path import file_is_exist
 
 def file_type(file_path):
     """判断文件类型gbk、utf-8"""
-    file_type = "gbk"
+    file_code = "gbk"
     try:
-        data = open(file_path, 'r', encoding=file_type)
+        data = open(file_path, 'r', encoding=file_code)
         data.read()
     except UnicodeDecodeError:
-        file_type = "utf-8"
+        file_code = "utf-8"
     else:
         data.close()
-    return file_type
+    return file_code
 
 
 def file_encoding(file_path: str):
