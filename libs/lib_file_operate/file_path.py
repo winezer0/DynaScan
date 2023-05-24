@@ -25,6 +25,7 @@ def file_is_exist(file_path):
 def get_dir_path_file_info_dict(dir_path, ext_list=['.txt']):
     """
     获取目录下的文件名信息, 返回 {文件名:文件绝对路径}
+    存在问题,如果目录下存在同名文件|目录,会被覆盖.
     """
     if ext_list and isinstance(ext_list, str):
         ext_list = [ext_list]
@@ -39,6 +40,8 @@ def get_dir_path_file_info_dict(dir_path, ext_list=['.txt']):
         for file in files:
             for ext in ext_list:
                 if file.endswith(ext):
+                    if file in file_info_dict.keys():
+                        print(f"[!] Exists Same Name File [{file}], It Will Be Over Written !!!")
                     file_info_dict[file] = os.path.join(root, file)
                     break
     return file_info_dict
@@ -48,6 +51,7 @@ def get_dir_path_file_info_dict(dir_path, ext_list=['.txt']):
 def get_dir_path_dir_info_dict(dir_path):
     """
     获取目录下的目录名信息, 返回 {目录名:目录名绝对路径}
+    存在问题,如果目录下存在同名文件|目录,会被覆盖.
     """
     dir_info_dict = {}
     for root, dirs, files in os.walk(dir_path):
@@ -57,6 +61,8 @@ def get_dir_path_dir_info_dict(dir_path):
         files #当前路径下所有非目录子文件
         """
         for sub_dir in dirs:
+            if sub_dir in dir_info_dict.keys():
+                print(f"[!] Exists Same Name Dir [{sub_dir}], It Will Be Over Written !!!")
             dir_info_dict[sub_dir] = os.path.join(root, sub_dir)
     return dir_info_dict
 
