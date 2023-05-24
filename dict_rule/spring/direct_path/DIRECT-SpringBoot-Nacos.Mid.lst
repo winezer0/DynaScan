@@ -1,0 +1,11 @@
+/{re=exrex:(|%NACOS-PROJECT%)}$  <-->10
+/{re=exrex:(|%NACOS-PROJECT%)}$/v1/auth/users  <-->10
+/{re=exrex:(|%NACOS-PROJECT%)}$/v1/ns/instance  <-->5
+/{re=exrex:(|%NACOS-PROJECT%)}$/v1/ns/instance?serviceName=springboot2-nacos-discovery  <-->5
+/{re=exrex:(|%NACOS-PROJECT%)}$/v1/service/list?pageSize=123&groupname=default_group&encoding=utf-8  <-->5
+/{re=exrex:(|%NACOS-PROJECT%)}$/config  <-->2
+/{re=exrex:(|%NACOS-PROJECT%)}$/index.html  <-->1
+/{re=exrex:(|%NACOS-PROJECT%)}$/login.html  <-->1
+/{re=exrex:(|%NACOS-PROJECT%)}$/v1/cs/configs  <-->1
+/{re=exrex:(|%NACOS-PROJECT%)}$/v1/cs/configs?dataId=Misplaced  <-->1
+/{re=exrex:(|%NACOS-PROJECT%)}$/v1/services/findOnes/api/v1/loginfrequency=5  <-->1

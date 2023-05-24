@@ -6,9 +6,12 @@ from libs.lib_dyna_rule.base_rule_parser import RuleParser
 from libs.lib_file_operate.file_path import get_dir_path_file_info_dict, file_name_remove_ext_list, \
     get_dir_path_dir_info_dict
 from libs.lib_file_operate.file_read import read_file_to_list
-from libs.lib_log_print.logger_printer import output, LOG_ERROR, set_logger
+from libs.lib_log_print.logger_printer import output, LOG_ERROR, set_logger, LOG_INFO
 from setting_total import *
 
+
+# 检查每一行规则，是否符合基本变量替换规则 % XXX % 的形式
+# 符合的话，看其在不在当前基本字典内, 不在的话提出警告
 
 def base_rule_check(rule_line):
     status = True
@@ -65,12 +68,12 @@ def check_rule_base_var_format(dirs, base_vars):
                     # 提取其中不存在的变量
                     diff_set = set(rule_vars) - set(base_vars)
                     if diff_set:
-                        output(f"[!] 警告: 字典文件【{file_path}】 字典规则【{rule}】 发现非预期变量【{diff_set}】")
+                        output(f"[!] 警告: 字典文件【{file_path}】 字典规则【{rule}】 发现非预期变量【{diff_set}】", level=LOG_ERROR)
                         error_rules_dict[f"{file_path}<-->{rule}"] = f"非预期变量 {diff_set}"
                 # 进行规则解析测试
                 rule_status = base_rule_check(rule)
                 if not rule_status:
-                    output(f"[!] 警告: 字典文件【{file_path}】 字典规则【{rule}】 进行规则解析错误")
+                    output(f"[!] 警告: 字典文件【{file_path}】 字典规则【{rule}】 进行规则解析错误", level=LOG_ERROR)
                     error_rules_dict[f"{file_path}<-->{rule}"] = "规则解析错误"
     return error_rules_dict
 
@@ -100,14 +103,15 @@ if __name__ == '__main__':
     # 根据用户输入的debug参数设置日志打印器属性 # 为主要是为了接受config.debug参数来配置输出颜色.
     set_logger(GB_INFO_LOG_FILE, GB_ERR_LOG_FILE, GB_DBG_LOG_FILE, True)
 
+    base_dict_ext = [".lst"]
     base_dirs = {
-        GB_BASE_VAR_DIR: GB_DICT_SUFFIX,  # 基本变量目录
+        GB_BASE_VAR_DIR: base_dict_ext,
     }
 
     rule_dirs = {
-        GB_DIRECT_PATH_DIR: GB_DICT_SUFFIX,  # 直接字典
-        GB_GROUP_FOLDER_DIR: GB_DICT_SUFFIX,  # 合并目录
-        GB_GROUP_FILES_DIR: GB_DICT_SUFFIX,  # 合并文件
+        GB_DIRECT_PATH_DIR: base_dict_ext,  # 直接字典
+        GB_GROUP_FOLDER_DIR: base_dict_ext,  # 合并目录
+        GB_GROUP_FILES_DIR: base_dict_ext,  # 合并文件
     }
 
     # 1、获取所有基础变量
@@ -123,6 +127,6 @@ if __name__ == '__main__':
     # 2、检查每一行规则
     error_rules_info = check_rule_base_var_format(rule_dirs, all_base_var)
     if error_rules_info:
-        output(f"[-] 发现错误变量|错误规则【{len(error_rules_info)}】个, 详情:{error_rules_info}")
+        output(f"[-] 发现错误变量|错误规则【{len(error_rules_info)}】个, 详情:{error_rules_info}", level=LOG_ERROR)
     else:
-        output(f"[+] 没有发现错误变量|错误规则...")
+        output(f"[+] 没有发现错误变量|错误规则...", level=LOG_INFO)
