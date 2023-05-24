@@ -38,12 +38,15 @@ def get_dir_path_file_info_dict(dir_path, ext_list=['.txt']):
         files #当前路径下所有非目录子文件
         """
         for file in files:
-            for ext in ext_list:
-                if file.endswith(ext):
-                    if file in file_info_dict.keys():
-                        print(f"[!] Exists Same Name File [{file}], It Will Be Over Written !!!")
-                    file_info_dict[file] = os.path.join(root, file)
-                    break
+            if not ext_list:
+                file_info_dict[file] = os.path.join(root, file)
+            else:
+                for ext in ext_list:
+                    if file.endswith(ext):
+                        if file in file_info_dict.keys():
+                            print(f"[!] Exists Same Name File [{file}], It Will Be Over Written !!!")
+                        file_info_dict[file] = os.path.join(root, file)
+                        break
     return file_info_dict
 
 
@@ -65,6 +68,34 @@ def get_dir_path_dir_info_dict(dir_path):
                 print(f"[!] Exists Same Name Dir [{sub_dir}], It Will Be Over Written !!!")
             dir_info_dict[sub_dir] = os.path.join(root, sub_dir)
     return dir_info_dict
+
+
+# 获取目录下的目录名|文件名信息, 返回 {文件目录名绝对路径:文件目录名}
+def get_dir_path_info_dict(dir_path, ext_list=['.txt']):
+    """
+    # 获取目录下的目录名|文件名信息, 返回 {文件目录名绝对路径:文件目录名}
+    """
+    info_dict = {}
+    for root, dirs, files in os.walk(dir_path):
+        """
+        root #当前目录路径
+        dirs #当前路径下所有子目录
+        files #当前路径下所有非目录子文件
+        """
+        for sub_dir in dirs:
+            if sub_dir in info_dict.keys():
+                print(f"[!] Exists Same Name Dir [{sub_dir}], It Will Be Over Written !!!")
+            info_dict[os.path.join(root, sub_dir)] = sub_dir
+
+        for file in files:
+            if not ext_list:
+                info_dict[os.path.join(root, file)] = file
+            else:
+                for ext in ext_list:
+                    if file.endswith(ext):
+                        info_dict[os.path.join(root, file)] = file
+                        break
+    return info_dict
 
 
 # 切割去除文件名的后缀,支持后缀列表
