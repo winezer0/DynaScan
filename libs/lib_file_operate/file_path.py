@@ -5,10 +5,25 @@ import os
 from pathlib import Path
 
 
+def file_is_empty(file_path):
+    # 判断一个文件是否为空
+    return os.path.getsize(file_path) == 0
+
+
+def auto_create_file(file_path):
+    # 自动创建空文件
+    if not os.path.exists(file_path):
+        open(file_path, 'w').close()
+        return True
+    return False
+
+
 def auto_make_dir(path):
     # 自动创建目录
     if not os.path.exists(path):
         os.makedirs(path)
+        return True
+    return False
 
 
 def file_is_exist(file_path):
@@ -17,8 +32,7 @@ def file_is_exist(file_path):
         path = Path(file_path)
         if path.is_file():
             return True
-        else:
-            return False
+    return False
 
 
 # 获取目录下的文件名信息, 返回 {文件名:文件绝对路径}
