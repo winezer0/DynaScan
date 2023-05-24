@@ -1,8 +1,9 @@
 .idea
-runtime*
+*idea*
+*temp*
+*__pycache__*
+runtime
 runlog*
 result*
-runtime
 HIT*
-*__pycache__*
 *.pyc
