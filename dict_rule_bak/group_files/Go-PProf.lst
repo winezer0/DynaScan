@@ -1,9 +1,0 @@
-/pprof  <-->1
-/profile  <-->1
-block?debug=1  <-->1
-/gotoutine?debug=1  <-->1
-/heap?debug=1  <-->1
-/mutex?debug=1  <-->1
-/threadcreate?debug=1  <-->1
-/trace  <-->1
-/allocs?debug=1  <-->1
