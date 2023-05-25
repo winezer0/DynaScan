@@ -3,10 +3,11 @@
 import argparse
 
 from pyfiglet import Figlet
-
 from libs.gen_path import gen_base_scan_path_list, product_urls_and_paths, path_list_handle, target_url_handle, \
     url_list_handle
-from libs.lib_file_operate.file_coding import file_encoding
+from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
+from libs.lib_dyna_rule.set_depend_var import set_dependent_var_dict
+from libs.lib_file_operate.file_path import file_is_exist
 from libs.lib_file_operate.file_read import read_file_to_list
 from libs.lib_file_operate.file_write import write_lines, write_path_list_to_frequency_file
 from libs.lib_log_print.logger_printer import set_logger, output, LOG_DEBUG, LOG_INFO, LOG_ERROR
@@ -14,8 +15,6 @@ from libs.lib_requests.check_protocol import check_url_list_access, check_host_l
 from libs.lib_requests.requests_const import *
 from libs.lib_requests.requests_thread import multi_thread_requests_url, multi_thread_requests_url_sign
 from libs.lib_requests.requests_tools import get_random_str, analysis_dict_same_keys, access_result_handle
-from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
-from libs.lib_dyna_rule.set_depend_var import set_dependent_var_dict
 from libs.lib_url_analysis.url_tools import get_host_port, get_base_url
 from libs.util_func import url_to_raw_rule_classify
 from setting_total import *  # setting.py中的变量
@@ -30,32 +29,43 @@ def parse_input():
 
     # description 程序描述信息
     argument_parser.description = Figlet().renderText("DynaScan")
-
+    # 指定扫描URL或文件
     argument_parser.add_argument("-u", "--target", default=GB_TARGET,
                                  help=f"Specify the target URL or target File, Default is [{GB_TARGET}]")
-
+    # 指定调用的字典目录
+    argument_parser.add_argument("-r", "--dict_rule_scan", default=GB_DICT_RULE_SCAN, nargs="+",
+                                 help=f"Specifies Scan the rule dirs list, Default is [{GB_DICT_RULE_SCAN}]")
+    # 指定最小提取频率
+    argument_parser.add_argument("-f", "--frequency_min", default=GB_FREQUENCY_MIN, type=int,
+                                 help=f"Specifies the pair rule file level or prefix, Default is [{GB_FREQUENCY_MIN}]")
+    # 指定频率连接符
+    argument_parser.add_argument("-fs", "--frequency_symbol", default=GB_FREQUENCY_SYMBOL,
+                                 help=f"Specifies Name Pass Link Symbol in history file, Default is [{GB_FREQUENCY_SYMBOL}]", )
+    # 指定请求代理服务
     argument_parser.add_argument("-x", dest="proxies", default=GB_PROXIES,
                                  help=f"Specifies http|https|socks5 proxies, Default is [{GB_PROXIES}]")
-
+    # 指定请求线程数量
     argument_parser.add_argument("-t", "--threads_count", default=GB_THREADS_COUNT, type=int,
                                  help=f"Specifies request threads, Default is [{GB_THREADS_COUNT}]")
-
+    # 指定字典后缀名列表
     argument_parser.add_argument("-s", dest="dict_suffix", default=GB_DICT_SUFFIX, nargs='+',
-                                 help=f"Specifies Dict File Suffix List, Default is [{GB_DICT_SUFFIX}]")
-
+                                 help=f"Specifies Dict File Suffix List, Default is {GB_DICT_SUFFIX}")
+    # 开启调试功能
     argument_parser.add_argument("-d", "--debug_flag", default=GB_DEBUG_FLAG, action="store_true",
                                  help=f"Specifies Display Debug Info, Default is [{GB_DEBUG_FLAG}]", )
 
-    example = """
-             \rExamples:
+    example = """Examples:
+             \r  指定扫描文件内所有目标:
              \r  python3 {shell_name} -u target.txt
+             \r  指定扫描baidu.com:
              \r  python3 {shell_name} -u https://www.baidu.com
-             \r  python3 {shell_name} -u https://www.baidu.com -t 100
-             \r  python3 {shell_name} -u https://www.baidu.com -s txt lst 
+             \r  进行备份文件字典扫描,筛选频率10以上的字典:
+             \r  python3 {shell_name} -u https://www.xxx.com -r backup -f 10
+             \r  进行所有文件字典扫描,设置Socks5请求代理:
              \r  python3 {shell_name} -u https://www.baidu.com -p socks5://127.0.0.1:1080
              \r    
-             \r  其他控制细节参数请通过setting.py进行配置
-             \r    
+             \r  其他控制细节参数可通过setting.py进行配置
+             \r  
              \r  T00L Version: {version}
              \r  """
 
@@ -109,65 +119,10 @@ def gen_dynamic_exclude_dict(req_url):
 
 
 # 扫描主体
-def dyna_scan():
-    # 读取用户输入的URL和目标文件参数
-    target_list = []
-    if os.path.isfile(GB_TARGET):
-        target_list = read_file_to_list(file_path=GB_TARGET,
-                                        encoding=file_encoding(GB_TARGET),
-                                        de_strip=True,
-                                        de_weight=True,
-                                        de_unprintable=True)
-    else:
-        target_list.append(GB_TARGET)
-
-    # 尝试对输入的目标进行HOST头添加
-    target_list = check_host_list_proto(target_list=target_list,
-                                        req_method=GB_REQ_METHOD,
-                                        req_path="/",
-                                        req_headers=GB_HEADERS,
-                                        req_proxies=GB_PROXIES,
-                                        req_timeout=GB_TIMEOUT,
-                                        verify_ssl=GB_SSL_VERIFY,
-                                        default_proto=GB_DEFAULT_PROTO_HEAD)
-
-    # 尝试对输入的目标访问测试等处理
-    accessible_target, inaccessible_target = check_url_list_access(target_list=target_list,
-                                                                   thread_sleep=GB_THREAD_SLEEP,
-                                                                   url_access_test=GB_URL_ACCESS_TEST,
-                                                                   req_method=GB_REQ_METHOD,
-                                                                   req_headers=GB_HEADERS,
-                                                                   req_proxies=GB_PROXIES,
-                                                                   verify_ssl=GB_SSL_VERIFY,
-                                                                   req_timeout=GB_TIMEOUT,
-                                                                   req_allow_redirects=GB_ALLOW_REDIRECTS,
-                                                                   retry_times=GB_RETRY_TIMES)
-
-    # 记录可以访问的目标到文件
-    write_lines(GB_ACCESSIBLE_RECORD, accessible_target, encoding="utf-8", new_line=True, mode="a+")
-    # 记录不可访问的目标到文件
-    write_lines(GB_INACCESSIBLE_RECORD, inaccessible_target, encoding="utf-8", new_line=True, mode="a+")
-
-    # 需要扫描的目标列表
-    target_list = list(set(accessible_target))
-    output(f"[*] 当前整合URL 剩余目标 {len(target_list)}个", level=LOG_INFO)
-
-    # 对输入的目标数量进行判断和处理
-    if not target_list:
-        output("[-] 未输入任何有效目标,退出程序...", level=LOG_ERROR)
-        return
-
-    # 读取路径字典 进行频率筛选、规则渲染、基本变量替换
-    output("[*] 读取路径字典 进行频率筛选、规则渲染、基本变量替换", level=LOG_INFO)
-    base_scan_path_list = gen_base_scan_path_list()
-
-    # 对路径字典进行过滤和格式化
-    base_scan_path_list = path_list_handle(base_scan_path_list)
-    output(f"[*] 字典处理完毕 剩余元素 {len(base_scan_path_list)}", level=LOG_INFO)
-
+def dyna_scan_controller(target_url_list, base_path_list):
     # 对每个目标进行分析因变量分析和因变量替换渲染
-    for target_index, target_url in enumerate(target_list):
-        output(f"[+] 任务进度 {target_index + 1}/{len(target_list)} {target_url}", level=LOG_INFO)
+    for target_index, target_url in enumerate(target_url_list):
+        output(f"[+] 任务进度 {target_index + 1}/{len(target_url_list)} {target_url}", level=LOG_INFO)
 
         # 开始进行URL测试,确定动态排除用的变量
         curr_dynamic_exclude_dict = gen_dynamic_exclude_dict(target_url)
@@ -181,7 +136,7 @@ def dyna_scan():
         current_url_list = list(set([url[:-1] if url.endswith('/') else url for url in current_url_list]))
 
         # 合并urls列表和paths列表
-        current_url_list = product_urls_and_paths(current_url_list, base_scan_path_list)
+        current_url_list = product_urls_and_paths(current_url_list, base_path_list)
         output(f"[*] 合并urls列表和paths列表 {len(current_url_list)}个", level=LOG_INFO)
 
         # 基于URL解析因变量并进行替换
@@ -215,12 +170,12 @@ def dyna_scan():
         output(f"[*] 任务拆分 SIZE:[{task_size}] * NUM:[{len(brute_task_list)}]", level=LOG_INFO)
 
         # 直接被排除的请求记录
-        ignore_file_path = os.path.join(GB_RESULT_DIR, f"{curr_host_port_no_symbol}.ignore.csv")
+        ignore_file_path = GB_RESULT_DIR.joinpath(f"{curr_host_port_no_symbol}.ignore.csv")
         # 构造常规的结果文件
         result_file_path = GB_RESULT_FILE_PATH
         if "auto" in result_file_path.lower():
             # 根据主机名生成结果文件名
-            result_file_path = os.path.join(GB_RESULT_DIR, f"{curr_host_port_no_symbol}.result.csv")
+            result_file_path = GB_RESULT_DIR.joinpath(f"{curr_host_port_no_symbol}.result.csv")
 
         # 统计本目标的总访问错误次数
         access_fail_count = 0
@@ -284,6 +239,48 @@ def dyna_scan():
         output(f"[+] 测试完毕 [{target_url}]", level=LOG_INFO)
 
 
+def init_input_target(input_target):
+    # 读取用户输入的URL和目标文件参数
+    targets = []
+    if file_is_exist(input_target):
+        targets = read_file_to_list(file_path=input_target, de_strip=True, de_weight=True, de_unprintable=True)
+    else:
+        targets.append(input_target)
+
+    # 尝试对输入的目标进行HOST头添加
+    targets = check_host_list_proto(target_list=targets,
+                                    req_method=GB_REQ_METHOD,
+                                    req_path="/",
+                                    req_headers=GB_HEADERS,
+                                    req_proxies=GB_PROXIES,
+                                    req_timeout=GB_TIMEOUT,
+                                    verify_ssl=GB_SSL_VERIFY,
+                                    default_proto=GB_DEFAULT_PROTO_HEAD)
+
+    # 尝试对输入的目标访问测试等处理
+    accessible_target, inaccessible_target = check_url_list_access(target_list=targets,
+                                                                   thread_sleep=GB_THREAD_SLEEP,
+                                                                   url_access_test=GB_URL_ACCESS_TEST,
+                                                                   req_method=GB_REQ_METHOD,
+                                                                   req_headers=GB_HEADERS,
+                                                                   req_proxies=GB_PROXIES,
+                                                                   verify_ssl=GB_SSL_VERIFY,
+                                                                   req_timeout=GB_TIMEOUT,
+                                                                   req_allow_redirects=GB_ALLOW_REDIRECTS,
+                                                                   retry_times=GB_RETRY_TIMES)
+
+    # 记录可以访问的目标到文件
+    write_lines(GB_ACCESSIBLE_RECORD, accessible_target, encoding="utf-8", new_line=True, mode="a+")
+    # 记录不可访问的目标到文件
+    write_lines(GB_INACCESSIBLE_RECORD, inaccessible_target, encoding="utf-8", new_line=True, mode="a+")
+
+    # 需要扫描的目标列表
+    targets = list(set(accessible_target))
+    output(f"[*] 当前整合URL 剩余目标 {len(targets)}个", level=LOG_INFO)
+
+    return targets
+
+
 if __name__ == "__main__":
     # 输入参数解析
     parser = parse_input()
@@ -303,18 +300,33 @@ if __name__ == "__main__":
             output(f"[!] 输入参数信息: {param_name} {param_value} 未对应其全局变量!!!", level=LOG_ERROR)
             exit()
 
-    # 处理代理参数 如果输入了代理参数就会变为字符串
+    # 格式化输入的Proxy参数 如果输入了代理参数就会变为字符串
     if GB_PROXIES and isinstance(GB_PROXIES, str):
         if "socks" in GB_PROXIES or "http" in GB_PROXIES:
             GB_PROXIES = {'http': GB_PROXIES.replace('https://', 'http://'),
                           'https': GB_PROXIES.replace('http://', 'https://')}
         else:
-            output(f"[!] 输入的代理地址[{GB_PROXIES}]不正确,正确格式:Protocol://IP:PORT", level=LOG_ERROR)
+            output(f"[!] 输入的代理地址[{GB_PROXIES}]不正确,正确格式:Proto://IP:PORT", level=LOG_ERROR)
 
     # 根据用户输入的debug参数设置日志打印器属性 # 为主要是为了接受config.debug参数来配置输出颜色.
     set_logger(GB_INFO_LOG_FILE, GB_ERR_LOG_FILE, GB_DBG_LOG_FILE, GB_DEBUG_FLAG)
 
+    # 读取路径字典 进行频率筛选、规则渲染、基本变量替换
+    output(f"[*] 读取路径字典 {GB_DICT_RULE_SCAN} 进行频率筛选、规则渲染、基本变量替换", level=LOG_ERROR)
+    base_scan_path_list = gen_base_scan_path_list(GB_DICT_RULE_SCAN)
+
+    # 对路径字典进行过滤和格式化
+    base_scan_path_list = path_list_handle(base_scan_path_list)
+    output(f"[*] 字典处理完毕  {GB_DICT_RULE_SCAN} 剩余元素 {len(base_scan_path_list)}", level=LOG_ERROR)
+    exit()
+
+    # 对输入的目标数量进行处理和判断
+    target_list = init_input_target(GB_TARGET)
+    if len(target_list) == 0 or len(base_scan_path_list) == 0:
+        output("[-] 未输入任何有效目标或字典,退出程序...", level=LOG_ERROR)
+        exit()
+
     # 开始扫描
-    dyna_scan()
+    dyna_scan_controller(target_list, base_scan_path_list)
 
     output(f"[+] 所有任务测试完毕", level=LOG_INFO)

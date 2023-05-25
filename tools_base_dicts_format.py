@@ -34,7 +34,7 @@ if __name__ == '__main__':
     dirs_dict = {
         GB_HIT_FILE_DIR: GB_DICT_SUFFIX,  # 命中文件目录
         GB_BASE_VAR_DIR: GB_DICT_SUFFIX,  # 基本变量目录
-        GB_DICT_PATH: GB_DICT_SUFFIX,  # 直接字典
+        GB_DICT_RULE_PATH: GB_DICT_SUFFIX,  # 直接字典
     }
 
     # 格式化目录下的字典 （统计频率）

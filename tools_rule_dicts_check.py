@@ -109,9 +109,9 @@ if __name__ == '__main__':
     }
 
     rule_dirs = {
-        GB_DIRECT_PATH_DIR: base_dict_ext,  # 直接字典
-        GB_GROUP_FOLDER_DIR: base_dict_ext,  # 合并目录
-        GB_GROUP_FILES_DIR: base_dict_ext,  # 合并文件
+        GB_DIRECT_PATH_STR: base_dict_ext,  # 直接字典
+        GB_GROUP_DIRS_STR: base_dict_ext,  # 合并目录
+        GB_GROUP_FILE_STR: base_dict_ext,  # 合并文件
     }
 
     # 1、获取所有基础变量

@@ -16,7 +16,7 @@ sys.dont_write_bytecode = True  # 设置不生成pyc文件
 GB_RUN_TIME = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
 ##################################################################
 # 版本号配置
-GB_VERSION = "Ver 0.2.7 2023-05-06 12:30"
+GB_VERSION = "Ver 0.3.0 2023-05-25 13:30"
 ##################################################################
 # 是否显示DEBUG级别信息,默认False
 GB_DEBUG_FLAG = False
@@ -97,10 +97,7 @@ GB_EXCLUDE_STATUS = [404, 401, 403, 405, 406, 410, 500, 501, 502, 503]
 GB_EXCLUDE_REGEXP = r"页面不存在|未找到|not[ -]found|403|404|410"
 ##################################################################
 # 设置日志输出文件路径 #目录不存在会自动创建
-GB_LOG_FILE_DIR = str(GB_BASE_DIR.joinpath("runtime"))
-
-GB_LOG_FILE_PATH = os.path.join(GB_LOG_FILE_DIR, "runtime_module.log")
-# LOG_FILE_PATH = os.path.join(LOG_FILE_DIR, "runtime_{GB_RUN_TIME}_module.log")
+GB_LOG_FILE_PATH = str(GB_BASE_DIR.joinpath("runtime", "runtime_module.log"))
 
 GB_INFO_LOG_FILE = GB_LOG_FILE_PATH.replace('module', 'info')
 GB_DBG_LOG_FILE = GB_LOG_FILE_PATH.replace('module', 'debug')

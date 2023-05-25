@@ -129,3 +129,16 @@ def file_name_remove_ext_list(file_name, ext_list):
             file_name = file_name.rsplit(ext, 1)[0]
             break
     return file_name
+
+
+# 获取第一层子目录名称
+def get_sub_dirs(directory):
+    """
+    获取第一层子目录名称
+    """
+    sub_dirs = []
+    for item in os.listdir(directory):
+        item_path = os.path.join(directory, item)
+        if os.path.isdir(item_path):
+            sub_dirs.append(item)
+    return sub_dirs

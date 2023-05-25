@@ -12,13 +12,12 @@ GB_BASE_DIR = pathlib.Path(__file__).parent.resolve()
 # 基本变量文件路径
 GB_BASE_VAR_DIR = GB_BASE_DIR.joinpath("dict_base")
 # 设置默认调用的字典目录
-GB_DICT_PATH = GB_BASE_DIR.joinpath("dict_rule")
-# 常规直接字典路径
-GB_DIRECT_PATH_DIR = os.path.join(GB_DICT_PATH, "direct_path")
-# 组合-目录字典路径
-GB_GROUP_FOLDER_DIR = os.path.join(GB_DICT_PATH, "group_folder")
-# 组合-文件 字典路径
-GB_GROUP_FILES_DIR = os.path.join(GB_DICT_PATH, "group_files")
+GB_DICT_RULE_PATH = GB_BASE_DIR.joinpath("dict_rule")
+GB_DIRECT_PATH_STR = str(GB_DICT_RULE_PATH.joinpath("{RULE_DIR}", "direct_path"))   # 常规直接字典路径格式
+GB_GROUP_DIRS_STR = str(GB_DICT_RULE_PATH.joinpath("{RULE_DIR}", "group_folder"))   # 组合-目录字典路径格式
+GB_GROUP_FILE_STR = str(GB_DICT_RULE_PATH.joinpath("{RULE_DIR}", "group_files"))    # 组合-文件 字典路径格式
+# 默认扫描的目录
+GB_DICT_RULE_SCAN = None  # 为空表示所有目录
 ###########################
 # 读取DIRECT目录下的字典
 GB_ADD_DIRECT_DICT = True
@@ -31,7 +30,7 @@ GB_DICT_SUFFIX = ['.lst']
 # 指定path和频率的分隔符,如果每一行的内容为/xxx/xxx  <-->10,那么切割符为'<-->'
 GB_FREQUENCY_SYMBOL = '<-->'
 # 要提取的最小路径频率阈值，大于等于 FREQUENCY_MIN 小于等于 FREQUENCY_MAX 的字典会被提取
-GB_FREQUENCY_MIN = 1
+GB_FREQUENCY_MIN = 10
 # 字典文件的行注释符号
 GB_ANNOTATION_SYMBOL = '#'
 ##################################################################
@@ -55,13 +54,13 @@ GB_IGNORE_IP_FORMAT = True
 # 命中文件保存路径
 GB_HIT_FILE_DIR = GB_BASE_DIR.joinpath("dict_hit")
 # 存储命中的后缀
-GB_HIT_EXT_FILE = os.path.join(GB_HIT_FILE_DIR, 'HIT_EXT.hit')
+GB_HIT_EXT_FILE = GB_HIT_FILE_DIR.joinpath('HIT_EXT.hit')
 # 存储命中的路径
-GB_HIT_DIRECT_FILE = os.path.join(GB_HIT_FILE_DIR, 'HIT_DIRECT.hit')
+GB_HIT_DIRECT_FILE = GB_HIT_FILE_DIR.joinpath('HIT_DIRECT.hit')
 # 存储命中的目录
-GB_HIT_FOLDER_FILE = os.path.join(GB_HIT_FILE_DIR, 'HIT_FOLDER.hit')
+GB_HIT_FOLDER_FILE = GB_HIT_FILE_DIR.joinpath('HIT_FOLDER.hit')
 # 存储命中的文件
-GB_HIT_FILES_FILE = os.path.join(GB_HIT_FILE_DIR, 'HIT_FILE.hit')
+GB_HIT_FILES_FILE = GB_HIT_FILE_DIR.joinpath('HIT_FILE.hit')
 # 是否保存命中结果到HIT_XXX文件
 GB_SAVE_HIT_RESULT = True
 # 命中结果文件追加模式
