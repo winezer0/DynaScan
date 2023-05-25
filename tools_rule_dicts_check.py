@@ -101,7 +101,7 @@ def get_all_base_var(dirs):
 
 if __name__ == '__main__':
     # 根据用户输入的debug参数设置日志打印器属性 # 为主要是为了接受config.debug参数来配置输出颜色.
-    set_logger(GB_INFO_LOG_FILE, GB_ERR_LOG_FILE, GB_DBG_LOG_FILE, True)
+    set_logger(GB_INFO_LOG_STR, GB_ERROR_LOG_STR, GB_DEBUG_LOG_STR, True)
 
     base_dict_ext = [".lst"]
     base_dirs = {
@@ -119,8 +119,8 @@ if __name__ == '__main__':
     output(f"[+] 目前所有基础变量【{len(all_base_var)}】个, 详情：{all_base_var}")
 
     # 扩充因变量字典
-    all_base_var.extend(list(GB_BASE_VAR_REPLACE_DICT.keys()))  # 自定义 基本变量
-    all_base_var.extend(list(GB_DEPENDENT_VAR_REPLACE_DICT.keys()))  # 动态因变量 及 自定义因变量
+    all_base_var.extend(list(GB_BASE_REPLACE_DICT.keys()))  # 自定义 基本变量
+    all_base_var.extend(list(GB_DEPENDENT_REPLACE_DICT.keys()))  # 动态因变量 及 自定义因变量
 
     output(f"[+] 目前所有替换变量【{len(all_base_var)}】个, 详情：{all_base_var}")
 

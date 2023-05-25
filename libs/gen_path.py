@@ -86,8 +86,8 @@ def target_url_handle(url):
 # 拼接URL前的PATH过滤和格式化
 def path_list_handle(path_list):
     # 对列表中的所有PATH添加指定前缀
-    if GB_ADD_CUSTOM_PREFIX:
-        path_list = product_urls_and_paths(GB_ADD_CUSTOM_PREFIX, path_list)
+    if GB_CUSTOM_URL_PREFIX:
+        path_list = product_urls_and_paths(GB_CUSTOM_URL_PREFIX, path_list)
         output(f"[*] 自定义前缀 剩余元素 {len(path_list)}个", level=LOG_INFO)
 
     # 保留指定后缀的URL目标
@@ -101,8 +101,8 @@ def path_list_handle(path_list):
         output(f"[*] 移除指定后缀 剩余元素 {len(path_list)}个", level=LOG_ERROR)
 
     # 是否开启结尾字符列表去除
-    if GB_REMOVE_SOME_SYMBOL:
-        path_list = remove_url_end_symbol(path_list, remove_symbol_list=GB_REMOVE_SOME_SYMBOL)
+    if GB_REMOVE_END_SYMBOLS:
+        path_list = remove_url_end_symbol(path_list, remove_symbol_list=GB_REMOVE_END_SYMBOLS)
         output(f"[*] 删除结尾字符 剩余元素 {len(path_list)}个", level=LOG_INFO)
 
     # 是否开启REMOVE_MULTI_SLASHES,将多个////转换为一个/
@@ -136,7 +136,7 @@ def url_list_handle(url_list, url_history_file):
         url_list = url_list[:GB_MAX_URL_NUM]
 
     # 排除历史扫描记录
-    if GB_EXCLUDE_HOST_HISTORY:
+    if GB_HISTORY_EXCLUDE:
         if file_is_exist(url_history_file):
             accessed_url_list = read_file_to_list(file_path=url_history_file, de_strip=True, de_weight=True,
                                                   de_unprintable=False)
@@ -181,7 +181,7 @@ def read_path_files_and_rule_parse_frequency(read_dir_path,
 
 
 # 生成基本扫描字典
-def gen_base_scan_path_list(cur_rule_dir_list=None):
+def gen_base_scan_path_list(cur_rule_dir_list):
     # 0、在不指定扫描目录的情况下,默认扫描所有文件
     all_rule_dir_list = get_sub_dirs(GB_DICT_RULE_PATH)
     if cur_rule_dir_list:
@@ -194,16 +194,16 @@ def gen_base_scan_path_list(cur_rule_dir_list=None):
     output(f"[*] 当前指定加载目录:{cur_rule_dir_list}", level=LOG_DEBUG)
 
     # 1、获取基本变量替换字典
-    base_var_replace_dict = set_base_var_dict_frequency(base_var_dir=GB_BASE_VAR_DIR,
-                                                        ext_list=GB_DICT_SUFFIX,
-                                                        base_replace_dict=GB_BASE_VAR_REPLACE_DICT,
-                                                        frequency_symbol=GB_FREQUENCY_SYMBOL,
-                                                        annotation_symbol=GB_ANNOTATION_SYMBOL,
-                                                        frequency_min=GB_FREQUENCY_MIN
-                                                        )
-    output(f"[*] 获取基本变量完成:{base_var_replace_dict.keys()}", level=LOG_DEBUG)
+    base_replace_dict = set_base_var_dict_frequency(base_var_dir=GB_BASE_VAR_DIR,
+                                                    ext_list=GB_DICT_SUFFIX,
+                                                    base_replace_dict=GB_BASE_REPLACE_DICT,
+                                                    frequency_symbol=GB_FREQUENCY_SYMBOL,
+                                                    annotation_symbol=GB_ANNOTATION_SYMBOL,
+                                                    frequency_min=GB_FREQUENCY_MIN
+                                                    )
+    output(f"[*] 获取基本变量完成:{base_replace_dict.keys()}", level=LOG_DEBUG)
 
-    base_path_list = []
+    base_paths = []
     for rule_dir in cur_rule_dir_list:
         direct_path = GB_DIRECT_PATH_STR.format(RULE_DIR=rule_dir)
         group_dirs = GB_GROUP_DIRS_STR.format(RULE_DIR=rule_dir)
@@ -216,8 +216,8 @@ def gen_base_scan_path_list(cur_rule_dir_list=None):
                                                                         frequency_symbol=GB_FREQUENCY_SYMBOL,
                                                                         annotation_symbol=GB_ANNOTATION_SYMBOL,
                                                                         frequency_min=GB_FREQUENCY_MIN,
-                                                                        replace_dict=base_var_replace_dict)
-            base_path_list.extend(direct_path_list)
+                                                                        replace_dict=base_replace_dict)
+            base_paths.extend(direct_path_list)
             output(f"[+] 加载元素数量 {len(direct_path_list)} <--> {direct_path}", level=LOG_INFO)
 
         # 3、读取笛卡尔积路径 字典 并进行规则解析、变量替换处理
@@ -229,7 +229,7 @@ def gen_base_scan_path_list(cur_rule_dir_list=None):
                                                                          frequency_symbol=GB_FREQUENCY_SYMBOL,
                                                                          annotation_symbol=GB_ANNOTATION_SYMBOL,
                                                                          frequency_min=GB_FREQUENCY_MIN,
-                                                                         replace_dict=base_var_replace_dict)
+                                                                         replace_dict=base_replace_dict)
             output(f"[+] 加载元素数量 {len(group_folder_list)} <--> {group_dirs}", level=LOG_INFO)
 
             # 按频率 读取笛卡尔积路径 -> 文件 字典下的所有文件,并进行解析
@@ -239,14 +239,14 @@ def gen_base_scan_path_list(cur_rule_dir_list=None):
                                                                         frequency_symbol=GB_FREQUENCY_SYMBOL,
                                                                         annotation_symbol=GB_ANNOTATION_SYMBOL,
                                                                         frequency_min=GB_FREQUENCY_MIN,
-                                                                        replace_dict=base_var_replace_dict)
+                                                                        replace_dict=base_replace_dict)
             output(f"[+] 加载元素数量 {len(group_files_list)} <--> {group_file}", level=LOG_INFO)
 
             # 组合 group_folder_list group_files_list
             group_dict_list, _ = product_folders_and_files(group_folder_list, group_files_list)
-            base_path_list.extend(group_dict_list)
+            base_paths.extend(group_dict_list)
 
-    return base_path_list
+    return base_paths
 
 
 if __name__ == '__main__':

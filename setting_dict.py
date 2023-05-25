@@ -35,10 +35,10 @@ GB_FREQUENCY_MIN = 10
 GB_ANNOTATION_SYMBOL = '#'
 ##################################################################
 # 存储自定义 基本变量
-GB_BASE_VAR_REPLACE_DICT = {"%BLANK%": ['']}
+GB_BASE_REPLACE_DICT = {"%BLANK%": ['']}
 #########################
 # 存储自定义 因变量 # 考虑都合并到 DEPENDENT
-GB_DEPENDENT_VAR_REPLACE_DICT = {
+GB_DEPENDENT_REPLACE_DICT = {
     STR_VAR_DEPENDENT:['admin', 'product', 'wwwroot', 'www', '网站'],  # 存储自定义因变量
     STR_VAR_DOMAIN: [],  # 存储动态PATH因变量-无需处理
     STR_VAR_PATH: [],  # 存储动态域名因变量-无需处理
@@ -80,13 +80,13 @@ GB_ONLY_ENCODE_CHINESE = True
 GB_REMOVE_MULTI_SLASHES = True
 
 # 去除以特定字符结尾的URL
-GB_REMOVE_SOME_SYMBOL = ['.']
+GB_REMOVE_END_SYMBOLS = ['.']
 
 # URL路径全部小写
 GB_URL_PATH_LOWERCASE = True
 
 # 为每个路径添加自定义前缀 # 例如 ['/admin']
-GB_ADD_CUSTOM_PREFIX = None
+GB_CUSTOM_URL_PREFIX = None
 
 # 仅扫描指定后缀的URL目标,注意:后缀不需要加[.] # 例如 ['php','html']
 GB_ONLY_SCAN_SPECIFY_EXT = None

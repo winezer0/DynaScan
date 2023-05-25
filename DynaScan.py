@@ -21,61 +21,6 @@ from setting_total import *  # setting.py中的变量
 
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
-
-# 解析输入参数
-def parse_input():
-    # RawDescriptionHelpFormatter 支持输出换行符
-    argument_parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, add_help=True)
-
-    # description 程序描述信息
-    argument_parser.description = Figlet().renderText("DynaScan")
-    # 指定扫描URL或文件
-    argument_parser.add_argument("-u", "--target", default=GB_TARGET,
-                                 help=f"Specify the target URL or target File, Default is [{GB_TARGET}]")
-    # 指定调用的字典目录
-    argument_parser.add_argument("-r", "--dict_rule_scan", default=GB_DICT_RULE_SCAN, nargs="+",
-                                 help=f"Specifies Scan the rule dirs list, Default is [{GB_DICT_RULE_SCAN}]")
-    # 指定最小提取频率
-    argument_parser.add_argument("-f", "--frequency_min", default=GB_FREQUENCY_MIN, type=int,
-                                 help=f"Specifies the pair rule file level or prefix, Default is [{GB_FREQUENCY_MIN}]")
-    # 指定频率连接符
-    argument_parser.add_argument("-fs", "--frequency_symbol", default=GB_FREQUENCY_SYMBOL,
-                                 help=f"Specifies Name Pass Link Symbol in history file, Default is [{GB_FREQUENCY_SYMBOL}]", )
-    # 指定请求代理服务
-    argument_parser.add_argument("-x", dest="proxies", default=GB_PROXIES,
-                                 help=f"Specifies http|https|socks5 proxies, Default is [{GB_PROXIES}]")
-    # 指定请求线程数量
-    argument_parser.add_argument("-t", "--threads_count", default=GB_THREADS_COUNT, type=int,
-                                 help=f"Specifies request threads, Default is [{GB_THREADS_COUNT}]")
-    # 指定字典后缀名列表
-    argument_parser.add_argument("-s", dest="dict_suffix", default=GB_DICT_SUFFIX, nargs='+',
-                                 help=f"Specifies Dict File Suffix List, Default is {GB_DICT_SUFFIX}")
-    # 开启调试功能
-    argument_parser.add_argument("-d", "--debug_flag", default=GB_DEBUG_FLAG, action="store_true",
-                                 help=f"Specifies Display Debug Info, Default is [{GB_DEBUG_FLAG}]", )
-
-    example = """Examples:
-             \r  批量扫描 target.txt
-             \r  python3 {shell_name} -u target.txt
-             \r  指定扫描 baidu.com
-             \r  python3 {shell_name} -u https://www.baidu.com
-             \r  进行备份文件字典扫描,筛选频率10以上的字典:
-             \r  python3 {shell_name} -u https://www.xxx.com -r backup -f 10
-             \r  进行Spring Boot文件字典扫描,筛选频率1以上的字典:
-             \r  python3 {shell_name} -u https://www.xxx.com -r backup -f 1
-             \r  进行所有文件字典扫描,设置Socks5请求代理:
-             \r  python3 {shell_name} -u https://www.baidu.com -p socks5://127.0.0.1:1080
-             \r    
-             \r  其他控制细节参数可通过setting.py进行配置
-             \r  
-             \r  T00L Version: {version}
-             \r  """
-
-    argument_parser.epilog = example.format(shell_name=argument_parser.prog, version=GB_VERSION)
-
-    return argument_parser
-
-
 # 生成动态排除字典
 def gen_dynamic_exclude_dict(req_url):
     test_path_1 = get_random_str(length=8, has_symbols=False, has_dot=True, with_slash=True)
@@ -98,7 +43,7 @@ def gen_dynamic_exclude_dict(req_url):
                                                       threads_count=GB_THREADS_COUNT,
                                                       thread_sleep=GB_THREAD_SLEEP,
                                                       req_method=GB_REQ_METHOD,
-                                                      req_headers=GB_HEADERS,
+                                                      req_headers=REQ_HEADERS,
                                                       req_data=GB_REQ_BODY,
                                                       req_proxies=GB_PROXIES,
                                                       req_timeout=GB_TIMEOUT,
@@ -143,7 +88,7 @@ def dyna_scan_controller(target_url_list, base_path_list):
 
         # 基于URL解析因变量并进行替换
         current_dependent_dict = set_dependent_var_dict(target_url=target_url,
-                                                        base_dependent_dict=GB_DEPENDENT_VAR_REPLACE_DICT,
+                                                        base_dependent_dict=GB_DEPENDENT_REPLACE_DICT,
                                                         ignore_ip_format=GB_IGNORE_IP_FORMAT,
                                                         symbol_replace_dict=GB_SYMBOL_REPLACE_DICT,
                                                         not_allowed_symbol=GB_NOT_ALLOW_SYMBOL)
@@ -157,7 +102,7 @@ def dyna_scan_controller(target_url_list, base_path_list):
 
         # 历史记录文件路径 基于主机HOST动态生成
         curr_host_port_no_symbol = get_host_port(target_url, replace_symbol=True)
-        curr_host_history_file = GB_PER_HOST_HISTORY_FILE.format(host_port=curr_host_port_no_symbol)
+        curr_host_history_file = GB_HISTORY_FILE_STR.format(host_port=curr_host_port_no_symbol)
 
         # 格式化和过滤当前的 current_url_list
         current_url_list = url_list_handle(current_url_list, curr_host_history_file)
@@ -188,7 +133,7 @@ def dyna_scan_controller(target_url_list, base_path_list):
                                                               threads_count=GB_THREADS_COUNT,
                                                               thread_sleep=GB_THREAD_SLEEP,
                                                               req_method=GB_REQ_METHOD,
-                                                              req_headers=GB_HEADERS,
+                                                              req_headers=REQ_HEADERS,
                                                               req_data=GB_REQ_BODY,
                                                               req_proxies=GB_PROXIES,
                                                               req_timeout=GB_TIMEOUT,
@@ -253,7 +198,7 @@ def init_input_target(input_target):
     targets = check_host_list_proto(target_list=targets,
                                     req_method=GB_REQ_METHOD,
                                     req_path="/",
-                                    req_headers=GB_HEADERS,
+                                    req_headers=REQ_HEADERS,
                                     req_proxies=GB_PROXIES,
                                     req_timeout=GB_TIMEOUT,
                                     verify_ssl=GB_SSL_VERIFY,
@@ -264,7 +209,7 @@ def init_input_target(input_target):
                                                                    thread_sleep=GB_THREAD_SLEEP,
                                                                    url_access_test=GB_URL_ACCESS_TEST,
                                                                    req_method=GB_REQ_METHOD,
-                                                                   req_headers=GB_HEADERS,
+                                                                   req_headers=REQ_HEADERS,
                                                                    req_proxies=GB_PROXIES,
                                                                    verify_ssl=GB_SSL_VERIFY,
                                                                    req_timeout=GB_TIMEOUT,
@@ -272,15 +217,115 @@ def init_input_target(input_target):
                                                                    retry_times=GB_RETRY_TIMES)
 
     # 记录可以访问的目标到文件
-    write_lines(GB_ACCESSIBLE_RECORD, accessible_target, encoding="utf-8", new_line=True, mode="a+")
+    write_lines(GB_ACCESSIBLE_FILE_STR, accessible_target, encoding="utf-8", new_line=True, mode="a+")
     # 记录不可访问的目标到文件
-    write_lines(GB_INACCESSIBLE_RECORD, inaccessible_target, encoding="utf-8", new_line=True, mode="a+")
+    write_lines(GB_INACCESSIBLE_FILE_STR, inaccessible_target, encoding="utf-8", new_line=True, mode="a+")
 
     # 需要扫描的目标列表
     targets = list(set(accessible_target))
     output(f"[*] 当前整合URL 剩余目标 {len(targets)}个", level=LOG_INFO)
 
     return targets
+
+
+# 解析输入参数
+def parse_input():
+    # RawDescriptionHelpFormatter 支持输出换行符
+    argument_parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, add_help=True)
+
+    # description 程序描述信息
+    argument_parser.description = Figlet().renderText("DynaScan")
+    # 指定扫描URL或文件
+    argument_parser.add_argument("-u", "--target", default=GB_TARGET,
+                                 help=f"Specify the target URL or target File, Default is [{GB_TARGET}]")
+    # 指定调用的字典目录
+    argument_parser.add_argument("-r", "--dict_rule_scan", default=GB_DICT_RULE_SCAN, nargs="+",
+                                 help=f"Specifies Scan the rule dirs list, Default is [{GB_DICT_RULE_SCAN}]")
+    # 指定最小提取频率
+    argument_parser.add_argument("-f", "--frequency_min", default=GB_FREQUENCY_MIN, type=int,
+                                 help=f"Specifies the pair rule file level or prefix, Default is [{GB_FREQUENCY_MIN}]")
+    # 指定频率分割符号
+    argument_parser.add_argument("-fs", "--frequency_symbol", default=GB_FREQUENCY_SYMBOL,
+                                 help=f"Specifies Name Pass Link Symbol in history file, Default is [{GB_FREQUENCY_SYMBOL}]", )
+    # 指定请求代理服务
+    argument_parser.add_argument("-x", dest="proxies", default=GB_PROXIES,
+                                 help=f"Specifies http|https|socks5 proxies, Default is [{GB_PROXIES}]")
+    # 指定请求线程数量
+    argument_parser.add_argument("-t", "--threads_count", default=GB_THREADS_COUNT, type=int,
+                                 help=f"Specifies request threads, Default is [{GB_THREADS_COUNT}]")
+    # 开启调试功能
+    argument_parser.add_argument("-d", "--debug_flag", default=GB_DEBUG_FLAG, action="store_true",
+                                 help=f"Specifies Display Debug Info, Default is [{GB_DEBUG_FLAG}]", )
+    # 开启随机UA
+    argument_parser.add_argument("-ru", "--random_useragent", default=GB_RANDOM_USERAGENT, action="store_true",
+                                 help=f"Specifies Start Random useragent, Default is [{GB_RANDOM_USERAGENT}]", )
+    # 开启随机XFF
+    argument_parser.add_argument("-rx", "--random_xff", default=GB_RANDOM_XFF, action="store_true",
+                                 help=f"Specifies Start Random XFF Header, Default is [{GB_RANDOM_XFF}]", )
+    # 关闭流模式扫描
+    argument_parser.add_argument("-ss", "--stream_mode", default=GB_STREAM_MODE, action="store_false",
+                                 help=f"Shutdown Request Stream Mode, Default is [{GB_STREAM_MODE}]", )
+    # 关闭历史扫描URL过滤
+    argument_parser.add_argument("-sh", "--history_exclude", default=GB_HISTORY_EXCLUDE, action="store_false",
+                                 help=f"Shutdown Exclude Request History, Default is [{GB_HISTORY_EXCLUDE}]", )
+    # 关闭 URL目标可访问性判断
+    argument_parser.add_argument("-ua", "--url_access_test", default=GB_URL_ACCESS_TEST, action="store_false",
+                                 help=f"Shutdown URL Access Test, Default is [{GB_URL_ACCESS_TEST}]", )
+    # 开启 目标URL拆分
+    argument_parser.add_argument("-sp", "--split_target_path", default=GB_SPLIT_TARGET_PATH, action="store_true",
+                                 help=f"Start Split Target Path, Default is [{GB_SPLIT_TARGET_PATH}]", )
+    # 排除匹配指定的状态码的响应结果
+    argument_parser.add_argument("-es", dest="exclude_status", default=GB_EXCLUDE_STATUS, nargs='+',type=int,
+                                 help=f"Specified Response Status List Which Exclude, Default is {GB_EXCLUDE_STATUS}")
+    # 排除匹配指定正则的响应结果
+    argument_parser.add_argument("-er", dest="exclude_regexp", default=GB_EXCLUDE_REGEXP,
+                                 help=f"Specified RE String When response matches the Str Excluded, Default is {GB_EXCLUDE_REGEXP}")
+
+    # 指定字典后缀名列表
+    argument_parser.add_argument("-ds", dest="dict_suffix", default=GB_DICT_SUFFIX, nargs='+',
+                                 help=f"Specifies Dict File Suffix List, Default is {GB_DICT_SUFFIX}")
+    # 指定保留指定后缀的文件
+    argument_parser.add_argument("-so", dest="only_scan_specify_ext", default=GB_ONLY_SCAN_SPECIFY_EXT, nargs='+',
+                                 help=f"Only Scan Specifies Suffix List Url, Default is {GB_ONLY_SCAN_SPECIFY_EXT}")
+    # 指定排除指定后缀的文件
+    argument_parser.add_argument("-sn", dest="no_scan_specify_ext", default=GB_NO_SCAN_SPECIFY_EXT, nargs='+',
+                                 help=f"No Scan Specifies Suffix List Url, Default is {GB_NO_SCAN_SPECIFY_EXT}")
+    # 为生成的每条字典添加特定前缀
+    argument_parser.add_argument("-cp", dest="custom_url_prefix", default=GB_CUSTOM_URL_PREFIX, nargs='+',
+                                 help=f"Add Custom Prefix List for Each Path, Default is {GB_CUSTOM_URL_PREFIX}")
+    # 去除以特定字符结尾的URL
+    argument_parser.add_argument("-rs", dest="remove_some_symbol", default=GB_REMOVE_END_SYMBOLS, nargs='+',
+                                 help=f"Remove Url When Url endswith the Char List, Default is {GB_REMOVE_END_SYMBOLS}")
+    # 指定默认请求方法
+    argument_parser.add_argument("-rm", "--req_method", default=GB_REQ_METHOD,
+                                 help=f"Specifies request method, Default is [{GB_REQ_METHOD}]")
+    # 指定请求超时时间
+    argument_parser.add_argument("-tt", "--timeout", default=GB_TIMEOUT, type=int,
+                                 help=f"Specifies request timeout, Default is [{GB_TIMEOUT}]")
+    # 指定自动错误重试次数
+    argument_parser.add_argument("-rt", "--retry_times", default=GB_RETRY_TIMES, type=int,
+                                 help=f"Specifies request retry times, Default is [{GB_RETRY_TIMES}]")
+
+    example = """Examples:
+             \r  批量扫描 target.txt
+             \r  python3 {shell_name} -u target.txt
+             \r  指定扫描 baidu.com
+             \r  python3 {shell_name} -u https://www.baidu.com
+             \r  进行备份文件字典扫描,筛选频率10以上的字典:
+             \r  python3 {shell_name} -u https://www.xxx.com -r backup -f 10
+             \r  进行Spring Boot文件字典扫描,筛选频率1以上的字典:
+             \r  python3 {shell_name} -u https://www.xxx.com -r backup -f 1
+             \r  进行所有文件字典扫描,设置Socks5请求代理:
+             \r  python3 {shell_name} -u https://www.baidu.com -p socks5://127.0.0.1:1080
+             \r    
+             \r  其他控制细节参数可通过setting.py进行配置
+             \r  
+             \r  T00L Version: {version}
+             \r  """
+
+    argument_parser.epilog = example.format(shell_name=argument_parser.prog, version=GB_VERSION)
+
+    return argument_parser
 
 
 if __name__ == "__main__":
@@ -302,6 +347,9 @@ if __name__ == "__main__":
             output(f"[!] 输入参数信息: {param_name} {param_value} 未对应其全局变量!!!", level=LOG_ERROR)
             exit()
 
+    # 根据用户输入的debug参数设置日志打印器属性 # 为主要是为了接受config.debug参数来配置输出颜色.
+    set_logger(GB_INFO_LOG_STR, GB_ERROR_LOG_STR, GB_DEBUG_LOG_STR, GB_DEBUG_FLAG)
+
     # 格式化输入的Proxy参数 如果输入了代理参数就会变为字符串
     if GB_PROXIES and isinstance(GB_PROXIES, str):
         if "socks" in GB_PROXIES or "http" in GB_PROXIES:
@@ -310,25 +358,28 @@ if __name__ == "__main__":
         else:
             output(f"[!] 输入的代理地址[{GB_PROXIES}]不正确,正确格式:Proto://IP:PORT", level=LOG_ERROR)
 
-    # 根据用户输入的debug参数设置日志打印器属性 # 为主要是为了接受config.debug参数来配置输出颜色.
-    set_logger(GB_INFO_LOG_FILE, GB_ERR_LOG_FILE, GB_DBG_LOG_FILE, GB_DEBUG_FLAG)
+    # HTTP 头设置
+    REQ_HEADERS = {
+        'User-Agent': random_useragent(HTTP_USER_AGENTS, GB_RANDOM_USERAGENT),
+        'X_FORWARDED_FOR': random_x_forwarded_for(GB_RANDOM_XFF),
+        'Accept-Encoding': ''
+    }
 
     # 读取路径字典 进行频率筛选、规则渲染、基本变量替换
-    output(f"[*] 读取路径字典 {GB_DICT_RULE_SCAN} 进行频率筛选、规则渲染、基本变量替换", level=LOG_ERROR)
-    base_scan_path_list = gen_base_scan_path_list(GB_DICT_RULE_SCAN)
+    output(f"[*] 读取字典 {GB_DICT_RULE_SCAN if GB_DICT_RULE_SCAN else 'ALL'} 进行频率筛选、规则渲染、基本变量替换",LOG_INFO)
+    base_path_list = gen_base_scan_path_list(GB_DICT_RULE_SCAN)
 
     # 对路径字典进行过滤和格式化
-    base_scan_path_list = path_list_handle(base_scan_path_list)
-    output(f"[*] 字典处理完毕  {GB_DICT_RULE_SCAN} 剩余元素 {len(base_scan_path_list)}", level=LOG_ERROR)
-    exit()
+    base_path_list = path_list_handle(base_path_list)
+    output(f"[*] 处理字典 {GB_DICT_RULE_SCAN if GB_DICT_RULE_SCAN else 'ALL'} 剩余元素 {len(base_path_list)}", LOG_INFO)
 
     # 对输入的目标数量进行处理和判断
     target_list = init_input_target(GB_TARGET)
-    if len(target_list) == 0 or len(base_scan_path_list) == 0:
+    if len(target_list) == 0 or len(base_path_list) == 0:
         output("[-] 未输入任何有效目标或字典,退出程序...", level=LOG_ERROR)
         exit()
 
     # 开始扫描
-    dyna_scan_controller(target_list, base_scan_path_list)
+    dyna_scan_controller(target_list, base_path_list)
 
     output(f"[+] 所有任务测试完毕", level=LOG_INFO)

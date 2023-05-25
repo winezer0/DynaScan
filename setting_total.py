@@ -37,7 +37,7 @@ GB_DEFAULT_PROTO_HEAD = "auto"  # 可选 http|https|auto
 # 对URL目标开启目标URL可访问性判断
 GB_URL_ACCESS_TEST = True
 
-# 目标URL拆分,默认True # 对输入的URL路径进行分解
+# 对输入的URL路径进行分解
 GB_SPLIT_TARGET_PATH = False
 # 示例：https://XXX/item/DD/ 会被分解为 https://XXX/item/DD/,https://XXX/item/,https://XXX/
 ##################################################################
@@ -67,7 +67,7 @@ GB_STREAM_MODE = True
 # 是否开启https服务器的证书校验
 GB_SSL_VERIFY = False
 # 超时时间 # URL重定向会严重影响程序的运行时间
-GB_TIMEOUT = 5
+GB_TIMEOUT = 10
 # 是否允许URL重定向 # URL重定向会严重影响程序的运行时间
 GB_ALLOW_REDIRECTS = False
 # 访问没有结果时,自动重试的最大次数
@@ -78,40 +78,31 @@ GB_ADD_DYNAMIC_HOST = True
 # 是否自动根据URL设置动态refer头
 GB_ADD_DYNAMIC_REFER = True
 # 随机User-Agent # 可能会导致无法建立默认会话 # 报错内容 Exceeded 30 redirects
-GB_ADD_RANDOM_USERAGENT = True
+GB_RANDOM_USERAGENT = False
 # 是否允许随机X-Forwarded-For
-GB_ADD_RANDOM_XFF = True
-
-# HTTP 头设置
-GB_HEADERS = {
-    'User-Agent': random_useragent(HTTP_USER_AGENTS, GB_ADD_RANDOM_USERAGENT),
-    'X_FORWARDED_FOR': random_x_forwarded_for(GB_ADD_RANDOM_XFF),
-    'Accept-Encoding': ''
-}
+GB_RANDOM_XFF = False
 ########################扩展的调用函数###################################
 # 排除指定结果
 # 判断URI不存在的状态码，多个以逗号隔开,符合该状态码的响应将不会写入结果文件
-GB_EXCLUDE_STATUS = [404, 401, 403, 405, 406, 410, 500, 501, 502, 503]
+GB_EXCLUDE_STATUS = [404, 401, 405, 406, 410, 500, 501, 502, 503]
 
 # 判断URI是否不存在的正则，如果页面标题存在如下定义的内容，将从Result结果中剔除到ignore结果中 #re.IGNORECASE 忽略大小写
 GB_EXCLUDE_REGEXP = r"页面不存在|未找到|not[ -]found|403|404|410"
 ##################################################################
 # 设置日志输出文件路径 #目录不存在会自动创建
 GB_LOG_FILE_PATH = str(GB_BASE_DIR.joinpath("runtime", "runtime_module.log"))
-
-GB_INFO_LOG_FILE = GB_LOG_FILE_PATH.replace('module', 'info')
-GB_DBG_LOG_FILE = GB_LOG_FILE_PATH.replace('module', 'debug')
-GB_ERR_LOG_FILE = GB_LOG_FILE_PATH.replace('module', 'error')
+GB_INFO_LOG_STR = GB_LOG_FILE_PATH.replace('module', 'info')
+GB_DEBUG_LOG_STR = GB_LOG_FILE_PATH.replace('module', 'debug')
+GB_ERROR_LOG_STR = GB_LOG_FILE_PATH.replace('module', 'error')
 
 # 记录不可访问的目标 # 没啥用
-GB_INACCESSIBLE_RECORD = GB_LOG_FILE_PATH.replace('module', 'inaccessible')
+GB_INACCESSIBLE_FILE_STR = GB_LOG_FILE_PATH.replace('module', 'inaccessible')
 # 记录可以访问的目标 # 没啥用
-GB_ACCESSIBLE_RECORD = GB_LOG_FILE_PATH.replace('module', 'accessible')
-
+GB_ACCESSIBLE_FILE_STR = GB_LOG_FILE_PATH.replace('module', 'accessible')
 # 记录扫描已完成的URL 针对每个目标生成不同的记录文件
-GB_PER_HOST_HISTORY_FILE = GB_LOG_FILE_PATH.replace('module', 'history.{host_port}')
+GB_HISTORY_FILE_STR = GB_LOG_FILE_PATH.replace('module', 'history.{host_port}')
 # 每个HOST扫描URL的过滤,建议开启
-GB_EXCLUDE_HOST_HISTORY = True
+GB_HISTORY_EXCLUDE = True
 ##################################################################
 # 设置输出结果文件目录
 GB_RESULT_DIR = GB_BASE_DIR.joinpath("result")

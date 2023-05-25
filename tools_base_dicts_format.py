@@ -29,7 +29,7 @@ def format_dicts(dict_dirs):
 
 if __name__ == '__main__':
     # 根据用户输入的debug参数设置日志打印器属性 # 为主要是为了接受config.debug参数来配置输出颜色.
-    set_logger(GB_INFO_LOG_FILE, GB_ERR_LOG_FILE, GB_DBG_LOG_FILE, True)
+    set_logger(GB_INFO_LOG_STR, GB_ERROR_LOG_STR, GB_DEBUG_LOG_STR, True)
 
     dirs_dict = {
         GB_HIT_FILE_DIR: GB_DICT_SUFFIX,  # 命中文件目录
