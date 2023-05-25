@@ -55,12 +55,14 @@ def parse_input():
                                  help=f"Specifies Display Debug Info, Default is [{GB_DEBUG_FLAG}]", )
 
     example = """Examples:
-             \r  指定扫描文件内所有目标:
+             \r  批量扫描 target.txt
              \r  python3 {shell_name} -u target.txt
-             \r  指定扫描baidu.com:
+             \r  指定扫描 baidu.com
              \r  python3 {shell_name} -u https://www.baidu.com
              \r  进行备份文件字典扫描,筛选频率10以上的字典:
              \r  python3 {shell_name} -u https://www.xxx.com -r backup -f 10
+             \r  进行Spring Boot文件字典扫描,筛选频率1以上的字典:
+             \r  python3 {shell_name} -u https://www.xxx.com -r backup -f 1
              \r  进行所有文件字典扫描,设置Socks5请求代理:
              \r  python3 {shell_name} -u https://www.baidu.com -p socks5://127.0.0.1:1080
              \r    
