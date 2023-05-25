@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+import os.path
 
 from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
 from libs.lib_dyna_rule.base_rule_parser import base_rule_render_list
@@ -146,17 +147,25 @@ def url_list_handle(url_list, url_history_file):
 
 
 # 按频率读取目录下的所有字典文件,并进行动态解析
-def read_path_files_and_rule_parse_frequency(dir_path,
+def read_path_files_and_rule_parse_frequency(read_dir_path,
                                              ext_list,
                                              frequency_symbol,
                                              annotation_symbol,
                                              frequency_min,
                                              replace_dict):
+    # 读取前判断文件路径是否存在
+    if not os.path.exists(read_dir_path):
+        return []
+
     # 获取目录下所有文件名
-    path_files = get_dir_path_file_info_dict(dir_path=dir_path, ext_list=ext_list)
+    dir_path_files = get_dir_path_file_info_dict(dir_path=read_dir_path, ext_list=ext_list)
+
+    # 读取前判断文件路径是否存在
+    if not dir_path_files:
+        return []
 
     # 读取目录下所有文件内容到频率字典
-    path_frequency_dict = read_files_to_frequency_dict(list(path_files.values()),
+    path_frequency_dict = read_files_to_frequency_dict(list(dir_path_files.values()),
                                                        frequency_symbol=frequency_symbol,
                                                        annotation_symbol=annotation_symbol)
     # 筛选频率字典
@@ -202,7 +211,7 @@ def gen_base_scan_path_list(cur_rule_dir_list=None):
         # 2、读取直接追加字典 并进行规则解析、变量替换处理
         if GB_ADD_DIRECT_DICT:
             # module = '读取直接追加路径'
-            direct_path_list = read_path_files_and_rule_parse_frequency(dir_path=direct_path,
+            direct_path_list = read_path_files_and_rule_parse_frequency(read_dir_path=direct_path,
                                                                         ext_list=GB_DICT_SUFFIX,
                                                                         frequency_symbol=GB_FREQUENCY_SYMBOL,
                                                                         annotation_symbol=GB_ANNOTATION_SYMBOL,
@@ -215,7 +224,7 @@ def gen_base_scan_path_list(cur_rule_dir_list=None):
         if GB_ADD_GROUP_DICT:
             # 按频率 读取笛卡尔积路径 -> 目录 字典下的所有文件,并进行解析
             # module = '读取笛卡尔积路径 -> 目录'
-            group_folder_list = read_path_files_and_rule_parse_frequency(dir_path=group_dirs,
+            group_folder_list = read_path_files_and_rule_parse_frequency(read_dir_path=group_dirs,
                                                                          ext_list=GB_DICT_SUFFIX,
                                                                          frequency_symbol=GB_FREQUENCY_SYMBOL,
                                                                          annotation_symbol=GB_ANNOTATION_SYMBOL,
@@ -225,7 +234,7 @@ def gen_base_scan_path_list(cur_rule_dir_list=None):
 
             # 按频率 读取笛卡尔积路径 -> 文件 字典下的所有文件,并进行解析
             # module = '读取笛卡尔积路径 -> 文件'
-            group_files_list = read_path_files_and_rule_parse_frequency(dir_path=group_file,
+            group_files_list = read_path_files_and_rule_parse_frequency(read_dir_path=group_file,
                                                                         ext_list=GB_DICT_SUFFIX,
                                                                         frequency_symbol=GB_FREQUENCY_SYMBOL,
                                                                         annotation_symbol=GB_ANNOTATION_SYMBOL,
