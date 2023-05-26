@@ -3,6 +3,7 @@
 
 import re
 
+from libs.lib_dyna_rule.dyna_rule_tools import list_to_re_str
 from libs.lib_url_analysis.url_tools import get_base_url, get_url_ext_urlsplit
 
 
@@ -50,24 +51,3 @@ def url_to_raw_rule_classify(hit_url_list,
 
     return hit_classify
 
-
-# 将URL转换为原始规则
-def list_to_re_str(replace_list, bracket=True):
-    """
-    将后缀字典列表转为一个正则替换规则字符串
-    replace_list: 列表，如 ['.ccc', '.bbb']
-    bracket: 是否给正则结果添加括号
-    返回值: 一个正则表达式模式字符串，如 '(\\.ccc|\\.bbb)'
-    """
-    if replace_list:
-        # 使用列表推导式和re.escape()自动转义为正则表达式中的文字字符
-        regexp = '|'.join(re.escape(item) for item in replace_list)
-    else:
-        regexp = ""
-
-    if bracket:
-        replace_str = f'({regexp})'
-    else:
-        replace_str = f'{regexp}'
-
-    return replace_str
