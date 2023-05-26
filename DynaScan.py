@@ -172,6 +172,7 @@ def dyna_scan_controller(target_url_list, base_path_list):
                                                              )
                 # 将命中的路径分别写到不同的频率文件中
                 for file_name, path_list in hit_classify_dict.items():
+                    auto_make_dir(os.path.dirname(file_name))
                     write_path_list_to_frequency_file(file_path=file_name,
                                                       path_list=path_list,
                                                       encoding='utf-8',
