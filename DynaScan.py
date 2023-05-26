@@ -179,7 +179,7 @@ def dyna_scan_controller(target_url_list, base_path_list):
                                                       frequency_symbol=GB_FREQUENCY_SYMBOL,
                                                       annotation_symbol=GB_ANNOTATION_SYMBOL,
                                                       hit_over_write=GB_HIT_OVER_CALC)
-                output(f"[*] 记录命中结果: {len(list(hit_classify_dict.values()))}", level=LOG_INFO)
+                output(f"[*] 记录命中结果规则: {len(HIT_URL_LIST)}", level=LOG_INFO)
             # 停止扫描任务
             if stop_run:
                 output(f"[-] 错误次数超过阈值,停止扫描目标 {target_url}", level=LOG_INFO)
