@@ -189,13 +189,16 @@ def dyna_scan_controller(target_url_list, base_path_list):
 
 def init_input_target(input_target):
     # 读取用户输入的URL和目标文件参数
+    if isinstance(input_target, str):
+        input_target = [input_target]
+
     targets = []
     if isinstance(input_target, list):
-        targets = list(set(input_target))
-    elif file_is_exist(input_target):
-        targets = read_file_to_list(file_path=input_target, de_strip=True, de_weight=True, de_unprintable=True)
-    else:
-        targets.append(input_target)
+        for target in input_target:
+            if file_is_exist(target):
+                targets = read_file_to_list(file_path=target, de_strip=True, de_weight=True, de_unprintable=True)
+            else:
+                targets.append(input_target)
 
     # 尝试对输入的目标进行HOST头添加
     targets = check_host_list_proto(target_list=targets,
