@@ -7,7 +7,7 @@ from libs.gen_path import gen_base_scan_path_list, product_urls_and_paths, path_
     url_list_handle
 from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
 from libs.lib_dyna_rule.set_depend_var import set_dependent_var_dict
-from libs.lib_file_operate.file_path import file_is_exist
+from libs.lib_file_operate.file_path import file_is_exist, get_sub_dirs
 from libs.lib_file_operate.file_read import read_file_to_list
 from libs.lib_file_operate.file_write import write_lines, write_path_list_to_frequency_file
 from libs.lib_log_print.logger_printer import set_logger, output, LOG_DEBUG, LOG_INFO, LOG_ERROR
@@ -239,8 +239,8 @@ def parse_input():
     argument_parser.add_argument("-u", "--target", default=GB_TARGET,
                                  help=f"Specify the target URL or target File, Default is [{GB_TARGET}]")
     # 指定调用的字典目录
-    argument_parser.add_argument("-r", "--dict_rule_scan", default=GB_DICT_RULE_SCAN, nargs="+",
-                                 help=f"Specifies Scan the rule dirs list, Default is [{GB_DICT_RULE_SCAN}]")
+    argument_parser.add_argument("-r", "--dict_rule_scan", default=GB_DICT_RULE_SCAN, nargs="+", choices=get_sub_dirs(GB_DICT_RULE_PATH),
+                                 help=f"Specifies Scan the rule dirs list, Default is [{GB_DICT_RULE_SCAN}], Current Support [{get_sub_dirs(GB_DICT_RULE_PATH)}]")
     # 指定最小提取频率
     argument_parser.add_argument("-f", "--frequency_min", default=GB_FREQUENCY_MIN, type=int,
                                  help=f"Specifies the pair rule file level or prefix, Default is [{GB_FREQUENCY_MIN}]")
@@ -279,23 +279,23 @@ def parse_input():
                                  help=f"Specified Response Status List Which Exclude, Default is {GB_EXCLUDE_STATUS}")
     # 排除匹配指定正则的响应结果
     argument_parser.add_argument("-er", dest="exclude_regexp", default=GB_EXCLUDE_REGEXP,
-                                 help=f"Specified RE String When response matches the Str Excluded, Default is {GB_EXCLUDE_REGEXP}")
+                                 help=f"Specified RE String When response matches the Str Excluded, Default is [{GB_EXCLUDE_REGEXP}]")
 
     # 指定字典后缀名列表
     argument_parser.add_argument("-ds", dest="dict_suffix", default=GB_DICT_SUFFIX, nargs='+',
-                                 help=f"Specifies Dict File Suffix List, Default is {GB_DICT_SUFFIX}")
+                                 help=f"Specifies Dict File Suffix List, Default is [{GB_DICT_SUFFIX}]")
     # 指定保留指定后缀的文件
     argument_parser.add_argument("-so", dest="only_scan_specify_ext", default=GB_ONLY_SCAN_SPECIFY_EXT, nargs='+',
-                                 help=f"Only Scan Specifies Suffix List Url, Default is {GB_ONLY_SCAN_SPECIFY_EXT}")
+                                 help=f"Only Scan Specifies Suffix List Url, Default is [{GB_ONLY_SCAN_SPECIFY_EXT}]")
     # 指定排除指定后缀的文件
     argument_parser.add_argument("-sn", dest="no_scan_specify_ext", default=GB_NO_SCAN_SPECIFY_EXT, nargs='+',
-                                 help=f"No Scan Specifies Suffix List Url, Default is {GB_NO_SCAN_SPECIFY_EXT}")
+                                 help=f"No Scan Specifies Suffix List Url, Default is [{GB_NO_SCAN_SPECIFY_EXT}]")
     # 为生成的每条字典添加特定前缀
     argument_parser.add_argument("-cp", dest="custom_url_prefix", default=GB_CUSTOM_URL_PREFIX, nargs='+',
-                                 help=f"Add Custom Prefix List for Each Path, Default is {GB_CUSTOM_URL_PREFIX}")
+                                 help=f"Add Custom Prefix List for Each Path, Default is [{GB_CUSTOM_URL_PREFIX}]")
     # 去除以特定字符结尾的URL
     argument_parser.add_argument("-rs", dest="remove_some_symbol", default=GB_REMOVE_END_SYMBOLS, nargs='+',
-                                 help=f"Remove Url When Url endswith the Char List, Default is {GB_REMOVE_END_SYMBOLS}")
+                                 help=f"Remove Url When Url endswith the Char List, Default is [{GB_REMOVE_END_SYMBOLS}]")
     # 指定默认请求方法
     argument_parser.add_argument("-rm", "--req_method", default=GB_REQ_METHOD,
                                  help=f"Specifies request method, Default is [{GB_REQ_METHOD}]")
