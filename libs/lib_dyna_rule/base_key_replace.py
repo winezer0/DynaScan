@@ -108,8 +108,9 @@ def remove_not_used_key(replace_used_dict, rule_str_list):
 
     # 逐个判断字典的键值对是否在规则字典内
     for key in replace_used_dict.keys():
-        if replace_used_dict[key] and str(key) not in str(rule_str_list):
+        if str(key) not in str(rule_str_list):
             del new_replace_used_dict[key]
+    output(f"[*] 基本变量清理结束:{len(replace_used_dict.keys())} --> {len(new_replace_used_dict.keys())}")
     return new_replace_used_dict
 
 
