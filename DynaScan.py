@@ -21,6 +21,7 @@ from setting_total import *  # setting.py中的变量
 
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
+
 # 生成动态排除字典
 def gen_dynamic_exclude_dict(req_url):
     test_path_1 = get_random_str(length=8, has_symbols=False, has_dot=True, with_slash=True)
@@ -177,7 +178,7 @@ def dyna_scan_controller(target_url_list, base_path_list):
                                                       frequency_symbol=GB_FREQUENCY_SYMBOL,
                                                       annotation_symbol=GB_ANNOTATION_SYMBOL,
                                                       hit_over_write=GB_HIT_OVER_CALC)
-                output(f"[*] 记录命中结果: {list(hit_classify_dict.values())}", level=LOG_INFO)
+                output(f"[*] 记录命中结果: {len(list(hit_classify_dict.values()))}", level=LOG_INFO)
             # 停止扫描任务
             if stop_run:
                 output(f"[-] 错误次数超过阈值,停止扫描目标 {target_url}", level=LOG_INFO)
@@ -189,7 +190,9 @@ def dyna_scan_controller(target_url_list, base_path_list):
 def init_input_target(input_target):
     # 读取用户输入的URL和目标文件参数
     targets = []
-    if file_is_exist(input_target):
+    if isinstance(input_target, list):
+        targets = list(set(input_target))
+    elif file_is_exist(input_target):
         targets = read_file_to_list(file_path=input_target, de_strip=True, de_weight=True, de_unprintable=True)
     else:
         targets.append(input_target)
@@ -236,10 +239,11 @@ def parse_input():
     # description 程序描述信息
     argument_parser.description = Figlet().renderText("DynaScan")
     # 指定扫描URL或文件
-    argument_parser.add_argument("-u", "--target", default=GB_TARGET,
-                                 help=f"Specify the target URL or target File, Default is [{GB_TARGET}]")
+    argument_parser.add_argument("-u", "--target", default=GB_TARGET, nargs="+",
+                                 help=f"Specify the target URLs or Target File, Default is [{GB_TARGET}]")
     # 指定调用的字典目录
-    argument_parser.add_argument("-r", "--dict_rule_scan", default=GB_DICT_RULE_SCAN, nargs="+", choices=get_sub_dirs(GB_DICT_RULE_PATH),
+    argument_parser.add_argument("-r", "--dict_rule_scan", default=GB_DICT_RULE_SCAN, nargs="+",
+                                 choices=get_sub_dirs(GB_DICT_RULE_PATH),
                                  help=f"Specifies Scan the rule dirs list, Default is [{GB_DICT_RULE_SCAN}], Current Support [{get_sub_dirs(GB_DICT_RULE_PATH)}]")
     # 指定最小提取频率
     argument_parser.add_argument("-f", "--frequency_min", default=GB_FREQUENCY_MIN, type=int,
@@ -275,7 +279,7 @@ def parse_input():
     argument_parser.add_argument("-sp", "--split_target_path", default=GB_SPLIT_TARGET_PATH, action="store_true",
                                  help=f"Start Split Target Path, Default is [{GB_SPLIT_TARGET_PATH}]", )
     # 排除匹配指定的状态码的响应结果
-    argument_parser.add_argument("-es", dest="exclude_status", default=GB_EXCLUDE_STATUS, nargs='+',type=int,
+    argument_parser.add_argument("-es", dest="exclude_status", default=GB_EXCLUDE_STATUS, nargs='+', type=int,
                                  help=f"Specified Response Status List Which Exclude, Default is {GB_EXCLUDE_STATUS}")
     # 排除匹配指定正则的响应结果
     argument_parser.add_argument("-er", dest="exclude_regexp", default=GB_EXCLUDE_REGEXP,
@@ -366,7 +370,7 @@ if __name__ == "__main__":
     }
 
     # 读取路径字典 进行频率筛选、规则渲染、基本变量替换
-    output(f"[*] 读取字典 {GB_DICT_RULE_SCAN if GB_DICT_RULE_SCAN else 'ALL'} 进行频率筛选、规则渲染、基本变量替换",LOG_INFO)
+    output(f"[*] 读取字典 {GB_DICT_RULE_SCAN if GB_DICT_RULE_SCAN else 'ALL'} 进行频率筛选、规则渲染、基本变量替换", LOG_INFO)
     base_path_list = gen_base_scan_path_list(GB_DICT_RULE_SCAN)
 
     # 对路径字典进行过滤和格式化
