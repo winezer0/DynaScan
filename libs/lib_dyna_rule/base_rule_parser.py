@@ -8,7 +8,7 @@ import sys
 import time
 
 import exrex
-import sre_yield
+# import sre_yield
 
 from libs.lib_log_print.logger_printer import output, LOG_ERROR
 
@@ -285,14 +285,14 @@ class RuleParser(object):
 
         elif rule_name == 're':  # 自定义正则解析器
             """
-            已知的正则解析生成器有 exrex、sre_yield
+            已知的正则解析生成器有 exrex、sre_yield(弃用)
             """
             if rule_type.startswith('exrex'):  # exrex 引擎
                 result = list(exrex.generate(options))
                 return result
-            if rule_type.startswith('sre_yield'):  # sre_yield 引擎
-                result = list(sre_yield.AllStrings(options))
-                return result
+            # if rule_type.startswith('sre_yield'):  # sre_yield 引擎
+            #     result = list(sre_yield.AllStrings(options))
+            #     return result
             else:
                 pass
 
