@@ -196,9 +196,12 @@ def init_input_target(input_target):
     if isinstance(input_target, list):
         for target in input_target:
             if file_is_exist(target):
-                targets = read_file_to_list(file_path=target, de_strip=True, de_weight=True, de_unprintable=True)
+                lists = read_file_to_list(file_path=target, de_strip=True, de_weight=True, de_unprintable=True)
+                targets.extend(lists)
             else:
                 targets.append(target)
+    # 去重输入目标
+    targets = list(dict.fromkeys(targets))
 
     # 尝试对输入的目标进行HOST头添加
     targets = check_host_list_proto(target_list=targets,
