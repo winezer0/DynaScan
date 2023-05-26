@@ -198,7 +198,7 @@ def init_input_target(input_target):
             if file_is_exist(target):
                 targets = read_file_to_list(file_path=target, de_strip=True, de_weight=True, de_unprintable=True)
             else:
-                targets.append(input_target)
+                targets.append(target)
 
     # 尝试对输入的目标进行HOST头添加
     targets = check_host_list_proto(target_list=targets,
