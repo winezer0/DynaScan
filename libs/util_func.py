@@ -27,7 +27,8 @@ def url_to_raw_rule_classify(hit_url_list,
         # '%%PATH%%': []}]  # 需要排除其中的空列表
         for reverse_replace_dict in reverse_replace_dict_list:
             for key, value in reverse_replace_dict.items():
-                if value and value != [""] and value != ["/"]:
+                value = [ele for ele in value if str(ele).strip() and str(ele).strip() != "/"]  # 处理[ /]字符
+                if value:
                     url_path = re.sub(list_to_re_str(value), key, url_path, count=0)
 
         # 提取URL中的后缀
