@@ -29,9 +29,12 @@ def auto_make_dir(path):
 def file_is_exist(file_path):
     # 判断文件是否存在
     if file_path:
-        path = Path(file_path)
-        if path.is_file():
-            return True
+        try:
+            path = Path(file_path)
+            if path.is_file():
+                return True
+        except Exception as error:
+            pass
     return False
 
 
