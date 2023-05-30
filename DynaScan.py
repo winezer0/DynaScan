@@ -343,15 +343,29 @@ def parse_input():
     return argument_parser
 
 
+def args_handle(args):
+    # 格式化输入的Proxy参数 如果输入了代理参数就会变为字符串
+    if args.proxies and isinstance(args.proxies, str):
+        if "socks" in args.proxies or "http" in args.proxies:
+            args.proxies = {'http': args.proxies.replace('https://', 'http://'),
+                            'https': args.proxies.replace('http://', 'https://')}
+        else:
+            output(f"[!] 输入的代理地址[{args.proxies}]不正确,正确格式:Proto://IP:PORT", level=LOG_ERROR)
+
+    return args
+
+
 if __name__ == "__main__":
     # 输入参数解析
     parser = parse_input()
-
-    # 输出所有参数
+    # 获取所有参数
     args = parser.parse_args()
-    output(f"[*] 所有输入参数信息: {args}")
+    # 处理输入参数
+    args = args_handle(args)
+    # 输出所有参数信息
+    output(f"[*] 所有输入参数信息: {args}", level=LOG_INFO)
     time.sleep(0.1)
-
+    
     # 使用字典解压将参数直接赋值给相应的全局变量
     for param_name, param_value in vars(args).items():
         globals_var_name = f"GB_{param_name.upper()}"
@@ -364,14 +378,6 @@ if __name__ == "__main__":
 
     # 根据用户输入的debug参数设置日志打印器属性 # 为主要是为了接受config.debug参数来配置输出颜色.
     set_logger(GB_INFO_LOG_STR, GB_ERROR_LOG_STR, GB_DEBUG_LOG_STR, GB_DEBUG_FLAG)
-
-    # 格式化输入的Proxy参数 如果输入了代理参数就会变为字符串
-    if GB_PROXIES and isinstance(GB_PROXIES, str):
-        if "socks" in GB_PROXIES or "http" in GB_PROXIES:
-            GB_PROXIES = {'http': GB_PROXIES.replace('https://', 'http://'),
-                          'https': GB_PROXIES.replace('http://', 'https://')}
-        else:
-            output(f"[!] 输入的代理地址[{GB_PROXIES}]不正确,正确格式:Proto://IP:PORT", level=LOG_ERROR)
 
     # HTTP 头设置
     REQ_HEADERS = {
