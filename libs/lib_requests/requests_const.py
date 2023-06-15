@@ -36,8 +36,8 @@ HTTP_IGNORE_TITLE = "HTTP_IGNORE_TITLE"
 ############################################################
 # 默认的响应字典,使用前被copy一份
 HTTP_DEFAULT_RESP_DICT = {
-    HTTP_REQ_URL: None,  # 请求的URL 必须在请求时填充
-    HTTP_CONST_SIGN: None,  # 请求自定义的标记, 必须在请求时填充 原样返回
+    HTTP_REQ_URL: HTTP_NONE,  # 请求的URL 必须在请求时填充
+    HTTP_CONST_SIGN: HTTP_NONE,  # 请求自定义的标记, 必须在请求时填充 原样返回
     HTTP_RESP_STATUS: HTTP_STATUS_MINUS,  # 响应状态码 赋值默认值
     HTTP_RESP_BYTES_HEAD: HTTP_NULL_BYTES,  # 响应头字节 赋值默认值
     HTTP_RESP_CONTENT_LENGTH: HTTP_STATUS_MINUS,  # 响应内容长度 赋值默认值
@@ -59,6 +59,9 @@ HTTP_FILTER_VALUE_DICT = {
     HTTP_RESP_TEXT_SIZE: [HTTP_STATUS_MINUS, HTTP_STATUS_ZERO],
     HTTP_RESP_REDIRECT_URL: [HTTP_NULL_REDIRECT_URL, HTTP_RAW_REDIRECT_URL],
 }
+
+# 分析动态排除字典时，需要被忽略的键列表
+HTTP_FILTER_IGNORE_KEYS = [HTTP_CONST_SIGN, HTTP_REQ_URL]
 ############################################################
 # 记录由于代理服务器导致的协议判断不正确响应关键字
 HTTP_ERROR_PAGE_KEY = ["burp suite"]

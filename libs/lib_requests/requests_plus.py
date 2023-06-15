@@ -46,8 +46,7 @@ def requests_plus(req_url,
                   add_host_header=None,
                   add_refer_header=None,
                   ignore_encode_error=None):
-    # 设置本请求默认标记 # const_sign 原样返回输入的值, 用来标记线程的信息
-    # const_sign = const_sign if const_sign else time.time()
+    # const_sign # 设置本请求的标记
     const_sign = const_sign or str(time.time())
 
     # 设置默认请求头

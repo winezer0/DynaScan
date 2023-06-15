@@ -11,6 +11,7 @@ test  <-->57
 database  <-->55
 users  <-->53
 sql  <-->53
+bin  <-->50
 {date=mon:1-10}$  <-->36
 html  <-->36
 {date=year:2010-2023}$backup  <-->35
@@ -126,7 +127,6 @@ shell  <-->5
 file  <-->5
 auth  <-->5
 Data  <-->5
-bin  <-->5
 vb  <-->5
 www{int=series$1:0-5}$  <-->4
 {int=overlap#2:0-9}$'  <-->4

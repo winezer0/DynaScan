@@ -16,7 +16,7 @@ sys.dont_write_bytecode = True  # 设置不生成pyc文件
 GB_RUN_TIME = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
 ##################################################################
 # 版本号配置
-GB_VERSION = "Ver 0.3.4 2023-05-30 19:40"
+GB_VERSION = "Ver 0.3.4 2023-06-15 17:40"
 ##################################################################
 # 是否显示DEBUG级别信息,默认False
 GB_DEBUG_FLAG = False
@@ -50,7 +50,7 @@ GB_THREAD_SLEEP = 0
 GB_TASK_CHUNK_SIZE = GB_THREADS_COUNT
 ########################
 # 默认请求方法
-GB_REQ_METHOD = "get"
+GB_REQ_METHOD = "head"  # 使用get等方法需要进行全下载,会卡顿
 # 默认请求数据
 GB_REQ_BODY = None
 # 对外请求代理
@@ -84,7 +84,7 @@ GB_RANDOM_XFF = False
 ########################扩展的调用函数###################################
 # 排除指定结果
 # 判断URI不存在的状态码，多个以逗号隔开,符合该状态码的响应将不会写入结果文件
-GB_EXCLUDE_STATUS = [404, 401, 405, 406, 410, 500, 501, 502, 503]
+GB_EXCLUDE_STATUS = [301, 302, 404, 401, 405, 406, 410, 500, 501, 502, 503]
 
 # 判断URI是否不存在的正则，如果页面标题存在如下定义的内容，将从Result结果中剔除到ignore结果中 #re.IGNORECASE 忽略大小写
 GB_EXCLUDE_REGEXP = r"页面不存在|未找到|not[ -]found|403|404|410"

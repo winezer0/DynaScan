@@ -61,7 +61,7 @@ def gen_dynamic_exclude_dict(req_url):
     output(f"随机测试响应 {test_result_dict_list}", level=LOG_DEBUG)
 
     # 分析测试结果
-    dynamic_exclude_dict = analysis_dict_same_keys(test_result_dict_list, HTTP_FILTER_VALUE_DICT)
+    dynamic_exclude_dict = analysis_dict_same_keys(test_result_dict_list, HTTP_FILTER_VALUE_DICT, HTTP_FILTER_IGNORE_KEYS)
     output(f"[+] 动态排除字典 {req_url} -> {dynamic_exclude_dict}", level=LOG_INFO)
     return dynamic_exclude_dict
 
