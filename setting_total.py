@@ -16,7 +16,7 @@ sys.dont_write_bytecode = True  # 设置不生成pyc文件
 GB_RUN_TIME = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
 ##################################################################
 # 版本号配置
-GB_VERSION = "Ver 0.3.4 2023-06-15 23:55"
+GB_VERSION = "Ver 0.4.0 2023-06-16 00:00"
 ##################################################################
 # 是否显示DEBUG级别信息,默认False
 GB_DEBUG_FLAG = False
