@@ -35,14 +35,14 @@ GB_FREQUENCY_MIN = 10
 GB_ANNOTATION_SYMBOL = '#'
 ##################################################################
 # 存储自定义 基本变量
-GB_BASE_REPLACE_DICT = {"%BLANK%": ['']}
+GB_BASE_REPLACE_DICT = {}
 #########################
 # 存储自定义 因变量 # 考虑都合并到 DEPENDENT
 GB_DEPENDENT_REPLACE_DICT = {
     STR_VAR_DEPENDENT:['admin', 'product', 'wwwroot', 'www', '网站'],  # 存储自定义因变量
-    STR_VAR_DOMAIN: [],  # 存储动态PATH因变量-无需处理
-    STR_VAR_PATH: [],  # 存储动态域名因变量-无需处理
-    "%%BLANK%%":[""],
+    STR_VAR_DOMAIN: [],  # 存储动态PATH因变量-自动生成
+    STR_VAR_PATH: [],  # 存储动态域名因变量-自动生成
+    STR_VAR_BLANK: [''],  # 存储空字符
 }
 
 # DOMAIN PATH 因变量中的 符号替换规则, 替换后追加到域名因子列表

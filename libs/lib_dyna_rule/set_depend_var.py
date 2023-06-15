@@ -20,18 +20,19 @@ def set_dependent_var_dict(target_url,
     """
     获取 基于 HTTP 请求的 因变量
     STR_VAR_DOMAIN == %%DOMAIN%%  域名相关--较多
-    STR_VAR_PATH == "%%PATH%%"  路径相关--极少
+    STR_VAR_PATH == "%%PATH%%"  路径相关--备份文件中较多
     """
     dependent_var_dict = copy.copy(base_dependent_dict)
 
     # 基于URL获取因变量
     if target_url:
+        # 域名相关因变量
         domain_words = get_domain_words(target_url,
                                         ignore_ip_format=ignore_ip_format,
                                         symbol_replace_dict=symbol_replace_dict,
                                         not_allowed_symbol=not_allowed_symbol)
         dependent_var_dict[STR_VAR_DOMAIN] = domain_words
-
+        # 路径相关因变量
         path_words = get_path_words_urlsplit(target_url,
                                              symbol_replace_dict=symbol_replace_dict,
                                              not_allowed_symbol=not_allowed_symbol)
@@ -43,5 +44,4 @@ def set_dependent_var_dict(target_url,
 
     # 对 内容列表 中的规则进行 进行 动态解析
     dependent_var_dict = dict_content_base_rule_render(dependent_var_dict)
-
     return dependent_var_dict
