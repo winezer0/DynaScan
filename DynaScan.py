@@ -148,7 +148,7 @@ def dyna_scan_controller(target_url_list, base_path_list):
                                                               )
 
             # 处理响应结果
-            stop_run, HIT_URL_LIST = access_result_handle(result_dict_list=result_dict_list,
+            stop_run, hit_url_list = access_result_handle(result_dict_list=result_dict_list,
                                                           dynamic_exclude_dict=curr_dynamic_exclude_dict,
                                                           ignore_file=ignore_file_path,
                                                           result_file=result_file_path,
@@ -161,9 +161,9 @@ def dyna_scan_controller(target_url_list, base_path_list):
                                                           )
 
             # 写入命中结果
-            if GB_SAVE_HIT_RESULT and HIT_URL_LIST:
+            if GB_SAVE_HIT_RESULT and hit_url_list:
                 # 分析命中的URL 并返回命中的path部分 path部分是字典 分类包括 后缀、路径、目录、文件
-                hit_classify_dict = url_to_raw_rule_classify(hit_url_list=HIT_URL_LIST,
+                hit_classify_dict = url_to_raw_rule_classify(hit_url_list=hit_url_list,
                                                              reverse_replace_dict_list=[current_dependent_dict],
                                                              hit_ext_file=GB_HIT_EXT_FILE,
                                                              hit_direct_file=GB_HIT_DIRECT_FILE,
@@ -179,7 +179,7 @@ def dyna_scan_controller(target_url_list, base_path_list):
                                                       frequency_symbol=GB_FREQUENCY_SYMBOL,
                                                       annotation_symbol=GB_ANNOTATION_SYMBOL,
                                                       hit_over_write=GB_HIT_OVER_CALC)
-                output(f"[*] 记录命中结果规则: {len(HIT_URL_LIST)}", level=LOG_INFO)
+                output(f"[*] 记录命中结果规则: {len(hit_url_list)}", level=LOG_INFO)
             # 停止扫描任务
             if stop_run:
                 output(f"[-] 错误次数超过阈值,停止扫描目标 {target_url}", level=LOG_INFO)
