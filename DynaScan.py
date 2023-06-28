@@ -3,8 +3,10 @@
 import argparse
 import os
 from urllib.parse import unquote
+
 from pyfiglet import Figlet
-from libs.gen_path import read_scan_dict, path_list_handle, exclude_history_urls, combine_urls_and_path_dict, \
+
+from libs.gen_path import read_scan_dict, exclude_history_urls, combine_urls_and_path_dict, \
     url_and_paths_dict_handle
 from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
 from libs.lib_dyna_rule.set_depend_var import set_dependent_var_dict
@@ -17,8 +19,8 @@ from libs.lib_requests.requests_const import *
 from libs.lib_requests.requests_thread import multi_thread_requests_url, multi_thread_requests_url_sign
 from libs.lib_requests.requests_tools import get_random_str, analysis_dict_same_keys, access_result_handle, \
     random_useragent, random_x_forwarded_for
-from libs.lib_url_analysis.url_tools import get_host_port, get_url_scheme, urls_to_url_paths
 from libs.lib_url_analysis.url_parser import get_curr_dir_url, get_segment_urls, combine_urls_and_paths
+from libs.lib_url_analysis.url_tools import get_host_port, get_url_scheme
 from libs.util_func import url_to_raw_rule_classify
 from setting_total import *  # setting.py中的变量
 
@@ -123,7 +125,8 @@ def dyna_scan_controller(target_url_list, path_list_dict):
         curr_host_history_file = GB_HISTORY_FILE_STR.format(mark=curr_host_port_no_symbol)
 
         # 过滤当前的 current_url_list
-        current_url_list = exclude_history_urls(current_url_list, curr_host_history_file)
+        if GB_HISTORY_EXCLUDE:
+            current_url_list = exclude_history_urls(current_url_list, curr_host_history_file)
         output(f"[*] 当前目标 {target_url} 所有URL访问开始进行...", level=LOG_INFO)
 
         # 组合爆破任务

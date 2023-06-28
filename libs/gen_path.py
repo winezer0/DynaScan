@@ -127,14 +127,13 @@ def path_list_handle(path_list):
 
 def exclude_history_urls(url_list, url_history_file):
     # 排除历史扫描记录
-    if GB_HISTORY_EXCLUDE:
-        if file_is_exist(url_history_file):
-            accessed_url_list = read_file_to_list(file_path=url_history_file,
-                                                  de_strip=True,
-                                                  de_weight=True,
-                                                  de_unprintable=False)
-            url_list = list(set(url_list) - set(accessed_url_list))
-            output(f"[*] 历史访问URL {len(accessed_url_list)}个", level=LOG_INFO)
+    if file_is_exist(url_history_file):
+        accessed_url_list = read_file_to_list(file_path=url_history_file,
+                                              de_strip=True,
+                                              de_weight=True,
+                                              de_unprintable=False)
+        url_list = list(set(url_list) - set(accessed_url_list))
+        output(f"[*] 历史访问URL {len(accessed_url_list)}个", level=LOG_INFO)
         output(f"[*] 剔除历史URL 剩余URL:{len(url_list)}个", level=LOG_INFO)
     return url_list
 
