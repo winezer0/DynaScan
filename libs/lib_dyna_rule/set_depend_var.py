@@ -48,8 +48,8 @@ def set_dependent_var_dict(target_url,
 
         # 文件名相关变量
         file_name, pure_name = parse_url_file_part(target_url)
-        dependent_var_dict[STR_VAR_FILE_NAME] = [file_name] if file_name else None
-        dependent_var_dict[STR_VAR_PURE_NAME] = [pure_name] if pure_name else None
+        dependent_var_dict[STR_VAR_FILE_NAME] = [file_name] if file_name else []
+        dependent_var_dict[STR_VAR_PURE_NAME] = [pure_name] if pure_name else []
 
     # 对 内容列表 中的规则进行 进行 动态解析
     dependent_var_dict = dict_content_base_rule_render(dependent_var_dict)

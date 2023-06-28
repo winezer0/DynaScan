@@ -62,7 +62,6 @@ def url_and_paths_dict_handle(url_list):
     # 对最后生成的URL进行处理
     new_url_list = []
     url_paths_dict = urls_to_url_paths(url_list)
-    print(url_paths_dict)
     for url, paths in url_paths_dict.items():
         # 进行path处理
         paths = path_list_handle(paths)
@@ -222,4 +221,4 @@ if __name__ == '__main__':
     # 获取目录下所有文件名
     dir_path = r"C:\Users\WINDOWS\GithubProject\DynaScan\dict_rule\backup\direct_path"
     path_files = get_dir_path_file_info_dict(dir_path=dir_path, ext_list=[".txt"])
-    print(path_files)
+    # print(path_files)

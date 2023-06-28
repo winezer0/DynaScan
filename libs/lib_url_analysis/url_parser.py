@@ -50,8 +50,7 @@ def get_segment_urls(url):
     paths = combine_dir_to_paths(words)
     # print(f"paths:{paths}")  # paths:['/', '/aaa/', '/aaa/bbb/']
     urls = combine_urls_and_paths([get_root_dir_url(url)], paths, absolute=False)
-    print(f"urls:{urls}")
-    # urls:['https://www.baidu.com/aaa/bbb/', 'https://www.baidu.com/', 'https://www.baidu.com/aaa/']
+    # print(f"urls:{urls}") # urls:['https://www.baidu.com/aaa/bbb/', 'https://www.baidu.com/', 'https://www.baidu.com/aaa/']
     return urls
 
 
@@ -129,6 +128,6 @@ def parse_url_file_part(url):
 
 if __name__ == '__main__':
     surl = "https://www.baidu.com/aaa/index.php"
-    print(get_curr_dir_url(surl))  # https://www.baidu.com/aaa/
-    print(get_root_dir_url(surl))  # https://www.baidu.com
+    # print(get_curr_dir_url(surl))  # https://www.baidu.com/aaa/
+    # print(get_root_dir_url(surl))  # https://www.baidu.com
 

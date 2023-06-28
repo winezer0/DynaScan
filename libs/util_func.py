@@ -24,11 +24,13 @@ def url_to_raw_rule_classify(hit_url_list,
         # 提取路径
         url_path = url_str.split(get_root_dir_url(url_str), 1)[-1]  # /config.inc.php
         # 循环替换因变量值为%%键%%
-        # ['%%DOMAIN%%': ['www', 'www.baidu.com', 'baidu', 'baidu_com', 'baidu.com', 'www_baidu_com'],
-        # '%%PATH%%': []}]  # 需要排除其中的空列表
+        # ['%%DOMAIN%%': ['www', 'www.baidu.com', 'baidu', 'baidu_com', 'baidu.com', 'www_baidu_com'], '%%PATH%%': []}]
+        # 需要排除其中的空列表
         for reverse_replace_dict in reverse_replace_dict_list:
             for key, value in reverse_replace_dict.items():
-                value = [ele for ele in value if str(ele).strip() and str(ele).strip() != "/"]  # 处理[空格和/]字符
+                if value:
+                    # 处理[空格和/]字符
+                    value = [ele for ele in value if str(ele).strip() and str(ele).strip() != "/"]
                 if value:
                     url_path = re.sub(list_to_re_str(value), key, url_path, count=0)
 

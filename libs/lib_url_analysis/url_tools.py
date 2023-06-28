@@ -45,6 +45,7 @@ def get_path_words(url, symbol_replace_dict=None, not_allowed_symbol=None):
                 if key in path_var:
                     path_words_list.append(str(path_var).replace(key, symbol))
     if path_words_list:
+        path_words_list = [i for i in path_words_list if i and str(i).strip()]
         path_words_list = list(set(path_words_list))
 
     # 如果开启删除非路径字符开关
@@ -113,6 +114,9 @@ def get_domain_words(url, ignore_ip_format=True, symbol_replace_dict={}, not_all
             real_domain_val_list = tmp_list
 
         if real_domain_val_list:
+            # 去除''的域名单词
+            real_domain_val_list = [i for i in real_domain_val_list if i and str(i).strip()]
+            # 去重
             real_domain_val_list = list(set(real_domain_val_list))
     except Exception as e:
         output(f"[!] Get Base Domain Occur UnKnow Error: {e} !!!", level=LOG_ERROR)
@@ -132,6 +136,5 @@ def urls_to_url_paths(url_list):
 
 if __name__ == '__main__':
     surl = "https://www.baidu.com/aaa/bbb/index.php"
-    print(get_segment_urls(surl))
-    # ['https://www.baidu.com/', 'https://www.baidu.com/aaa', 'https://www.baidu.com/aaa/bbb']
-    print(get_url_ext(surl))  # php
+    # print(get_segment_urls(surl)) # ['https://www.baidu.com/', 'https://www.baidu.com/aaa', 'https://www.baidu.com/aaa/bbb']
+    # print(get_url_ext(surl))  # php

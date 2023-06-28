@@ -17,7 +17,7 @@ GB_RUN_TIME = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
 GB_VERSION = "Ver 0.4.2 2023-06-20 24:00"
 ##################################################################
 # 是否显示DEBUG级别信息,默认False
-GB_DEBUG_FLAG = True
+GB_DEBUG_FLAG = False
 ##################################################################
 # 每个目标的最大扫描URL阈值[数字] 辅助调试 或 其他用途
 GB_MAX_URL_NUM = None
