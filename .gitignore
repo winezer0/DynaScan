@@ -1,6 +1,7 @@
 .idea
 *idea*
 *temp*
+*.zip*
 *__pycache__*
 runtime
 runlog*
