@@ -1,40 +1,19 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
 import re
 from urllib.parse import urlparse
-
 from tldextract import extract
-
 from libs.lib_log_print.logger_printer import output, LOG_ERROR
-from libs.lib_url_analysis.url_split_parser import UrlSplitParser
+from libs.lib_url_analysis.url_parser import get_curr_dir_url, split_path_to_words, get_segment_urls, get_url_ext, \
+    list_ele_in_str
 
 
-def list_ele_in_str(list_=None, str_=None, default=True):
-    flag = False
-    if list_:
-        for ele in list_:
-            if ele in str_:
-                flag = True
-                break
-    else:
-        flag = default
-    return flag
+def get_url_scheme(url):
+    # 从URL中获取HTTP协议
+    scheme = urlparse(url).scheme
+    return scheme
 
 
-# 获取URL的脚本语言后缀
-def get_url_ext_urlsplit(url):
-    """
-    url = 'http://www.baidu.com' # 没有后缀,返回None
-    url = 'http://www.baidu.com/xxx' # 没有后缀, 返回None
-    url = 'http://www.baidu.com/xxx.xxx'  # 有后缀,返回 xxx
-    """
-    parser_obj = UrlSplitParser(urlparse(url))
-    extension = parser_obj.get_extension()
-    return extension
-
-
-# 从URL中获取HOST:PORT
 def get_host_port(url, replace_symbol=False):
     """
     从URL中获取HOST头部
@@ -47,48 +26,24 @@ def get_host_port(url, replace_symbol=False):
     return host_port
 
 
-# 获取URL中的目录单词
-def get_segment_urls_urlsplit(url):
-    """
-    # 获取URL中的目录单词
-    #UrlSplitParser(urlparse('http://www.baidu.com.cn:8080/xxxxx/xxx.aspx?p=123'))
-    #output(parser_obj.get_paths()) # {'segment': ['/', '/xxxxx'], 'path': ['xxxxx', 'xxx']}
-    """
-    url_web_dirs = []
-    parser_url = urlparse(url)
-    parser_obj = UrlSplitParser(parser_url)
-    segment_list = parser_obj.get_paths()['segment']
-    for segment in segment_list:
-        url_web_dirs.append(parser_obj.baseurl + segment)
-    return url_web_dirs
-
-
-# 获取URL目录单词和参数单词列表
-def get_path_words_urlsplit(url, symbol_replace_dict=None, not_allowed_symbol=None):
-    """
-    # 获取URL目录单词和参数单词
-    # UrlSplitParser(urlparse('http://www.baidu.com.cn:8080/xxxxx/xxx.aspx?p=123'))
-    # output(parser_obj.get_paths()) # {'segment': ['/', '/xxxxx'], 'path': ['xxxxx', 'xxx']}
-
-    UrlSplitParser中的其他方法
-    #output(parser_obj.get_extension()) # aspx
-    #output(parser_obj.get_urlfile()) # /xxxxx/xxx.aspx
-    #output(parser_obj.get_dependent()) # ['p', 'xxx', 'baidu', 'www', '123', 'aspx', 'xxxxx']
-    #output(parser_obj.get_domain_info()) # ['www', 'baidu', 'baidu'] ???
-    """
+def get_path_words(url, symbol_replace_dict=None, not_allowed_symbol=None):
+    # 获取URL目录中的单词
     if not_allowed_symbol is None:
         not_allowed_symbol = [':']
 
     if symbol_replace_dict is None:
         symbol_replace_dict = {}
-    parser_obj = UrlSplitParser(urlparse(url))
-    path_words_list = parser_obj.get_paths()['path']
+
+    # 拆分长URL为多个URL目录
+    parser_url = urlparse(get_curr_dir_url(url))
+    path_words_list = split_path_to_words(parser_url.path)
+
     # 对所有结果再进行一次替换和添加
     for path_var in path_words_list:
         for key, value in symbol_replace_dict.items():
-            for sysbol in value:
+            for symbol in value:
                 if key in path_var:
-                    path_words_list.append(str(path_var).replace(key, sysbol))
+                    path_words_list.append(str(path_var).replace(key, symbol))
     if path_words_list:
         path_words_list = list(set(path_words_list))
 
@@ -165,10 +120,8 @@ def get_domain_words(url, ignore_ip_format=True, symbol_replace_dict={}, not_all
         return real_domain_val_list
 
 
-# 从URL中提取无参数无目录的URL
-def get_base_url(url):
-    netloc = urlparse(url).netloc
-    if netloc:
-        split_url = url.split(netloc)
-        baseurl = '%s%s' % (split_url[0], netloc)
-        return baseurl
+if __name__ == '__main__':
+    surl = "https://www.baidu.com/aaa/bbb/index.php"
+    print(get_segment_urls(surl))
+    # ['https://www.baidu.com/', 'https://www.baidu.com/aaa', 'https://www.baidu.com/aaa/bbb']
+    print(get_url_ext(surl))  # php

@@ -6,8 +6,6 @@ import sys
 import time
 
 from libs.lib_file_operate.file_path import auto_make_dir
-from libs.lib_requests.requests_const import HTTP_USER_AGENTS
-from libs.lib_requests.requests_tools import random_useragent, random_x_forwarded_for
 from setting_dict import *
 
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
@@ -16,10 +14,10 @@ sys.dont_write_bytecode = True  # 设置不生成pyc文件
 GB_RUN_TIME = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
 ##################################################################
 # 版本号配置
-GB_VERSION = "Ver 0.4.0 2023-06-16 00:00"
+GB_VERSION = "Ver 0.4.1 2023-06-28 24:00"
 ##################################################################
 # 是否显示DEBUG级别信息,默认False
-GB_DEBUG_FLAG = False
+GB_DEBUG_FLAG = True
 ##################################################################
 # 每个目标的最大扫描URL阈值[数字] 辅助调试 或 其他用途
 GB_MAX_URL_NUM = None
@@ -96,9 +94,9 @@ GB_DEBUG_LOG_STR = GB_LOG_FILE_PATH.replace('module', 'debug')
 GB_ERROR_LOG_STR = GB_LOG_FILE_PATH.replace('module', 'error')
 
 # 记录不可访问的目标 # 没啥用
-GB_INACCESSIBLE_FILE_STR = GB_LOG_FILE_PATH.replace('module', 'inaccessible')
+GB_INACCESSIBLE_FILE_STR = GB_LOG_FILE_PATH.replace('module', 'access_no')
 # 记录可以访问的目标 # 没啥用
-GB_ACCESSIBLE_FILE_STR = GB_LOG_FILE_PATH.replace('module', 'accessible')
+GB_ACCESSIBLE_FILE_STR = GB_LOG_FILE_PATH.replace('module', 'access_ok')
 # 记录扫描已完成的URL 针对每个目标生成不同的记录文件
 GB_HISTORY_FILE_STR = GB_LOG_FILE_PATH.replace('module', 'history.{host_port}')
 # 每个HOST扫描URL的过滤,建议开启
@@ -106,10 +104,6 @@ GB_HISTORY_EXCLUDE = True
 ##################################################################
 # 设置输出结果文件目录
 GB_RESULT_DIR = GB_BASE_DIR.joinpath("result")
-
-# 结果文件名称
-# GB_RESULT_FILE_PATH = os.path.join(GB_RESULT_DIR,f"result_{GB_RUN_TIME}.csv")
-GB_RESULT_FILE_PATH = "auto"  # auto 根据主机名自动生成
 #######################################################################
 auto_make_dir(GB_HIT_FILE_DIR)
 auto_make_dir(GB_RESULT_DIR)

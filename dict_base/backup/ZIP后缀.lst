@@ -1,7 +1,6 @@
 rar  <-->559
 zip  <-->312
 tar.gz  <-->199
-tar  <-->122
 tar.bz2  <-->60
 tgz  <-->54
 old  <-->49
@@ -13,6 +12,7 @@ original  <-->7
 bz2  <-->6
 war  <-->5
 tar.tgz  <-->3
+tar  <-->3
 7gzip  <-->2
 7zip  <-->2
 bz  <-->2

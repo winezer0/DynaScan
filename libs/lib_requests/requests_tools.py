@@ -64,7 +64,7 @@ def random_x_forwarded_for(condition=False):
                                 random.randint(1, 254),
                                 random.randint(1, 254))
     else:
-        return '8.8.8.8'
+        return '127.0.0.1'
 
 
 # 分析 多个 字典列表 的 每个键的值是否相同, 并且不为默认值或空值

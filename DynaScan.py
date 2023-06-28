@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # encoding: utf-8
 import argparse
-
+import os
+from urllib.parse import unquote
 from pyfiglet import Figlet
-from libs.gen_path import gen_base_scan_path_list, product_urls_and_paths, path_list_handle, target_url_handle, \
-    url_list_handle
+from libs.gen_path import read_scan_dict, path_list_handle, url_list_handle, combine_urls_and_path_dict
 from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
 from libs.lib_dyna_rule.set_depend_var import set_dependent_var_dict
 from libs.lib_file_operate.file_path import file_is_exist, get_sub_dirs
@@ -14,8 +14,10 @@ from libs.lib_log_print.logger_printer import set_logger, output, LOG_DEBUG, LOG
 from libs.lib_requests.check_protocol import check_url_list_access, check_host_list_proto
 from libs.lib_requests.requests_const import *
 from libs.lib_requests.requests_thread import multi_thread_requests_url, multi_thread_requests_url_sign
-from libs.lib_requests.requests_tools import get_random_str, analysis_dict_same_keys, access_result_handle
-from libs.lib_url_analysis.url_tools import get_host_port, get_base_url
+from libs.lib_requests.requests_tools import get_random_str, analysis_dict_same_keys, access_result_handle, \
+    random_useragent, random_x_forwarded_for
+from libs.lib_url_analysis.url_tools import get_host_port, get_url_scheme
+from libs.lib_url_analysis.url_parser import get_curr_dir_url, get_segment_urls, combine_urls_and_paths
 from libs.util_func import url_to_raw_rule_classify
 from setting_total import *  # setting.py中的变量
 
@@ -36,8 +38,8 @@ def gen_dynamic_exclude_dict(req_url):
     test_path_list = [test_path_1, test_path_2, test_path_3]
 
     # 组合URL和测试路径
-    test_url_path_list = product_urls_and_paths([get_base_url(req_url)], test_path_list)
-
+    base_urls = [get_curr_dir_url(req_url)]  # 这里应该采用当前目录
+    test_url_path_list = combine_urls_and_paths(base_urls, test_path_list)
     # 执行测试任务
     output(f"[+] 随机访问测试 {test_url_path_list}", level=LOG_INFO)
     test_result_dict_list = multi_thread_requests_url(task_list=test_url_path_list,
@@ -61,13 +63,25 @@ def gen_dynamic_exclude_dict(req_url):
     output(f"随机测试响应 {test_result_dict_list}", level=LOG_DEBUG)
 
     # 分析测试结果
-    dynamic_exclude_dict = analysis_dict_same_keys(test_result_dict_list, HTTP_FILTER_VALUE_DICT, HTTP_FILTER_IGNORE_KEYS)
+    dynamic_exclude_dict = analysis_dict_same_keys(test_result_dict_list,
+                                                   HTTP_FILTER_VALUE_DICT,
+                                                   HTTP_FILTER_IGNORE_KEYS)
+
     output(f"[+] 动态排除字典 {req_url} -> {dynamic_exclude_dict}", level=LOG_INFO)
     return dynamic_exclude_dict
 
 
+# 进行URL检查
+def analysis_ends_url(current_url_list):
+    for url in current_url_list:
+        if "%%" in url or "%25%25" in unquote(url):
+            output(f"[!] URL [{url}] 中存在 [%%] 可能是错误情景", level=LOG_ERROR)
+    else:
+        output(f"[*] 最终生成的URL检查通过", level=LOG_INFO)
+
+
 # 扫描主体
-def dyna_scan_controller(target_url_list, base_path_list):
+def dyna_scan_controller(target_url_list, path_list_dict):
     # 对每个目标进行分析因变量分析和因变量替换渲染
     for target_index, target_url in enumerate(target_url_list):
         output(f"[+] 任务进度 {target_index + 1}/{len(target_url_list)} {target_url}", level=LOG_INFO)
@@ -75,17 +89,13 @@ def dyna_scan_controller(target_url_list, base_path_list):
         # 开始进行URL测试,确定动态排除用的变量
         curr_dynamic_exclude_dict = gen_dynamic_exclude_dict(target_url)
 
-        # 扩展输入的URL列表
-        current_url_list = target_url_handle(target_url)
+        # 根据URL层级拆分为多个目标
+        current_url_list = get_segment_urls(target_url) if GB_SPLIT_TARGET_PATH else [target_url]
+        output(f"[*] URL元素 {current_url_list}", level=LOG_INFO)
 
-        # 处理目标URL格式,处理最后所有的/
-        # current_url_list = list(set([url.rstrip("/") for url in current_url_list]))
-        # 处理目标URL格式,仅处理最后的一个/
-        current_url_list = list(set([url[:-1] if url.endswith('/') else url for url in current_url_list]))
-
-        # 合并urls列表和paths列表
-        current_url_list = product_urls_and_paths(current_url_list, base_path_list)
-        output(f"[*] 合并urls列表和paths列表 {len(current_url_list)}个", level=LOG_INFO)
+        # 分别合并urls列表和paths列表
+        current_url_list = combine_urls_and_path_dict(current_url_list, path_list_dict)
+        output(f"[*] 合并urls列表和paths字典 {len(current_url_list)}个", level=LOG_INFO)
 
         # 基于URL解析因变量并进行替换
         current_dependent_dict = set_dependent_var_dict(target_url=target_url,
@@ -101,8 +111,11 @@ def dyna_scan_controller(target_url_list, base_path_list):
                                                                                   keep_no_repl_key_str=True)
         output(f"[*] 因变量替换 {len(current_url_list)}个", level=LOG_INFO)
 
+        # 分析URL是否正确
+        analysis_ends_url(current_url_list)
+
         # 历史记录文件路径 基于主机HOST动态生成
-        curr_host_port_no_symbol = get_host_port(target_url, replace_symbol=True)
+        curr_host_port_no_symbol = f"{get_url_scheme(target_url)}_{get_host_port(target_url, True)}"
         curr_host_history_file = GB_HISTORY_FILE_STR.format(host_port=curr_host_port_no_symbol)
 
         # 格式化和过滤当前的 current_url_list
@@ -119,11 +132,8 @@ def dyna_scan_controller(target_url_list, base_path_list):
 
         # 直接被排除的请求记录
         ignore_file_path = GB_RESULT_DIR.joinpath(f"{curr_host_port_no_symbol}.ignore.csv")
-        # 构造常规的结果文件
-        result_file_path = GB_RESULT_FILE_PATH
-        if "auto" in result_file_path.lower():
-            # 根据主机名生成结果文件名
-            result_file_path = GB_RESULT_DIR.joinpath(f"{curr_host_port_no_symbol}.result.csv")
+        # 根据主机名生成结果文件名
+        result_file_path = GB_RESULT_DIR.joinpath(f"{curr_host_port_no_symbol}.result.csv")
 
         # 统计本目标的总访问错误次数
         access_fail_count = 0
@@ -200,7 +210,9 @@ def init_input_target(input_target):
                 lists = read_file_to_list(file_path=target, de_strip=True, de_weight=True, de_unprintable=True)
                 targets.extend(lists)
             else:
-                if "://" not in target and ("\\" in target or "/" in target or str(target).endswith(".txt")):
+                if not target.startswith(("http://", "https://")) and any(c in target for c in ['\\', '/', '.txt']):
+                    # 字符串既不以 "http://" 或 "https://" 开头，且包含 '\'、'/' 或以 ".txt" 结尾
+                    # 表示该字符串符合 Windows 或 Linux 的路径格式
                     output(f"[!] 目标文件路径不存在 {target}", level=LOG_ERROR)
                     exit()
                 else:
@@ -352,6 +364,10 @@ def args_handle(args):
         else:
             output(f"[!] 输入的代理地址[{args.proxies}]不正确,正确格式:Proto://IP:PORT", level=LOG_ERROR)
 
+    # 格式化输入的规则目录
+    if not args.dict_rule_scan:
+        args.dict_rule_scan = get_sub_dirs(GB_DICT_RULE_PATH)
+        # output(f"[*] 未指定扫描规则,默认扫描所有规则{args.dict_rule_scan}", level=LOG_ERROR)
     return args
 
 
@@ -365,8 +381,8 @@ if __name__ == "__main__":
     # 输出所有参数信息
     output(f"[*] 所有输入参数信息: {args}", level=LOG_INFO)
     time.sleep(0.1)
-    
-    # 使用字典解压将参数直接赋值给相应的全局变量
+
+    # 使用字典解压将参数 直接赋值给相应的全局变量
     for param_name, param_value in vars(args).items():
         globals_var_name = f"GB_{param_name.upper()}"
         try:
@@ -386,21 +402,27 @@ if __name__ == "__main__":
         'Accept-Encoding': ''
     }
 
+    # 对输入的目标数量进行处理
+    target_list = init_input_target(GB_TARGET)
+    if not len(target_list):
+        output("[-] 未输入任何有效目标,即将退出程序...", level=LOG_ERROR)
+        exit()
+
     # 读取路径字典 进行频率筛选、规则渲染、基本变量替换
-    output(f"[*] 读取字典 {GB_DICT_RULE_SCAN if GB_DICT_RULE_SCAN else 'ALL'} 进行频率筛选、规则渲染、基本变量替换", LOG_INFO)
-    base_path_list = gen_base_scan_path_list(GB_DICT_RULE_SCAN)
+    output(f"[*] 读取字典 {GB_DICT_RULE_SCAN} 进行频率筛选、规则渲染、基本变量替换", level=LOG_INFO)
+    path_dict = read_scan_dict(GB_DICT_RULE_SCAN)
 
     # 对路径字典进行过滤和格式化
-    base_path_list = path_list_handle(base_path_list)
-    output(f"[*] 处理字典 {GB_DICT_RULE_SCAN if GB_DICT_RULE_SCAN else 'ALL'} 剩余元素 {len(base_path_list)}", LOG_INFO)
+    for key, path_list in path_dict.items():
+        path_list = path_list_handle(path_list)
+        output(f"[*] 处理字典{GB_DICT_RULE_SCAN} [{key}]部分 剩余元素 {len(path_list)}", level=LOG_INFO)
+        path_dict[key] = path_list
 
-    # 对输入的目标数量进行处理和判断
-    target_list = init_input_target(GB_TARGET)
-    if len(target_list) == 0 or len(base_path_list) == 0:
-        output("[-] 未输入任何有效目标或字典,退出程序...", level=LOG_ERROR)
+    if not len(path_dict):
+        output("[-] 未输入任何有效字典,,即将退出程序...", level=LOG_ERROR)
         exit()
 
     # 开始扫描
-    dyna_scan_controller(target_list, base_path_list)
+    dyna_scan_controller(target_list, path_dict)
 
     output(f"[+] 所有任务测试完毕", level=LOG_INFO)

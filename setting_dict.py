@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-import os
+
 import pathlib
 from libs.lib_dyna_rule.dyna_rule_const import *
 
@@ -11,18 +11,17 @@ GB_BASE_DIR = pathlib.Path(__file__).parent.resolve()
 # 扫描字典设置
 # 基本变量文件路径
 GB_BASE_VAR_DIR = GB_BASE_DIR.joinpath("dict_base")
+
 # 设置默认调用的字典目录
 GB_DICT_RULE_PATH = GB_BASE_DIR.joinpath("dict_rule")
-GB_DIRECT_PATH_STR = str(GB_DICT_RULE_PATH.joinpath("{RULE_DIR}", "direct_path"))   # 常规直接字典路径格式
-GB_GROUP_DIRS_STR = str(GB_DICT_RULE_PATH.joinpath("{RULE_DIR}", "group_folder"))   # 组合-目录字典路径格式
-GB_GROUP_FILE_STR = str(GB_DICT_RULE_PATH.joinpath("{RULE_DIR}", "group_files"))    # 组合-文件 字典路径格式
+STR_BASE_PATH = "base_path"
+STR_BASE_ROOT = "base_root"
+GB_BASE_PATH_STR = str(GB_DICT_RULE_PATH.joinpath("{RULE_DIR}", STR_BASE_PATH))   # 基于当前目录、进行拼接扫描的字典
+GB_BASE_ROOT_STR = str(GB_DICT_RULE_PATH.joinpath("{RULE_DIR}", STR_BASE_ROOT))   # 基于根目录、进行拼接扫描的字典
+
 # 默认扫描的目录
 GB_DICT_RULE_SCAN = None  # 为空表示所有目录
 ###########################
-# 读取DIRECT目录下的字典
-GB_ADD_DIRECT_DICT = True
-# 读取GROUP_XX目录下的字典
-GB_ADD_GROUP_DICT = True
 # 需要读取的字典文件后缀 通过file.endswith匹配
 GB_DICT_SUFFIX = ['.lst']
 ###########################

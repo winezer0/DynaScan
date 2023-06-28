@@ -8,7 +8,7 @@ import copy
 from libs.lib_dyna_rule.dyna_rule_const import STR_VAR_PATH, STR_VAR_DOMAIN
 from libs.lib_log_print.logger_printer import output, LOG_ERROR
 from libs.lib_dyna_rule.dyna_rule_tools import dict_content_base_rule_render
-from libs.lib_url_analysis.url_tools import get_domain_words, get_path_words_urlsplit
+from libs.lib_url_analysis.url_tools import get_domain_words, get_path_words
 
 
 # 获取 基于 HTTP 请求的 因变量
@@ -33,9 +33,9 @@ def set_dependent_var_dict(target_url,
                                         not_allowed_symbol=not_allowed_symbol)
         dependent_var_dict[STR_VAR_DOMAIN] = domain_words
         # 路径相关因变量
-        path_words = get_path_words_urlsplit(target_url,
-                                             symbol_replace_dict=symbol_replace_dict,
-                                             not_allowed_symbol=not_allowed_symbol)
+        path_words = get_path_words(target_url,
+                                    symbol_replace_dict=symbol_replace_dict,
+                                    not_allowed_symbol=not_allowed_symbol)
         dependent_var_dict[STR_VAR_PATH] = path_words
     else:
         output(f"[-] 注意: 未输入目标URL参数,无法获取因变量", level=LOG_ERROR)

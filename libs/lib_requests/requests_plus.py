@@ -116,7 +116,7 @@ def requests_plus(req_url,
             if retry_times > 0:
                 if "Exceeded 30 redirects" in str(error):
                     req_headers = None
-                    output(f"[-] 当前目标 {req_url} 即将修改请求头为默认头后进行重试!!!", LOG_ERROR)
+                    output(f"[-] 当前目标 {req_url} 即将修改请求头为默认头后进行重试!!!", level=LOG_ERROR)
                 output(f"[-] 当前目标 {req_url} 开始进行倒数第 {retry_times} 次重试, TIMEOUT * 1.5...", level=LOG_ERROR)
                 return requests_plus(req_url=req_url,
                                      req_method=req_method,

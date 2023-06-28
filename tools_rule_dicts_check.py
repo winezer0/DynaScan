@@ -109,8 +109,8 @@ if __name__ == '__main__':
     }
 
     rule_dirs = {
-        GB_DIRECT_PATH_STR: base_dict_ext,  # 直接字典
-        GB_GROUP_DIRS_STR: base_dict_ext,  # 合并目录
+        GB_BASE_PATH_STR: base_dict_ext,  # 直接字典
+        GB_BASE_ROOT_STR: base_dict_ext,  # 合并目录
         GB_GROUP_FILE_STR: base_dict_ext,  # 合并文件
     }
 

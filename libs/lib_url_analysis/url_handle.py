@@ -5,7 +5,7 @@ import re
 import urllib
 
 from libs.lib_log_print.logger_printer import output, LOG_ERROR
-from libs.lib_url_analysis.url_tools import get_url_ext_urlsplit
+from libs.lib_url_analysis.url_parser import get_url_ext
 
 
 # 保留指定后缀的URL目标
@@ -14,7 +14,7 @@ def specify_ext_store(url_list, ext_list):
     if ext_list:
         try:
             for url in url_list:
-                ext = get_url_ext_urlsplit(url)
+                ext = get_url_ext(url)
                 # 对于没有后缀的扩展也保留
                 if not ext:
                     new_url_list_.append(url)
@@ -35,7 +35,7 @@ def specify_ext_delete(url_list, ext_list):
     if ext_list:
         try:
             for url in url_list:
-                ext = get_url_ext_urlsplit(url)
+                ext = get_url_ext(url)
                 # 对于没有后缀的扩展也保留
                 if not ext:
                     new_url_list_.append(url)
