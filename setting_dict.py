@@ -46,6 +46,8 @@ GB_DEPENDENT_REPLACE_DICT = {
     STR_VAR_DOMAIN: [],  # 存储动态PATH因变量-自动生成
     STR_VAR_PATH: [],  # 存储动态域名因变量-自动生成
     STR_VAR_BLANK: [''],  # 存储空字符
+    STR_VAR_FILE_NAME: [],  # 存储文件名变量-带扩展
+    STR_VAR_PURE_NAME: [],  # 存储文件名变量-无扩展
 }
 
 # DOMAIN PATH 因变量中的 符号替换规则, 替换后追加到域名因子列表

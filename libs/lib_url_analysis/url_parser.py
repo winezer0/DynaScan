@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 import itertools
+import os
 from urllib.parse import urljoin, urlparse
 
 
@@ -24,7 +25,7 @@ def split_path_to_words(path):
     for dirs in path.split('/'):
         if dirs != '':
             words.append(dirs)
-    # print(f"words: {words}")  # words: ['url_and_paths_dict_handle', 'bbb']
+    # print(f"words: {words}")  # words: ['aaa', 'bbb']
     return words
 
 
@@ -37,7 +38,7 @@ def combine_dir_to_paths(words):
     for directory in words:
         current_url += directory + "/"
         paths.append(current_url)
-    # print(f"full_paths: {full_paths}") # ['/', '/url_and_paths_dict_handle/', '/url_and_paths_dict_handle/bbb/']
+    # print(f"full_paths: {full_paths}") # ['/', '/aaa/', '/aaa/bbb/']
     return paths
 
 
@@ -45,9 +46,9 @@ def get_segment_urls(url):
     # 拆分长URL为多个URL目录
     parser_url = urlparse(get_curr_dir_url(url))
     words = split_path_to_words(parser_url.path)
-    # print(f"words:{words}") # words:['url_and_paths_dict_handle', 'bbb']
+    # print(f"words:{words}") # words:['aaa', 'bbb']
     paths = combine_dir_to_paths(words)
-    # print(f"paths:{paths}")  # paths:['/', '/url_and_paths_dict_handle/', '/url_and_paths_dict_handle/bbb/']
+    # print(f"paths:{paths}")  # paths:['/', '/aaa/', '/aaa/bbb/']
     urls = combine_urls_and_paths([get_root_dir_url(url)], paths, absolute=False)
     print(f"urls:{urls}")
     # urls:['https://www.baidu.com/aaa/bbb/', 'https://www.baidu.com/', 'https://www.baidu.com/aaa/']
@@ -111,41 +112,23 @@ def parse_url_path_part(url):
     return url_part, path_part
 
 
+def parse_url_file_part(url):
+    # 提取URL中的文件名和扩展名
+    # "https://www.baidu.com/aaa/bbb/index.php?a=1"  # ('index.php', 'index', '.php')
+    # "https://www.baidu.com/aaa/bbb/index"  # ('index.php', 'index', '')
+    # "https://www.baidu.com/aaa/bbb/"  # ('', '', '')
+    # 解析 URL 获取路径部分
+    parsed_url = urlparse(url)
+    path = parsed_url.path
+
+    # 提取文件名和扩展名
+    file_name = os.path.basename(path)
+    pure_name, file_ext = os.path.splitext(file_name)
+    return file_name, pure_name
+
+
 if __name__ == '__main__':
     surl = "https://www.baidu.com/aaa/index.php"
     print(get_curr_dir_url(surl))  # https://www.baidu.com/aaa/
     print(get_root_dir_url(surl))  # https://www.baidu.com
 
-    # print(urljoin("https://www.baidu.com/aaa/index.php", "./"))  # https://www.baidu.com/aaa/
-    # print(urljoin("https://www.baidu.com/aaa/", "./"))  # https://www.baidu.com/aaa/
-    # print(urljoin("https://www.baidu.com/aaa/", "./xxx"))  # https://www.baidu.com/aaa/xxx
-    # print(urljoin("https://www.baidu.com/aaa/", "../xxx"))  # https://www.baidu.com/xxx
-    #
-    # # # 相对 URL 以斜杠 / 开头，表示相对于根目录的路径，会替换掉基本 URL 中的路径部分。
-    # print(urljoin("https://www.baidu.com/aaa/", "/"))  # https://www.baidu.com/
-    # print(urljoin("https://www.baidu.com/aaa/xxxx", "/index"))  # https://www.baidu.com/index
-    #
-    # print(urljoin("https://www.baidu.com", "/"))  # https://www.baidu.com/
-    # print(urljoin("https://www.baidu.com", "./index"))  # https://www.baidu.com/index
-
-    # print(urljoin("https://www.baidu.com", "indexxxxxxx"))  # https://www.baidu.com/indexxxxxxx
-    # print(urljoin("https://www.baidu.com/xxxx", "indexxxxxxx"))  # https://www.baidu.com/indexxxxxxx
-    # print(urljoin("https://www.baidu.com/xxxx", "./indexxxxxxx"))  # https://www.baidu.com/indexxxxxxx
-
-    # print(urljoin("https://www.baidu.com", ".//indexxxxxxx"))  # https://www.baidu.com/indexxxxxxx
-    #
-    # 相对 URL 中的 //indexxxxxxx 以双斜杠 // 开头，表示使用相对于当前协议的 URL
-    # print(urljoin("https://www.baidu.com/xxxx", "//indexxxxxxx"))  # https://indexxxxxxx  # 非预期的
-
-    # print(urljoin("/", "/indexxxxxxx"))  # /indexxxxxxx
-    # print(urljoin("./", "/indexxxxxxx"))  # /indexxxxxxx
-    # print(urljoin("/", "indexxxxxxx"))  # /indexxxxxxx
-    # print(urljoin("./", "indexxxxxxx"))  # indexxxxxxx # 非预期的
-    # print(urljoin("/", "//indexxxxxxx"))  # //indexxxxxxx
-    # print(urljoin("./", "//indexxxxxxx"))  # //indexxxxxxx
-
-    # print(urljoin("https://www.baidu.com/xxxx///", "indexxxxxxx"))  # https://www.baidu.com/xxxx/indexxxxxxx # 非完全预期的
-    # print(urljoin("https://www.baidu.com/xxxx///", "./indexxxxxxx"))  # https://www.baidu.com/xxxx/indexxxxxxx # 非完全预期的
-    #
-    # print(urljoin("https://www.baidu.com/xxxx%2F%2F/", "indexxxxxxx"))  # https://www.baidu.com/xxxx%2F%2F/indexxxxxxx
-    # print(urljoin("https://www.baidu.com/xxxx%2F%2F%2F", "./indexxxxxxx"))  # https://www.baidu.com/indexxxxxxx
