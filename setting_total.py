@@ -98,7 +98,7 @@ GB_INACCESSIBLE_FILE_STR = GB_LOG_FILE_PATH.replace('module', 'access_no')
 # 记录可以访问的目标 # 没啥用
 GB_ACCESSIBLE_FILE_STR = GB_LOG_FILE_PATH.replace('module', 'access_ok')
 # 记录扫描已完成的URL 针对每个目标生成不同的记录文件
-GB_HISTORY_FILE_STR = GB_LOG_FILE_PATH.replace('module', 'history.{host_port}')
+GB_HISTORY_FILE_STR = GB_LOG_FILE_PATH.replace('module', 'history.{mark}')
 # 每个HOST扫描URL的过滤,建议开启
 GB_HISTORY_EXCLUDE = True
 ##################################################################

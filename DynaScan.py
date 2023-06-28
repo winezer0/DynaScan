@@ -120,7 +120,7 @@ def dyna_scan_controller(target_url_list, path_list_dict):
 
         # 历史记录文件路径 基于主机HOST动态生成
         curr_host_port_no_symbol = f"{get_url_scheme(target_url)}_{get_host_port(target_url, True)}"
-        curr_host_history_file = GB_HISTORY_FILE_STR.format(host_port=curr_host_port_no_symbol)
+        curr_host_history_file = GB_HISTORY_FILE_STR.format(mark=curr_host_port_no_symbol)
 
         # 过滤当前的 current_url_list
         current_url_list = exclude_history_urls(current_url_list, curr_host_history_file)
