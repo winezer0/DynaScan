@@ -1,4 +1,4 @@
-# DynaScan (戴拿) 重构扫描字典追加结构ing, 暂停使用
+# DynaScan (戴拿)
 
 ```
 dynamic Weak File Scanner 动态敏感文件扫描器  By NOVASEC && WINEZER0
