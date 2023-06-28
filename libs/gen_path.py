@@ -129,7 +129,9 @@ def exclude_history_urls(url_list, url_history_file):
     # 排除历史扫描记录
     if GB_HISTORY_EXCLUDE:
         if file_is_exist(url_history_file):
-            accessed_url_list = read_file_to_list(file_path=url_history_file, de_strip=True, de_weight=True,
+            accessed_url_list = read_file_to_list(file_path=url_history_file,
+                                                  de_strip=True,
+                                                  de_weight=True,
                                                   de_unprintable=False)
             url_list = list(set(url_list) - set(accessed_url_list))
             output(f"[*] 历史访问URL {len(accessed_url_list)}个", level=LOG_INFO)
@@ -172,7 +174,7 @@ def read_path_files_and_rule_parse_frequency(read_dir_path,
 
 
 # 生成基本扫描字典
-def read_scan_dict(cur_rule_dir_list):
+def read_scan_dict(cur_rule_dir_list, frequency_min):
     output(f"[*] 当前指定加载目录:{cur_rule_dir_list}", level=LOG_DEBUG)
     # 1、获取基本变量替换字典
     base_replace_dict = set_base_var_dict_frequency(base_var_dir=GB_BASE_VAR_DIR,
@@ -180,7 +182,7 @@ def read_scan_dict(cur_rule_dir_list):
                                                     base_replace_dict=GB_BASE_REPLACE_DICT,
                                                     frequency_symbol=GB_FREQUENCY_SYMBOL,
                                                     annotation_symbol=GB_ANNOTATION_SYMBOL,
-                                                    frequency_min=GB_FREQUENCY_MIN
+                                                    frequency_min=frequency_min
                                                     )
     output(f"[*] 获取基本变量完成:{base_replace_dict.keys()}", level=LOG_DEBUG)
 
@@ -198,7 +200,7 @@ def read_scan_dict(cur_rule_dir_list):
                                                                            ext_list=GB_DICT_SUFFIX,
                                                                            frequency_symbol=GB_FREQUENCY_SYMBOL,
                                                                            annotation_symbol=GB_ANNOTATION_SYMBOL,
-                                                                           frequency_min=GB_FREQUENCY_MIN,
+                                                                           frequency_min=frequency_min,
                                                                            replace_dict=base_replace_dict)
             output(f"[+] 加载元素数量 {len(base_path_dict_list)} <--> {base_path_path}", level=LOG_INFO)
             path_dict[STR_BASE_PATH].extend(base_path_dict_list)
@@ -209,7 +211,7 @@ def read_scan_dict(cur_rule_dir_list):
                                                                            ext_list=GB_DICT_SUFFIX,
                                                                            frequency_symbol=GB_FREQUENCY_SYMBOL,
                                                                            annotation_symbol=GB_ANNOTATION_SYMBOL,
-                                                                           frequency_min=GB_FREQUENCY_MIN,
+                                                                           frequency_min=frequency_min,
                                                                            replace_dict=base_replace_dict)
             output(f"[+] 加载元素数量 {len(base_root_dict_list)} <--> {base_root_path}", level=LOG_INFO)
             path_dict[STR_BASE_ROOT].extend(base_root_dict_list)

@@ -372,6 +372,8 @@ def args_handle(args):
     if not args.dict_rule_scan:
         args.dict_rule_scan = get_sub_dirs(GB_DICT_RULE_PATH)
         # output(f"[*] 未指定扫描规则,默认扫描所有规则{args.dict_rule_scan}", level=LOG_ERROR)
+
+    # GB_FREQUENCY_MIN传递到read_scan_dict失败, 原因未知，猜测是下一文件也导入了本函数
     return args
 
 
@@ -391,7 +393,7 @@ if __name__ == "__main__":
         globals_var_name = f"GB_{param_name.upper()}"
         try:
             globals()[globals_var_name] = param_value
-            # output(f"[*] INPUT:{globals_var_name} -> {param_value}", level=LOG_DEBUG)
+            # output(f"[*] INPUT:{globals_var_name} -> {param_value}", level=LOG_ERROR)
         except Exception as error:
             output(f"[!] 输入参数信息: {param_name} {param_value} 未对应其全局变量!!!", level=LOG_ERROR)
             exit()
@@ -414,7 +416,7 @@ if __name__ == "__main__":
 
     # 读取路径字典 进行频率筛选、规则渲染、基本变量替换
     output(f"[*] 读取字典 {GB_DICT_RULE_SCAN} 进行频率筛选、规则渲染、基本变量替换", level=LOG_INFO)
-    path_dict = read_scan_dict(GB_DICT_RULE_SCAN)
+    path_dict = read_scan_dict(GB_DICT_RULE_SCAN, GB_FREQUENCY_MIN)
 
     if not len(path_dict):
         output("[-] 未输入任何有效字典,,即将退出程序...", level=LOG_ERROR)
