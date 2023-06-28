@@ -13,15 +13,19 @@ GB_BASE_DIR = pathlib.Path(__file__).parent.resolve()
 GB_BASE_VAR_DIR = GB_BASE_DIR.joinpath("dict_base")
 
 # 设置默认调用的字典目录
-GB_DICT_RULE_PATH = GB_BASE_DIR.joinpath("dict_rule")
 STR_BASE_PATH = "base_path"
 STR_BASE_ROOT = "base_root"
+GB_DICT_RULE_PATH = GB_BASE_DIR.joinpath("dict_rule")
 GB_BASE_PATH_STR = str(GB_DICT_RULE_PATH.joinpath("{RULE_DIR}", STR_BASE_PATH))   # 基于当前目录、进行拼接扫描的字典
 GB_BASE_ROOT_STR = str(GB_DICT_RULE_PATH.joinpath("{RULE_DIR}", STR_BASE_ROOT))   # 基于根目录、进行拼接扫描的字典
 
 # 默认扫描的目录
 GB_DICT_RULE_SCAN = None  # 为空表示所有目录
 ###########################
+# 开启基于根目录的文件字典读取
+GB_SCAN_BASE_ROOT = True
+# 开启基于当前目录下的文件字典读取
+GB_SCAN_BASE_PATH = True
 # 需要读取的字典文件后缀 通过file.endswith匹配
 GB_DICT_SUFFIX = ['.lst']
 ###########################
@@ -38,7 +42,7 @@ GB_BASE_REPLACE_DICT = {}
 #########################
 # 存储自定义 因变量 # 考虑都合并到 DEPENDENT
 GB_DEPENDENT_REPLACE_DICT = {
-    STR_VAR_DEPENDENT:['admin', 'product', 'wwwroot', 'www', '网站'],  # 存储自定义因变量
+    STR_VAR_DEPENDENT:[],  # 存储自定义因变量
     STR_VAR_DOMAIN: [],  # 存储动态PATH因变量-自动生成
     STR_VAR_PATH: [],  # 存储动态域名因变量-自动生成
     STR_VAR_BLANK: [''],  # 存储空字符

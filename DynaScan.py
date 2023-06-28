@@ -4,7 +4,8 @@ import argparse
 import os
 from urllib.parse import unquote
 from pyfiglet import Figlet
-from libs.gen_path import read_scan_dict, path_list_handle, url_list_handle, combine_urls_and_path_dict
+from libs.gen_path import read_scan_dict, path_list_handle, exclude_history_urls, combine_urls_and_path_dict, \
+    url_and_paths_dict_handle
 from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
 from libs.lib_dyna_rule.set_depend_var import set_dependent_var_dict
 from libs.lib_file_operate.file_path import file_is_exist, get_sub_dirs
@@ -16,7 +17,7 @@ from libs.lib_requests.requests_const import *
 from libs.lib_requests.requests_thread import multi_thread_requests_url, multi_thread_requests_url_sign
 from libs.lib_requests.requests_tools import get_random_str, analysis_dict_same_keys, access_result_handle, \
     random_useragent, random_x_forwarded_for
-from libs.lib_url_analysis.url_tools import get_host_port, get_url_scheme
+from libs.lib_url_analysis.url_tools import get_host_port, get_url_scheme, urls_to_url_paths
 from libs.lib_url_analysis.url_parser import get_curr_dir_url, get_segment_urls, combine_urls_and_paths
 from libs.util_func import url_to_raw_rule_classify
 from setting_total import *  # setting.py中的变量
@@ -111,6 +112,9 @@ def dyna_scan_controller(target_url_list, path_list_dict):
                                                                                   keep_no_repl_key_str=True)
         output(f"[*] 因变量替换 {len(current_url_list)}个", level=LOG_INFO)
 
+        # 对url的路径进行过滤和格式化
+        current_url_list = url_and_paths_dict_handle(current_url_list)
+
         # 分析URL是否正确
         analysis_ends_url(current_url_list)
 
@@ -118,8 +122,8 @@ def dyna_scan_controller(target_url_list, path_list_dict):
         curr_host_port_no_symbol = f"{get_url_scheme(target_url)}_{get_host_port(target_url, True)}"
         curr_host_history_file = GB_HISTORY_FILE_STR.format(host_port=curr_host_port_no_symbol)
 
-        # 格式化和过滤当前的 current_url_list
-        current_url_list = url_list_handle(current_url_list, curr_host_history_file)
+        # 过滤当前的 current_url_list
+        current_url_list = exclude_history_urls(current_url_list, curr_host_history_file)
         output(f"[*] 当前目标 {target_url} 所有URL访问开始进行...", level=LOG_INFO)
 
         # 组合爆破任务
@@ -411,12 +415,6 @@ if __name__ == "__main__":
     # 读取路径字典 进行频率筛选、规则渲染、基本变量替换
     output(f"[*] 读取字典 {GB_DICT_RULE_SCAN} 进行频率筛选、规则渲染、基本变量替换", level=LOG_INFO)
     path_dict = read_scan_dict(GB_DICT_RULE_SCAN)
-
-    # 对路径字典进行过滤和格式化
-    for key, path_list in path_dict.items():
-        path_list = path_list_handle(path_list)
-        output(f"[*] 处理字典{GB_DICT_RULE_SCAN} [{key}]部分 剩余元素 {len(path_list)}", level=LOG_INFO)
-        path_dict[key] = path_list
 
     if not len(path_dict):
         output("[-] 未输入任何有效字典,,即将退出程序...", level=LOG_ERROR)

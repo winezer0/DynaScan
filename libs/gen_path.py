@@ -7,12 +7,13 @@ from libs.lib_dyna_rule.base_rule_parser import base_rule_render_list
 from libs.lib_dyna_rule.dyna_rule_tools import cartesian_product_merging, frozen_tuple_list, \
     get_key_list_with_frequency
 from libs.lib_dyna_rule.set_basic_var import set_base_var_dict_frequency
-from libs.lib_file_operate.file_path import file_is_exist, get_dir_path_file_info_dict, get_sub_dirs
+from libs.lib_file_operate.file_path import file_is_exist, get_dir_path_file_info_dict
 from libs.lib_file_operate.file_read import read_file_to_list, read_files_to_frequency_dict
 from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_ERROR, LOG_DEBUG
 from libs.lib_url_analysis.url_handle import specify_ext_store, specify_ext_delete, replace_multi_slashes, \
     remove_url_end_symbol, url_path_lowercase, url_path_chinese_encode, url_path_url_encode
-from libs.lib_url_analysis.url_parser import get_segment_urls, combine_urls_and_paths
+from libs.lib_url_analysis.url_parser import combine_urls_and_paths
+from libs.lib_url_analysis.url_tools import urls_to_url_paths
 from setting_total import *
 
 
@@ -30,8 +31,8 @@ def combine_urls_and_path_dict(base_urls, paths_dict):
     return url_list
 
 
-# 合并folders目录字典列表和files目录字典列表
 def product_folders_and_files(folder_list, files_list):
+    # 合并folders目录字典列表和files目录字典列表
     def format_paths(path_list):
         """
         格式化目录和文件的路径，使其符合要求
@@ -47,9 +48,6 @@ def product_folders_and_files(folder_list, files_list):
         formatted_paths = list(set(formatted_paths))
         return formatted_paths
 
-    # 记录开始替换的时间
-    start_time = time.time()
-
     # 格式化目录
     folder_list = format_paths(folder_list)
     # 格式化file
@@ -57,22 +55,42 @@ def product_folders_and_files(folder_list, files_list):
 
     group_folder_files_list = cartesian_product_merging(folder_list, files_list)
     group_folder_files_list = frozen_tuple_list(group_folder_files_list, link_symbol="")
-    end_time = time.time()
-    run_time = end_time - start_time
-    return group_folder_files_list, run_time
+    return group_folder_files_list
 
 
-# 拼接URL前的PATH过滤和格式化
+def url_and_paths_dict_handle(url_list):
+    # 对最后生成的URL进行处理
+    new_url_list = []
+    url_paths_dict = urls_to_url_paths(url_list)
+    print(url_paths_dict)
+    for url, paths in url_paths_dict.items():
+        # 进行path处理
+        paths = path_list_handle(paths)
+        # url_paths_dict[url] = paths
+        # 组合新的url
+        combine_urls = combine_urls_and_paths([url], paths)
+        new_url_list.extend(combine_urls)
+
+    # URL列表去重
+    new_url_list = list(set(new_url_list))
+
+    # URL列表限额
+    if GB_MAX_URL_NUM and isinstance(GB_MAX_URL_NUM, int):
+        new_url_list = new_url_list[:GB_MAX_URL_NUM]
+
+    return new_url_list
+
+
 def path_list_handle(path_list):
     # 对列表中的所有PATH添加指定前缀
     if GB_CUSTOM_URL_PREFIX:
-        path_list = combine_urls_and_paths(GB_CUSTOM_URL_PREFIX, path_list)
+        path_list = product_folders_and_files(GB_CUSTOM_URL_PREFIX, path_list)
         output(f"[*] 自定义前缀 剩余元素 {len(path_list)}个", level=LOG_INFO)
 
     # 保留指定后缀的URL目标
     if GB_ONLY_SCAN_SPECIFY_EXT:
         path_list = specify_ext_store(path_list, GB_ONLY_SCAN_SPECIFY_EXT)
-        output(f"[*] 保留指定后缀  剩余元素 {len(path_list)}个", level=LOG_ERROR)
+        output(f"[*] 保留指定后缀 剩余元素 {len(path_list)}个", level=LOG_ERROR)
 
     # 移除指定后缀列表的内容
     if GB_NO_SCAN_SPECIFY_EXT:
@@ -108,12 +126,7 @@ def path_list_handle(path_list):
     return path_list
 
 
-# 扫描前的URL过滤和格式化
-def url_list_handle(url_list, url_history_file):
-    # URL列表限额
-    if GB_MAX_URL_NUM and isinstance(GB_MAX_URL_NUM, int):
-        url_list = url_list[:GB_MAX_URL_NUM]
-
+def exclude_history_urls(url_list, url_history_file):
     # 排除历史扫描记录
     if GB_HISTORY_EXCLUDE:
         if file_is_exist(url_history_file):
@@ -181,7 +194,7 @@ def read_scan_dict(cur_rule_dir_list):
         base_path_path = GB_BASE_PATH_STR.format(RULE_DIR=rule_dir)
         base_root_path = GB_BASE_ROOT_STR.format(RULE_DIR=rule_dir)
         # 2、读取直接追加到当前目录的字典
-        if True:
+        if GB_SCAN_BASE_PATH:
             base_path_dict_list = read_path_files_and_rule_parse_frequency(read_dir_path=base_path_path,
                                                                            ext_list=GB_DICT_SUFFIX,
                                                                            frequency_symbol=GB_FREQUENCY_SYMBOL,
@@ -192,7 +205,7 @@ def read_scan_dict(cur_rule_dir_list):
             path_dict[STR_BASE_PATH].extend(base_path_dict_list)
 
         # 3、读取追加到根目录下的字典
-        if True:
+        if GB_SCAN_BASE_ROOT:
             base_root_dict_list = read_path_files_and_rule_parse_frequency(read_dir_path=base_root_path,
                                                                            ext_list=GB_DICT_SUFFIX,
                                                                            frequency_symbol=GB_FREQUENCY_SYMBOL,

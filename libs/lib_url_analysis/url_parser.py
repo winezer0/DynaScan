@@ -24,7 +24,7 @@ def split_path_to_words(path):
     for dirs in path.split('/'):
         if dirs != '':
             words.append(dirs)
-    # print(f"words: {words}")  # words: ['aaa', 'bbb']
+    # print(f"words: {words}")  # words: ['url_and_paths_dict_handle', 'bbb']
     return words
 
 
@@ -37,7 +37,7 @@ def combine_dir_to_paths(words):
     for directory in words:
         current_url += directory + "/"
         paths.append(current_url)
-    # print(f"full_paths: {full_paths}") # ['/', '/aaa/', '/aaa/bbb/']
+    # print(f"full_paths: {full_paths}") # ['/', '/url_and_paths_dict_handle/', '/url_and_paths_dict_handle/bbb/']
     return paths
 
 
@@ -45,9 +45,9 @@ def get_segment_urls(url):
     # 拆分长URL为多个URL目录
     parser_url = urlparse(get_curr_dir_url(url))
     words = split_path_to_words(parser_url.path)
-    # print(f"words:{words}") # words:['aaa', 'bbb']
+    # print(f"words:{words}") # words:['url_and_paths_dict_handle', 'bbb']
     paths = combine_dir_to_paths(words)
-    # print(f"paths:{paths}")  # paths:['/', '/aaa/', '/aaa/bbb/']
+    # print(f"paths:{paths}")  # paths:['/', '/url_and_paths_dict_handle/', '/url_and_paths_dict_handle/bbb/']
     urls = combine_urls_and_paths([get_root_dir_url(url)], paths, absolute=False)
     print(f"urls:{urls}")
     # urls:['https://www.baidu.com/aaa/bbb/', 'https://www.baidu.com/', 'https://www.baidu.com/aaa/']
@@ -73,8 +73,6 @@ def get_url_ext(url, extension=None):
     else:
         return extension
     return extension
-
-
 
 
 def list_ele_in_str(list_=None, str_=None, default=True):
@@ -103,6 +101,15 @@ def combine_urls_and_paths(url_list, path_list, absolute=False):
     # 去重URL
     url_path_list = list(set(url_path_list))
     return url_path_list
+
+
+def parse_url_path_part(url):
+    # 分割一个URL为基本URL和路径
+    parsed_url = urlparse(url)
+    url_part = f"{parsed_url.scheme}://{parsed_url.netloc}"
+    path_part = parsed_url.path
+    return url_part, path_part
+
 
 if __name__ == '__main__':
     surl = "https://www.baidu.com/aaa/index.php"

@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 from tldextract import extract
 from libs.lib_log_print.logger_printer import output, LOG_ERROR
 from libs.lib_url_analysis.url_parser import get_curr_dir_url, split_path_to_words, get_segment_urls, get_url_ext, \
-    list_ele_in_str
+    list_ele_in_str, parse_url_path_part
 
 
 def get_url_scheme(url):
@@ -118,6 +118,16 @@ def get_domain_words(url, ignore_ip_format=True, symbol_replace_dict={}, not_all
         output(f"[!] Get Base Domain Occur UnKnow Error: {e} !!!", level=LOG_ERROR)
     finally:
         return real_domain_val_list
+
+
+def urls_to_url_paths(url_list):
+    # 拆分URL和路径 可能是多个host
+    url_path_dict = {}
+    for url in url_list:
+        url_part, path_part = parse_url_path_part(url)
+        # setdefault 方法检查字典中是否存在指定的键，如果不存在则将其添加到字典中
+        url_path_dict.setdefault(url_part, []).append(path_part)
+    return url_path_dict
 
 
 if __name__ == '__main__':
