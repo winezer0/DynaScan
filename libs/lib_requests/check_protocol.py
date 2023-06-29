@@ -131,7 +131,7 @@ def check_host_list_proto(target_list, req_method, req_path, req_headers, req_pr
     # 对none_proto_head_host里面的目标进行协议判断处理
     for target in none_proto_head_host:
         protocol = str(default_proto).lower()
-        if protocol == "auto":
+        if not protocol:
             protocol = check_protocol(req_host=target,
                                       req_method=req_method,
                                       req_path=req_path,

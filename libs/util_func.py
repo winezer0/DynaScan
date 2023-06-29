@@ -2,12 +2,21 @@
 # encoding: utf-8
 
 import re
-
+from urllib.parse import unquote
 from libs.lib_dyna_rule.dyna_rule_tools import list_to_re_str, cartesian_product_merging, frozen_tuple_list
 from libs.lib_file_operate.file_path import file_is_exist
 from libs.lib_file_operate.file_read import read_file_to_list
-from libs.lib_log_print.logger_printer import output, LOG_INFO
+from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_ERROR
 from libs.lib_url_analysis.url_parser import get_root_dir_url, get_url_ext
+
+
+# 进行URL检查
+def analysis_ends_url(current_url_list):
+    for url in current_url_list:
+        if "%%" in url or "%25%25" in unquote(url):
+            output(f"[!] URL [{url}] 中存在 [%%] 可能是错误情景", level=LOG_ERROR)
+    else:
+        output(f"[*] 最终生成的URL检查通过", level=LOG_INFO)
 
 
 # URL转原始规则（做反向变量替换）

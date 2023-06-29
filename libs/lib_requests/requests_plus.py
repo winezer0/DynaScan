@@ -340,7 +340,7 @@ def request_retry(req_url,
 #         all_task = []
 #         for url in target_url_path_list:
 #             # 把请求任务加入线程池
-#             task = pool.submit(requests_plus, req_url=url)
+#             task = pool.submit(requests_plus, target_url=url)
 #             all_task.append(task)
 #         # 输出线程返回的结果
 #         for future in as_completed(all_task):
