@@ -24,11 +24,10 @@ from libs.lib_log_print.logger_printer import output, LOG_INFO, set_logger, LOG_
 from libs.input_const import *
 from libs.lib_requests.check_protocol import check_host_list_proto, check_url_list_access
 from libs.parse_input import parse_input, args_dict_handle, config_dict_add_args, config_dict_handle, show_config_dict
-
-# 读取用户输入的URL和目标文件参数
 from libs.util_func import analysis_ends_url, exclude_history_urls, url_to_raw_rule_classify
 
 
+# 读取用户输入的URL和目标文件参数
 def init_target(config_dict):
     # 读取用户输入的URL和目标文件参数
     input_target = config_dict[GB_TARGET]
@@ -228,7 +227,7 @@ def dyna_scan_controller(target_urls, paths_dict, config_dict):
 
         # URL列表限额
         if config_dict[GB_MAX_URL_NUM] and isinstance(config_dict[GB_MAX_URL_NUM], int):
-            new_url_list = new_url_list[:config_dict[GB_MAX_URL_NUM]]
+            current_url_list = current_url_list[:config_dict[GB_MAX_URL_NUM]]
 
         # 历史记录文件路径 基于主机HOST动态生成
         curr_host_port_no_symbol = f"{get_url_scheme(target_url)}_{get_host_port(target_url, True)}"
