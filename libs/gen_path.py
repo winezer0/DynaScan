@@ -14,6 +14,7 @@ from libs.lib_url_analysis.url_handle import specify_ext_store, specify_ext_dele
     remove_url_end_symbol, url_path_lowercase, url_path_chinese_encode, url_path_url_encode
 from libs.lib_url_analysis.url_parser import combine_urls_and_paths
 from libs.lib_url_analysis.url_tools import urls_to_url_paths
+from libs.util_func import product_folders_and_files
 from setting_total import *
 
 
@@ -29,33 +30,6 @@ def combine_urls_and_path_dict(base_urls, paths_dict):
             url_list.extend(url_list)
     url_list = list(set(url_list))
     return url_list
-
-
-def product_folders_and_files(folder_list, files_list):
-    # 合并folders目录字典列表和files目录字典列表
-    def format_paths(path_list):
-        """
-        格式化目录和文件的路径，使其符合要求
-        """
-        formatted_paths = []
-        for path in path_list:
-            path = path.strip("/")
-            if not path.startswith('/'):
-                path = '/' + path
-            if path.endswith('/'):
-                path = path.rstrip('/')
-            formatted_paths.append(path)
-        formatted_paths = list(set(formatted_paths))
-        return formatted_paths
-
-    # 格式化目录
-    folder_list = format_paths(folder_list)
-    # 格式化file
-    files_list = format_paths(files_list)
-
-    group_folder_files_list = cartesian_product_merging(folder_list, files_list)
-    group_folder_files_list = frozen_tuple_list(group_folder_files_list, link_symbol="")
-    return group_folder_files_list
 
 
 def url_and_paths_dict_handle(url_list):
@@ -125,26 +99,14 @@ def path_list_handle(path_list):
     return path_list
 
 
-def exclude_history_urls(url_list, url_history_file):
-    # 排除历史扫描记录
-    if file_is_exist(url_history_file):
-        accessed_url_list = read_file_to_list(file_path=url_history_file,
-                                              de_strip=True,
-                                              de_weight=True,
-                                              de_unprintable=False)
-        url_list = list(set(url_list) - set(accessed_url_list))
-        output(f"[*] 历史访问URL {len(accessed_url_list)}个", level=LOG_INFO)
-        output(f"[*] 剔除历史URL 剩余URL:{len(url_list)}个", level=LOG_INFO)
-    return url_list
-
-
-# 按频率读取目录下的所有字典文件,并进行动态解析
 def read_path_files_and_rule_parse_frequency(read_dir_path,
                                              ext_list,
                                              frequency_symbol,
                                              annotation_symbol,
                                              frequency_min,
                                              replace_dict):
+    # 按频率读取目录下的所有字典文件,并进行动态解析
+
     # 读取前判断文件路径是否存在
     if not os.path.exists(read_dir_path):
         return []

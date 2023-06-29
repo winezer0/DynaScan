@@ -6,7 +6,7 @@ from urllib.parse import unquote
 
 from pyfiglet import Figlet
 
-from libs.gen_path import read_scan_dict, exclude_history_urls, combine_urls_and_path_dict, \
+from libs.gen_path import read_scan_dict, combine_urls_and_path_dict, \
     url_and_paths_dict_handle
 from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
 from libs.lib_dyna_rule.set_depend_var import set_dependent_var_dict
@@ -21,7 +21,7 @@ from libs.lib_requests.requests_tools import get_random_str, analysis_dict_same_
     random_useragent, random_x_forwarded_for
 from libs.lib_url_analysis.url_parser import get_curr_dir_url, get_segment_urls, combine_urls_and_paths
 from libs.lib_url_analysis.url_tools import get_host_port, get_url_scheme
-from libs.util_func import url_to_raw_rule_classify
+from libs.util_func import url_to_raw_rule_classify, exclude_history_urls
 from setting_total import *  # setting.py中的变量
 
 sys.dont_write_bytecode = True  # 设置不生成pyc文件

@@ -3,7 +3,10 @@
 
 import re
 
-from libs.lib_dyna_rule.dyna_rule_tools import list_to_re_str
+from libs.lib_dyna_rule.dyna_rule_tools import list_to_re_str, cartesian_product_merging, frozen_tuple_list
+from libs.lib_file_operate.file_path import file_is_exist
+from libs.lib_file_operate.file_read import read_file_to_list
+from libs.lib_log_print.logger_printer import output, LOG_INFO
 from libs.lib_url_analysis.url_parser import get_root_dir_url, get_url_ext
 
 
@@ -53,3 +56,44 @@ def url_to_raw_rule_classify(hit_url_list,
 
     return hit_classify
 
+
+# 合并folders目录字典列表和files目录字典列表
+def product_folders_and_files(folder_list, files_list):
+    # 合并folders目录字典列表和files目录字典列表
+    def format_paths(path_list):
+        """
+        格式化目录和文件的路径，使其符合要求
+        """
+        formatted_paths = []
+        for path in path_list:
+            path = path.strip("/")
+            if not path.startswith('/'):
+                path = '/' + path
+            if path.endswith('/'):
+                path = path.rstrip('/')
+            formatted_paths.append(path)
+        formatted_paths = list(set(formatted_paths))
+        return formatted_paths
+
+    # 格式化目录
+    folder_list = format_paths(folder_list)
+    # 格式化file
+    files_list = format_paths(files_list)
+
+    group_folder_files_list = cartesian_product_merging(folder_list, files_list)
+    group_folder_files_list = frozen_tuple_list(group_folder_files_list, link_symbol="")
+    return group_folder_files_list
+
+
+# 排除历史扫描记录
+def exclude_history_urls(url_list, url_history_file):
+    # 排除历史扫描记录
+    if file_is_exist(url_history_file):
+        accessed_url_list = read_file_to_list(file_path=url_history_file,
+                                              de_strip=True,
+                                              de_weight=True,
+                                              de_unprintable=False)
+        url_list = list(set(url_list) - set(accessed_url_list))
+        output(f"[*] 历史访问URL {len(accessed_url_list)}个", level=LOG_INFO)
+        output(f"[*] 剔除历史URL 剩余URL:{len(url_list)}个", level=LOG_INFO)
+    return url_list
