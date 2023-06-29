@@ -91,8 +91,8 @@ def init_target(config_dict):
 def init_load_dict(config_dict):
     cur_rule_dir_list = config_dict[GB_DICT_RULE_SCAN]
     output(f"[*] 当前指定加载目录:{cur_rule_dir_list}", level=LOG_DEBUG)
-    # 1、获取基本变量替换字典
 
+    # 1、获取基本变量替换字典
     base_replace_dict = set_base_var_dict_frequency(
         base_var_dir=config_dict[GB_BASE_VAR_DIR],
         ext_list=config_dict[GB_DICT_SUFFIX],
@@ -111,6 +111,17 @@ def init_load_dict(config_dict):
 
     # 循环读取每个文件夹下的规则字典
     for rule_dir in cur_rule_dir_list:
+        # # 1、获取基本变量替换字典 # 只获取目标文件的下的依赖
+        # base_replace_dict = set_base_var_dict_frequency(
+        #     base_var_dir=config_dict[GB_BASE_VAR_DIR].joinpath(rule_dir),
+        #     ext_list=config_dict[GB_DICT_SUFFIX],
+        #     base_replace_dict=config_dict[GB_BASE_REPLACE_DICT],
+        #     frequency_symbol=config_dict[GB_FREQUENCY_SYMBOL],
+        #     annotation_symbol=config_dict[GB_ANNOTATION_SYMBOL],
+        #     frequency_min=config_dict[GB_FREQUENCY_MIN]
+        # )
+        # output(f"[*] 获取[{rule_dir}]基本变量完成:{base_replace_dict.keys()}", level=LOG_DEBUG)
+
         base_path_path = config_dict[GB_BASE_PATH_STR].format(RULE_DIR=rule_dir)
         base_root_path = config_dict[GB_BASE_ROOT_STR].format(RULE_DIR=rule_dir)
 
@@ -220,7 +231,7 @@ def dyna_scan_controller(target_urls, paths_dict, config_dict):
         output(f"[*] 因变量替换 {len(current_url_list)}个", level=LOG_INFO)
 
         # 对url的路径进行过滤和格式化
-        current_url_list = url_and_paths_dict_handle(current_url_list,config_dict)
+        current_url_list = url_and_paths_dict_handle(current_url_list, config_dict)
 
         # 分析URL是否正确
         analysis_ends_url(current_url_list)
@@ -340,10 +351,10 @@ if __name__ == '__main__':
                CONFIG[GB_LOG_ERROR_FILE],
                CONFIG[GB_LOG_DEBUG_FILE],
                CONFIG[GB_DEBUG_FLAG])
-    output(f"[*] 当前参数信息: {CONFIG}", level=LOG_INFO)
 
     # 输出所有参数信息
-    show_config_dict(CONFIG)
+    output(f"[*] 当前参数信息: {CONFIG}", level=LOG_INFO)
+    # show_config_dict(CONFIG)
 
     # 对输入的目标数量进行处理
     output(f"[*] 分析输入目标 [{CONFIG[GB_TARGET]}] 进行访问解析测试", level=LOG_INFO)
