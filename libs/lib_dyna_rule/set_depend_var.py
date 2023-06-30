@@ -4,8 +4,6 @@
 
 # 从URL中获取域名相关的单词
 import copy
-import time
-
 from libs.lib_dyna_rule.dyna_rule_const import *
 from libs.lib_log_print.logger_printer import output, LOG_ERROR
 from libs.lib_dyna_rule.dyna_rule_tools import dict_content_base_rule_render
@@ -51,12 +49,6 @@ def set_dependent_var_dict(target_url,
         file_name, pure_name = parse_url_file_part(target_url)
         dependent_var_dict[STR_VAR_FILE_NAME] = [file_name] if file_name else []
         dependent_var_dict[STR_VAR_PURE_NAME] = [pure_name] if pure_name else []
-
-    # 获取基于时间的因变量
-    date_formats = ["%Y%m%d", "%m%d"]     # 需要的时间戳格式
-    date_times = [time.time(), time.time() - 86400]  # 当前时间戳、昨天时间戳
-    dependent_var_dict[STR_VAR_CURR_DATE] = [time.strftime(date_format, time.localtime(day_time))
-                                             for day_time in date_times for date_format in date_formats]
 
     # 对 内容列表 中的规则进行 进行 动态解析
     dependent_var_dict = dict_content_base_rule_render(dependent_var_dict)

@@ -44,7 +44,6 @@ def initialize(config):
         # STR_VAR_PATH: [],  # 存储动态域名因变量-自动生成-自动生成  %%PATH%%
         # STR_VAR_FILE_NAME: [],  # 存储文件名变量-带扩展-自动生成  %%FILE_NAME%%
         # STR_VAR_PURE_NAME: [],  # 存储文件名变量-无扩展-自动生成  %%PURE_NAME%%
-        # STR_VAR_CURR_DATE: [],  # 存储今|昨日期因变量-自动生成 %%CURR_DATE%%  YMD和MD格式
     }
 
     # DOMAIN PATH 因变量中的 符号替换规则, 替换后追加到域名因子列表
