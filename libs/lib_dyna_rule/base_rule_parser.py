@@ -6,7 +6,6 @@ import re
 import string
 import sys
 import time
-
 import exrex
 # import sre_yield
 
@@ -51,6 +50,104 @@ class RuleParser(object):
             else:
                 return ''
 
+    def options_action(self, rule_name, rule_type, options):
+        def replace_wild_to_curr_time(options_time, time_formats, wild_symbol="*"):
+            if str(options_time).count("*"):
+                # 通用函数,通配符处理
+                # output(f"[*] {options_time} 发现选项中存在通配符, 替换[{wild_symbol}]为当前时间", level=LOG_ERROR)
+                curr_time = datetime.datetime.now().strftime(time_formats)
+                options_time = str(options_time).replace("*", curr_time)
+            return options_time
+
+        def simple_date_calc(options_time, limit_min_time, limit_max_time):
+            # 简单的加减法年|月|日
+            if str(options_time).count("--"):
+                # output(f"[*] {rule_name} {rule_type} {options_time} 发现动态--号, 即将进行数字解析", level=LOG_ERROR)
+                option_raw, option_handle = options_time.split('--')
+                calc_time = int(option_raw) - int(option_handle)
+                calc_time = calc_time if limit_min_time <= calc_time <= limit_max_time else limit_min_time  # 限定范围
+                options_time = f"{calc_time}-{option_raw}"
+                # output(f"[*] {rule_name} {rule_type} {options_time} 发现动态--号, 成功进行数字解析", level=LOG_ERROR)
+            elif str(options_time).count("++"):
+                # output(f"[*] {rule_name} {rule_type} {options_time} 发现动态++号, 即将进行数字解析", level=LOG_ERROR)
+                option_raw, option_handle = options_time.split('++')
+                calc_time = int(option_raw) + int(option_handle)
+                calc_time = calc_time if limit_min_time <= calc_time <= limit_max_time else limit_max_time  # 限定范围
+                options_time = f"{option_raw}-{calc_time}"
+                # output(f"[*] {rule_name} {rule_type} {options_time} 发现动态++号, 成功进行数字解析", level=LOG_ERROR)
+            return options_time
+
+        def complex_date_calc(options_time, time_formats, date_unit):
+            # 解析动态++号和--号
+            if str(options_time).count("--"):
+                # output(f"[*] {rule_name} {rule_type} {options_time} 发现动态--号, 即将进行日期解析", level=LOG_ERROR)
+                option_raw, option_handle = options_time.split('--')
+                # 日期减法操作
+                option_to_time = datetime.datetime.strptime(option_raw, time_formats).date()
+                # 是否按月操作
+                option_handle = int(option_handle) * 30 if date_unit in "months" else int(option_handle)
+                option_from_time = option_to_time - datetime.timedelta(days=option_handle)
+                options_time = f"{option_from_time.strftime(time_formats)}-{option_to_time.strftime(time_formats)}"
+                # output(f"[*] {rule_name} {rule_type} {options_time} 发现动态--号, 成功进行日期解析", level=LOG_ERROR)
+            elif str(options_time).count("++"):
+                # output(f"[*] {rule_name} {rule_type} {options_time} 发现动态++号, 即将进行日期解析", level=LOG_ERROR)
+                option_raw, option_handle = options_time.split('++')
+                # 日期加法操作
+                option_from_time = datetime.datetime.strptime(option_raw, time_formats).date()
+                # 是否按月操作
+                option_handle = int(option_handle) * 30 if date_unit in "months" else int(option_handle)
+                option_to_time = option_from_time + datetime.timedelta(days=option_handle)
+                options_time = f"{option_from_time.strftime(time_formats)}-{option_to_time.strftime(time_formats)}"
+                # output(f"[*] {rule_name} {rule_type} {options_time} 发现动态++号, 成功进行日期解析", level=LOG_ERROR)
+            return options_time
+
+        def handle_same_time(options_time, time_formats, date_unit):
+            option_from, option_to = options_time.split('-')
+            if option_from == option_to:
+                # mon day year year_mon 不需要处理前后相同的问题 year_mon_day mon_day需要处理前后相同的问题
+                # 判断前后日期是否相等,是的话就将前日期减1天
+                option_to_time = datetime.datetime.strptime(option_to, time_formats).date()
+                # 是否按月操作
+                option_handle = 30 if date_unit in "months" else 1
+                option_from_time = option_to_time - datetime.timedelta(days=option_handle)
+                options_time = f"{option_from_time.strftime(time_formats)}-{option_to_time.strftime(time_formats)}"
+                # output(f"[*] {rule_name} {rule_type} {options} 发现前后日期相同, 将前部分日期减1", level=LOG_ERROR)
+            return options_time
+
+        # 处理年月日的情况
+        if rule_name == 'date':
+            # 年月日 # 月日年
+            if rule_type in ['year', 'mon', 'day']:
+                options_dict = {
+                    "year": ("%Y", 1900, 2100),
+                    "mon": ("%m", 1, 12),
+                    "day": ("%d", 1, 31),
+                }
+                time_format, min_time, max_time = options_dict[rule_type]
+                # 处理通配符
+                options = replace_wild_to_curr_time(options, time_format, wild_symbol="*")
+                # 解析动态++号和--号   # 年份加减法操作,普通加减饭
+                options = simple_date_calc(options, min_time, max_time)
+                # 不需要进行前后判断
+
+            elif rule_type in ['year_mon_day', 'mon_day_year', 'year_mon', 'mon_day']:
+                options_dict = {
+                    "year_mon_day": ("%Y%m%d", "day"),
+                    "mon_day_year": ("%m%d%Y", "day"),
+                    "year_mon": ("%Y%m", "mon"),
+                    "mon_day": ("%m%d", "day"),
+                }
+                time_format, unit = options_dict[rule_type]
+                # 处理通配符
+                options = replace_wild_to_curr_time(options, time_format, wild_symbol="*")
+                # 进行日期加减法计算
+                options = complex_date_calc(options, time_format, date_unit=unit)
+                # 最后处理前后段相同的情况
+                if rule_type != "year_mon":
+                    # 需要排除 year_mon 模式的情况
+                    options = handle_same_time(options, time_format, date_unit=unit)
+        return options
+
     def generate_dic(self, myrule):
         """
                 分离规则，获取条件和参数
@@ -65,10 +162,12 @@ class RuleParser(object):
         rules, options = myrule.split(':', 1)
         rule_name, rule_type = rules.split('=')
 
+        # 进一步处理options选项
+        options = self.options_action(rule_name, rule_type, options)
+
         # 解析规则类型
         # 日期、整数、字符
         if rule_name == 'date':  # 处理日期
-
             """
                     日期会出现的子分类情况，初始位数补充0911,911
                     年(YEAR) 2005-2015
@@ -79,7 +178,6 @@ class RuleParser(object):
                     年月日(YEAR_MON_DAY) 20050101-20151231
                     月日年(MON_DAY_YEAR) 01012005-12312015
             """
-
             if rule_type == 'year':  # 返回指定年份列表
                 result = []
                 option_from, option_to = options.split('-')
@@ -152,8 +250,7 @@ class RuleParser(object):
                     to_year = option_to[0:4]
                     to_mon = option_to[4:6]
                     to_day = option_to[6:8]
-                    from_date = datetime.date(int(from_year), int(
-                        from_mon), int(from_day))
+                    from_date = datetime.date(int(from_year), int(from_mon), int(from_day))
                     to_date = datetime.date(int(to_year), int(to_mon), int(to_day))
                     total_days = to_date - from_date
                     for day in range(total_days.days):
@@ -182,10 +279,10 @@ class RuleParser(object):
                     for day in range(total_days.days):
                         day += 1
                         concat_date = from_date + datetime.timedelta(days=day)
-                        result.append(concat_date.strftime('%y-%m-%d'))
-                        result.append(concat_date.strftime('%Y-%m-%d'))
-                        result.append(concat_date.strftime('%y%m%d'))  # 保留前置零
-                        result.append(concat_date.strftime('%Y%m%d'))  # 保留前置零
+                        result.append(concat_date.strftime('%m-%d-%y'))
+                        result.append(concat_date.strftime('%m-%d-%Y'))
+                        result.append(concat_date.strftime('%m%d%y'))  # 保留前置零
+                        result.append(concat_date.strftime('%m%d%Y'))  # 保留前置零
                 if result:
                     result = list(set(result))
                 return result
