@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 # 获得随机字符串
+import binascii
 import copy
 import hashlib
 import random
@@ -91,20 +92,18 @@ def analysis_dict_same_keys(result_dict_list, default_value_dict, filter_ignore_
     return same_key_value_dict
 
 
-def calc_dict_info_hash(resp_dict):
-    # 固化响应结果的hash特征
-    # output(f"[*] calc_dict_info_hash: {resp_dict}", level=LOG_ERROR)
-    # return str(resp_dict)
-
+def calc_dict_info_hash(resp_dict, crc_mode=True):
+    # 计算响应结果的特征值
     # 对字典的键值对进行排序
-    sorted_items = sorted(resp_dict.items())
-    # 创建 哈希对象
-    hash_object = hashlib.md5()
-    # 更新哈希对象的输入数据
-    hash_object.update(str(sorted_items).encode())
-    # 计算哈希值
-    hash_value = hash_object.hexdigest()
-    return hash_value
+    str_sorted_items = str(sorted(resp_dict.items()))
+    if crc_mode:
+        # 计算crc32的值,比md5更快
+        mark_value = binascii.crc32(str_sorted_items.encode())
+        mark_value = f"crc32_{mark_value}"
+    else:
+        mark_value = hashlib.md5(str_sorted_items.encode()).hexdigest()
+        mark_value = f"md5_{mark_value}"
+    return mark_value
 
 
 def copy_dict_remove_keys(resp_dict, remove_keys=None):
