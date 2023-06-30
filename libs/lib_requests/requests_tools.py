@@ -80,7 +80,8 @@ def analysis_dict_same_keys(result_dict_list, default_value_dict, filter_ignore_
                 value = value_list[0]
                 if key in list(default_value_dict.keys()):
                     if value not in default_value_dict[key]:
-                        output(f"[*] 所有DICT [{key}] 值 [{value}] 相等 且不为默认或空值 [{default_value_dict[key]}]")
+                        output(f"[*] 所有DICT [{key}] 值 [{value}] 相等 且不为默认或空值 [{default_value_dict[key]}]",
+                               level=LOG_DEBUG)
                         same_key_value_dict[key] = value
                     else:
                         output(f"[-] 所有DICT [{key}] 值 [{value}] 相等 但是默认或空值 [{default_value_dict[key]}]",
