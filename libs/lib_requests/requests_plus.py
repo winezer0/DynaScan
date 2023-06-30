@@ -6,7 +6,7 @@ import sys
 import time
 import urllib
 from binascii import b2a_hex
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 
 import chardet
 import requests
@@ -60,7 +60,7 @@ def requests_plus(req_url,
 
     # 需要动态添加refer字段
     if add_refer_header:
-        req_headers["Referer"] = req_url
+        req_headers["Referer"] = urljoin(req_url, "./")
 
     # 设置需要接受的参数的默认值 #如果返回结果是默认值,说明程序异常没有获取到
     resp_status = HTTP_DEFAULT_RESP_DICT[HTTP_RESP_STATUS]  # 响应状态码 赋值默认值 NUM_MINUS

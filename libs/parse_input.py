@@ -15,97 +15,191 @@ def parse_input(config_dict):
     # description 程序描述信息
     argument_parser.description = Figlet().renderText("DynaScan")
     # 指定扫描URL或文件
-    argument_parser.add_argument("-u", "--target", default=config_dict[GB_TARGET], nargs="+",
-                                 help=f"Specify the target URLs or Target File, Default is [{config_dict[GB_TARGET]}]")
+    argument_parser.add_argument("-u",
+                                 f"--{vars_param_name(GB_TARGET)}",
+                                 default=config_dict[GB_TARGET],
+                                 nargs="+",
+                                 help=f"Specify the target URLs or Target File, "
+                                      f"Default is [{config_dict[GB_TARGET]}]",
+                                 )
     # 指定调用的字典目录
 
-    argument_parser.add_argument("-r", "--dict_rule_scan", default=config_dict[GB_DICT_RULE_SCAN], nargs="+",
+    argument_parser.add_argument("-r",
+                                 f"--{vars_param_name(GB_DICT_RULE_SCAN)}",
+                                 default=config_dict[GB_DICT_RULE_SCAN],
+                                 nargs="+",
                                  choices=get_sub_dirs(config_dict[GB_DICT_RULE_PATH]),
                                  help=f"Specifies Scan the rule dirs list, "
                                       f"Default is [{config_dict[GB_DICT_RULE_SCAN]}], "
-                                      f"Current Support [{get_sub_dirs(config_dict[GB_DICT_RULE_PATH])}]")
+                                      f"Support Choices [{get_sub_dirs(config_dict[GB_DICT_RULE_PATH])}]",
+                                 )
     # 指定最小提取频率
-    argument_parser.add_argument("-f", "--frequency_min", default=config_dict[GB_FREQUENCY_MIN], type=int,
+    argument_parser.add_argument("-f",
+                                 f"--{vars_param_name(GB_FREQUENCY_MIN)}",
+                                 default=config_dict[GB_FREQUENCY_MIN],
+                                 type=int,
                                  help=f"Specifies the pair rule file level or prefix, "
-                                      f"Default is [{config_dict[GB_FREQUENCY_MIN]}]")
+                                      f"Default is [{config_dict[GB_FREQUENCY_MIN]}]",
+                                 )
     # 指定频率分割符号
-    argument_parser.add_argument("-fs", "--frequency_symbol", default=config_dict[GB_FREQUENCY_SYMBOL],
+    argument_parser.add_argument("-fs",
+                                 f"--{vars_param_name(GB_FREQUENCY_SYMBOL)}",
+                                 default=config_dict[GB_FREQUENCY_SYMBOL],
                                  help=f"Specifies Name Pass Link Symbol in history file, "
-                                      f"Default is [{config_dict[GB_FREQUENCY_SYMBOL]}]", )
+                                      f"Default is [{config_dict[GB_FREQUENCY_SYMBOL]}]",
+                                 )
     # 指定请求代理服务
 
-    argument_parser.add_argument("-x", dest="proxies", default=config_dict[GB_PROXIES],
-                                 help=f"Specifies http|https|socks5 proxies, Default is [{config_dict[GB_PROXIES]}]")
+    argument_parser.add_argument("-x",
+                                 f"--{vars_param_name(GB_PROXIES)}",
+                                 default=config_dict[GB_PROXIES],
+                                 help=f"Specifies http|https|socks5 proxies, "
+                                      f"Default is [{config_dict[GB_PROXIES]}]",
+                                 )
     # 指定请求线程数量
-    argument_parser.add_argument("-t", "--threads_count", default=config_dict[GB_THREADS_COUNT], type=int,
-                                 help=f"Specifies request threads, Default is [{config_dict[GB_THREADS_COUNT]}]")
+    argument_parser.add_argument("-t",
+                                 f"--{vars_param_name(GB_THREADS_COUNT)}",
+                                 default=config_dict[GB_THREADS_COUNT],
+                                 type=int,
+                                 help=f"Specifies request threads, "
+                                      f"Default is [{config_dict[GB_THREADS_COUNT]}]",
+                                 )
     # 开启调试功能
-    argument_parser.add_argument("-d", "--debug_flag", default=config_dict[GB_DEBUG_FLAG], action="store_true",
-                                 help=f"Specifies Display Debug Info, Default is [{config_dict[GB_DEBUG_FLAG]}]", )
+    argument_parser.add_argument("-d",
+                                 f"--{vars_param_name(GB_DEBUG_FLAG)}",
+                                 default=config_dict[GB_DEBUG_FLAG],
+                                 action="store_true",
+                                 help=f"Specifies Display Debug Info, "
+                                      f"Default is [{config_dict[GB_DEBUG_FLAG]}]",
+                                 )
     # 开启随机UA
-    argument_parser.add_argument("-ru", "--random_useragent", default=config_dict[GB_RANDOM_REQ_UA],
+    argument_parser.add_argument("-ru",
+                                 f"--{vars_param_name(GB_RANDOM_REQ_UA)}",
+                                 default=config_dict[GB_RANDOM_REQ_UA],
                                  action="store_true",
                                  help=f"Specifies Start Random useragent, "
-                                      f"Default is [{config_dict[GB_RANDOM_REQ_UA]}]", )
+                                      f"Default is [{config_dict[GB_RANDOM_REQ_UA]}]",
+                                 )
     # 开启随机XFF
-
-    argument_parser.add_argument("-rx", "--random_xff", default=config_dict[GB_RANDOM_REQ_XFF], action="store_true",
-                                 help=f"Specifies Start Random XFF Header, Default is [{config_dict[GB_RANDOM_REQ_XFF]}]", )
+    argument_parser.add_argument("-rx",
+                                 f"--{vars_param_name(GB_RANDOM_REQ_XFF)}",
+                                 default=config_dict[GB_RANDOM_REQ_XFF],
+                                 action="store_true",
+                                 help=f"Specifies Start Random XFF Header, "
+                                      f"Default is [{config_dict[GB_RANDOM_REQ_XFF]}]",
+                                 )
     # 关闭流模式扫描
-    argument_parser.add_argument("-ss", "--stream_mode", default=config_dict[GB_STREAM_MODE], action="store_false",
-                                 help=f"Shutdown Request Stream Mode, Default is [{config_dict[GB_STREAM_MODE]}]", )
-    # 关闭历史扫描URL过滤
-    argument_parser.add_argument("-sh", "--history_exclude", default=config_dict[GB_HISTORY_EXCLUDE],
+    argument_parser.add_argument("-ss",
+                                 f"--{vars_param_name(GB_STREAM_MODE)}",
+                                 default=config_dict[GB_STREAM_MODE],
                                  action="store_false",
-                                 help=f"Shutdown Exclude Request History, Default is [{config_dict[GB_HISTORY_EXCLUDE]}]", )
+                                 help=f"Shutdown Request Stream Mode, "
+                                      f"Default is [{config_dict[GB_STREAM_MODE]}]",
+                                 )
+    # 关闭历史扫描URL过滤
+    argument_parser.add_argument("-sh",
+                                 f"--{vars_param_name(GB_HISTORY_EXCLUDE)}",
+                                 default=config_dict[GB_HISTORY_EXCLUDE],
+                                 action="store_false",
+                                 help=f"Shutdown Exclude Request History, "
+                                      f"Default is [{config_dict[GB_HISTORY_EXCLUDE]}]",
+                                 )
     # 关闭 URL目标可访问性判断
-    argument_parser.add_argument("-ua", "--url_access_test", default=config_dict[GB_URL_ACCESS_TEST],
+    argument_parser.add_argument("-ua",
+                                 f"--{vars_param_name(GB_URL_ACCESS_TEST)}",
+                                 default=config_dict[GB_URL_ACCESS_TEST],
                                  action="store_false",
                                  help=f"Shutdown URL Access Test, "
-                                      f"Default is [{config_dict[GB_URL_ACCESS_TEST]}]", )
+                                      f"Default is [{config_dict[GB_URL_ACCESS_TEST]}]",
+                                 )
     # 开启 目标URL拆分
 
-    argument_parser.add_argument("-sp", "--split_target_path", default=config_dict[GB_SPLIT_TARGET_PATH],
+    argument_parser.add_argument("-sp",
+                                 f"--{vars_param_name(GB_SPLIT_TARGET_PATH)}",
+                                 default=config_dict[GB_SPLIT_TARGET_PATH],
                                  action="store_true",
                                  help=f"Start Split Target Path, "
-                                      f"Default is [{config_dict[GB_SPLIT_TARGET_PATH]}]", )
+                                      f"Default is [{config_dict[GB_SPLIT_TARGET_PATH]}]",
+                                 )
     # 排除匹配指定的状态码的响应结果
-    argument_parser.add_argument("-es", dest="exclude_status", default=config_dict[GB_EXCLUDE_STATUS], nargs='+',
+    argument_parser.add_argument("-es",
+                                 f"--{vars_param_name(GB_EXCLUDE_STATUS)}",
+                                 default=config_dict[GB_EXCLUDE_STATUS],
+                                 nargs='+',
                                  type=int,
                                  help=f"Specified Response Status List Which Exclude, "
-                                      f"Default is {config_dict[GB_EXCLUDE_STATUS]}")
+                                      f"Default is {config_dict[GB_EXCLUDE_STATUS]}",
+                                 )
     # 排除匹配指定正则的响应结果
-    argument_parser.add_argument("-er", dest="exclude_regexp", default=config_dict[GB_EXCLUDE_REGEXP],
+    argument_parser.add_argument("-er",
+                                 f"--{vars_param_name(GB_EXCLUDE_REGEXP)}",
+                                 default=config_dict[GB_EXCLUDE_REGEXP],
                                  help=f"Specified RE String When response matches the Str Excluded, "
-                                      f"Default is [{config_dict[GB_EXCLUDE_REGEXP]}]")
+                                      f"Default is [{config_dict[GB_EXCLUDE_REGEXP]}]",
+                                 )
 
     # 指定字典后缀名列表
-    argument_parser.add_argument("-ds", dest="dict_suffix", default=config_dict[GB_DICT_SUFFIX], nargs='+',
-                                 help=f"Specifies Dict File Suffix List, Default is [{config_dict[GB_DICT_SUFFIX]}]")
+    argument_parser.add_argument("-ds",
+                                 f"--{vars_param_name(GB_DICT_SUFFIX)}",
+                                 default=config_dict[GB_DICT_SUFFIX],
+                                 nargs='+',
+                                 help=f"Specifies Dict File Suffix List, "
+                                      f"Default is [{config_dict[GB_DICT_SUFFIX]}]",
+                                 )
     # 指定保留指定后缀的文件
-    argument_parser.add_argument("-so", dest="only_scan_specify_ext", default=config_dict[GB_ONLY_SCAN_SPECIFY_EXT],
+    argument_parser.add_argument("-so",
+                                 f"--{vars_param_name(GB_ONLY_SCAN_SPECIFY_EXT)}",
+                                 default=config_dict[GB_ONLY_SCAN_SPECIFY_EXT],
                                  nargs='+',
-                                 help=f"Only Scan Specifies Suffix List Url, Default is [{config_dict[GB_ONLY_SCAN_SPECIFY_EXT]}]")
+                                 help=f"Only Scan Specifies Suffix List Url, "
+                                      f"Default is [{config_dict[GB_ONLY_SCAN_SPECIFY_EXT]}]",
+                                 )
     # 指定排除指定后缀的文件
-    argument_parser.add_argument("-sn", dest="no_scan_specify_ext", default=config_dict[GB_NO_SCAN_SPECIFY_EXT],
+    argument_parser.add_argument("-sn",
+                                 f"--{vars_param_name(GB_NO_SCAN_SPECIFY_EXT)}",
+                                 default=config_dict[GB_NO_SCAN_SPECIFY_EXT],
                                  nargs='+',
-                                 help=f"No Scan Specifies Suffix List Url, Default is [{config_dict[GB_NO_SCAN_SPECIFY_EXT]}]")
+                                 help=f"No Scan Specifies Suffix List Url, "
+                                      f"Default is [{config_dict[GB_NO_SCAN_SPECIFY_EXT]}]",
+                                 )
     # 为生成的每条字典添加特定前缀
-    argument_parser.add_argument("-cp", dest="custom_url_prefix", default=config_dict[GB_CUSTOM_URL_PREFIX], nargs='+',
-                                 help=f"Add Custom Prefix List for Each Path, Default is [{config_dict[GB_CUSTOM_URL_PREFIX]}]")
-    # 去除以特定字符结尾的URL
-    argument_parser.add_argument("-rs", dest="remove_some_symbol", default=config_dict[GB_REMOVE_END_SYMBOLS],
+    argument_parser.add_argument("-cp",
+                                 f"--{vars_param_name(GB_CUSTOM_URL_PREFIX)}",
+                                 default=config_dict[GB_CUSTOM_URL_PREFIX],
                                  nargs='+',
-                                 help=f"Remove Url When Url endswith the Char List, Default is [{config_dict[GB_REMOVE_END_SYMBOLS]}]")
+                                 help=f"Add Custom Prefix List for Each Path, "
+                                      f"Default is [{config_dict[GB_CUSTOM_URL_PREFIX]}]",
+                                 )
+    # 去除以特定字符结尾的URL
+    argument_parser.add_argument("-rs",
+                                 f"--{vars_param_name(GB_REMOVE_END_SYMBOLS)}",
+                                 default=config_dict[GB_REMOVE_END_SYMBOLS],
+                                 nargs='+',
+                                 help=f"Remove Url When Url endswith the Char List, "
+                                      f"Default is [{config_dict[GB_REMOVE_END_SYMBOLS]}]",
+                                 )
     # 指定默认请求方法
-    argument_parser.add_argument("-rm", "--req_method", default=config_dict[GB_REQ_METHOD],
-                                 help=f"Specifies request method, Default is [{config_dict[GB_REQ_METHOD]}]")
+    argument_parser.add_argument("-rm",
+                                 f"--{vars_param_name(GB_REQ_METHOD)}",
+                                 default=config_dict[GB_REQ_METHOD],
+                                 help=f"Specifies request method, "
+                                      f"Default is [{config_dict[GB_REQ_METHOD]}]",
+                                 )
     # 指定请求超时时间
-    argument_parser.add_argument("-tt", "--timeout", default=config_dict[GB_TIMEOUT], type=int,
-                                 help=f"Specifies request timeout, Default is [{config_dict[GB_TIMEOUT]}]")
+    argument_parser.add_argument("-tt",
+                                 f"--{vars_param_name(GB_TIMEOUT)}",
+                                 default=config_dict[GB_TIMEOUT], type=int,
+                                 help=f"Specifies request timeout, "
+                                      f"Default is [{config_dict[GB_TIMEOUT]}]",
+                                 )
     # 指定自动错误重试次数
-    argument_parser.add_argument("-rt", "--retry_times", default=config_dict[GB_RETRY_TIMES], type=int,
-                                 help=f"Specifies request retry times, Default is [{config_dict[GB_RETRY_TIMES]}]")
+    argument_parser.add_argument("-rt",
+                                 f"--{vars_param_name(GB_RETRY_TIMES)}",
+                                 default=config_dict[GB_RETRY_TIMES],
+                                 type=int,
+                                 help=f"Specifies request retry times, "
+                                      f"Default is [{config_dict[GB_RETRY_TIMES]}]",
+                                 )
 
     example = """Examples:
              \r  批量扫描 target.txt
@@ -134,10 +228,19 @@ def args_dict_handle(args):
     if args.proxies and isinstance(args.proxies, str):
         if "socks" in args.proxies or "http" in args.proxies:
             args.proxies = {'http': args.proxies.replace('https://', 'http://'),
-                            'https': args.proxies.replace('http://', 'https://')}
+                            'https': args.proxies.replace('https://', 'http://')}
         else:
             output(f"[!] 输入的代理地址[{args.proxies}]不正确,正确格式:Proto://IP:PORT", level=LOG_ERROR)
     return args
+
+
+def vars_param_name(var_name):
+    # 实现全局变量到参数名的自动转换,和 config_dict_add_args中的修改过程相反
+    # 基于变量的值实现，要求 变量="变量", 如:GB_PROXIES="GB_PROXIES"
+    # param_name = str(var_name).replace("GB_", "").lower()
+    # 基于变量名的更通用的实现, 要求变量是全局变量.
+    param_name = str(globals()[var_name]).replace("GB_", "").lower()
+    return param_name
 
 
 def config_dict_add_args(config_dict, args):
@@ -178,5 +281,3 @@ def show_config_dict(config_dict):
     for index, param_name in enumerate(config_dict.keys()):
         param_val = config_dict[param_name]
         output(f"[*] {index} {param_name} <--> {param_val}", level=LOG_INFO)
-
-

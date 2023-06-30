@@ -264,6 +264,10 @@ def dyna_scan_controller(target_urls, paths_dict, config_dict):
 
         # 统计本目标的总访问错误次数
         access_fail_count = 0
+
+        # 记录已命中结果的特征信息,用于过滤已命中的结果
+        hit_info_hash_list = []
+
         # 循环多线程请求操作
         for sub_task_index, sub_task_list in enumerate(brute_task_list):
             output(f"[*] 任务进度 {sub_task_index + 1}/{len(brute_task_list)}", level=LOG_INFO)
@@ -294,7 +298,9 @@ def dyna_scan_controller(target_urls, paths_dict, config_dict):
                                                           exclude_status_list=config_dict[GB_EXCLUDE_STATUS],
                                                           exclude_title_regexp=config_dict[GB_EXCLUDE_REGEXP],
                                                           max_error_num=config_dict[GB_MAX_ERROR_NUM],
-                                                          hit_saving_field=HTTP_CONST_SIGN
+                                                          hit_saving_field=HTTP_CONST_SIGN,
+                                                          hit_info_exclude=config_dict[GB_HIT_INFO_EXCLUDE],
+                                                          hit_info_hash_list=hit_info_hash_list
                                                           )
 
             # 写入命中结果

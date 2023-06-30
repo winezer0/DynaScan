@@ -3,6 +3,7 @@
 
 # 获得随机字符串
 import copy
+import hashlib
 import random
 import re
 
@@ -82,10 +83,43 @@ def analysis_dict_same_keys(result_dict_list, default_value_dict, filter_ignore_
                         output(f"[*] 所有DICT [{key}] 值 [{value}] 相等 且不为默认或空值 [{default_value_dict[key]}]")
                         same_key_value_dict[key] = value
                     else:
-                        output(f"[-] 所有DICT [{key}] 值 [{value}] 相等 但是默认或空值 [{default_value_dict[key]}]", level=LOG_DEBUG)
+                        output(f"[-] 所有DICT [{key}] 值 [{value}] 相等 但是默认或空值 [{default_value_dict[key]}]",
+                               level=LOG_DEBUG)
                 else:
                     output(f"[!] 存在未预期的键{key},该键不在默认值字典[{list(default_value_dict.keys())}]内!!!", level=LOG_ERROR)
     return same_key_value_dict
+
+
+def calc_dict_info_hash(resp_dict):
+    # 固化响应结果的hash特征
+    # output(f"[*] calc_dict_info_hash: {resp_dict}", level=LOG_ERROR)
+    # return str(resp_dict)
+
+    # 对字典的键值对进行排序
+    sorted_items = sorted(resp_dict.items())
+    # 创建 哈希对象
+    hash_object = hashlib.md5()
+    # 更新哈希对象的输入数据
+    hash_object.update(str(sorted_items).encode())
+    # 计算哈希值
+    hash_value = hash_object.hexdigest()
+    return hash_value
+
+
+def copy_dict_remove_keys(resp_dict, remove_keys=None):
+    # 移除响应字典中和URL相关的选项, 仅保留响应部分
+    # {'HTTP_REQ_URL': 'https://www.baidu.com/home.rar',  # 需要排除
+    # 'HTTP_CONST_SIGN': 'https://www.baidu.com/home.rar',  # 需要排除
+    # 'HTTP_RESP_REDIRECT_URL': 'HTTP_RAW_REDIRECT_URL'}   # 可选排除
+    # 保留原始dict数据
+    copy_resp_dict = copy.copy(resp_dict)
+    if remove_keys is None:
+        remove_keys = [HTTP_REQ_URL, HTTP_CONST_SIGN]
+    for remove_key in remove_keys:
+        # copy_resp_dict[remove_key] = ""  # 清空指定键的值
+        copy_resp_dict.pop(remove_key, "")  # 删除指定键并返回其对应的值 # 删除不存在的键时，指定默认值，不会引发异常
+    # output(f"[*] 新的字典键数量:{len(copy_resp_dict.keys())}, 原始字典键数量:{len(resp_dict.keys())}", level=LOG_DEBUG)
+    return copy_resp_dict
 
 
 # 访问结果处理
@@ -100,12 +134,17 @@ def access_result_handle(result_dict_list,
                          max_error_num=None,
                          history_field=HTTP_CONST_SIGN,
                          hit_saving_field=HTTP_CONST_SIGN,
-                         ):
+                         hit_info_exclude=False,
+                         hit_info_hash_list=None):
+    # 兼容旧版本 记录已命中结果的特征信息,用于过滤已命中的结果
+    if hit_info_hash_list is None:
+        hit_info_hash_list = []
+
     # 错误结果超出阈值
     should_stop_run = False
 
     # 访问失败的结果 # 就是除去URL和SING之外都是默认值
-    access_fail_resp_dict = copy.copy(HTTP_DEFAULT_RESP_DICT)
+    access_fail_resp_dict = copy_dict_remove_keys(HTTP_DEFAULT_RESP_DICT)
 
     # 本次扫描的所有命中结果 默认保存的是 请求响应的 CONST_SIGN 属性
     hit_result_list = []
@@ -116,10 +155,8 @@ def access_result_handle(result_dict_list,
         IGNORE_RESP = False
 
         # 判断请求是否错误（排除url和const_sign）
-        access_fail_resp_dict[HTTP_CONST_SIGN] = access_resp_dict[HTTP_CONST_SIGN]
-        access_fail_resp_dict[HTTP_REQ_URL] = access_resp_dict[HTTP_REQ_URL]
         # 字典可以直接使用 == 运算符进行比较，要求 字典中的键必须是可哈希的（即不可变类型）
-        if not IGNORE_RESP and access_resp_dict == access_fail_resp_dict:
+        if not IGNORE_RESP and access_fail_resp_dict == copy_dict_remove_keys(access_resp_dict):
             access_fail_count += 1
             IGNORE_RESP = True
 
@@ -145,6 +182,16 @@ def access_result_handle(result_dict_list,
             else:
                 IGNORE_RESP = True
 
+        # 计算结果hash并判断是否是已命中结果
+        if hit_info_exclude and not IGNORE_RESP:
+            hit_info_hash = calc_dict_info_hash(copy_dict_remove_keys(access_resp_dict))
+            if hit_info_hash in hit_info_hash_list:
+                output(f"[!] 忽略命中 [{hit_info_hash}] <--> {access_resp_dict[HTTP_REQ_URL]}", level=LOG_ERROR)
+                IGNORE_RESP = True
+            else:
+                # output(f"[!] 保留命中 [{hit_info_hash}]", level=LOG_INFO)
+                hit_info_hash_list.append(hit_info_hash)
+
         # 写入结果格式
         result_format = "\"%s\"," * len(access_resp_dict.keys()) + "\n"
         # 当前需要保存和显示的字段
@@ -153,6 +200,7 @@ def access_result_handle(result_dict_list,
         key_order_list = list(access_resp_dict.keys())
         key_order_list.sort()  # 按字母排序
         access_resp_values = tuple([access_resp_dict[key] for key in key_order_list])
+
         if IGNORE_RESP:
             # 写入结果表头
             write_title(ignore_file, result_format % tuple(key_order_list), encoding="utf-8", new_line=True, mode="a+")
