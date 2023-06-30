@@ -251,7 +251,6 @@ def config_dict_add_args(config_dict, args):
         try:
             # globals()[var_name] = param_value # 赋值全局变量,仅本文件可用
             # output(f"[*] INPUT:{var_name} -> {param_value}", level=LOG_ERROR)
-
             config_dict[var_name] = param_value  # 赋值全局字典,所有文件可用
             if var_name not in config_dict.keys():
                 output(f"[-] 非预期参数将被赋值: {var_name} <--> {param_value}", level=LOG_ERROR)
@@ -280,4 +279,5 @@ def show_config_dict(config_dict):
     # 输出 config 字典
     for index, param_name in enumerate(config_dict.keys()):
         param_val = config_dict[param_name]
-        output(f"[*] {index} {param_name} <--> {param_val}", level=LOG_INFO)
+        output(f"[*] Param_{index} {param_name} <--> {param_val}", level=LOG_INFO)
+
