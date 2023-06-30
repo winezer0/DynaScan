@@ -23,7 +23,7 @@ from libs.lib_file_operate.file_write import write_lines, write_path_list_to_fre
 from libs.lib_log_print.logger_printer import output, LOG_INFO, set_logger, LOG_ERROR, LOG_DEBUG
 from libs.input_const import *
 from libs.lib_requests.check_protocol import check_host_list_proto, check_url_list_access
-from libs.parse_input import parse_input, args_dict_handle, config_dict_add_args, config_dict_handle, show_config_dict
+from libs.input_parse import parse_input, args_dict_handle, config_dict_add_args, config_dict_handle, show_config_dict
 from libs.util_func import analysis_ends_url, exclude_history_urls, url_to_raw_rule_classify
 
 
