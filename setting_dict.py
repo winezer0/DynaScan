@@ -33,17 +33,18 @@ def initialize(config):
     config[GB_ANNOTATION_SYMBOL] = '#'
 
     ##################################################################
-    # 存储自定义 基本变量
+    # 存储自定义基本变量  # 已弃用
     config[GB_BASE_REPLACE_DICT] = {}
     #########################
     # 存储自定义 因变量 # 考虑都合并到 DEPENDENT
     config[GB_DEPENDENT_REPLACE_DICT] = {
-        STR_VAR_DEPENDENT: [],  # 存储自定义因变量
-        STR_VAR_DOMAIN: [],  # 存储动态PATH因变量-自动生成
-        STR_VAR_PATH: [],  # 存储动态域名因变量-自动生成
-        STR_VAR_BLANK: [''],  # 存储空字符
-        STR_VAR_FILE_NAME: [],  # 存储文件名变量-带扩展
-        STR_VAR_PURE_NAME: [],  # 存储文件名变量-无扩展
+        STR_VAR_DEPENDENT: [],  # 存储自定义因变量  %%DEPENDENT%%
+        STR_VAR_BLANK: [''],  # 存储空字符-默认存储   %%BLANK%%
+        # STR_VAR_DOMAIN: [],  # 存储动态PATH因变量-自动生成-自动生成  %%DOMAIN%%
+        # STR_VAR_PATH: [],  # 存储动态域名因变量-自动生成-自动生成  %%PATH%%
+        # STR_VAR_FILE_NAME: [],  # 存储文件名变量-带扩展-自动生成  %%FILE_NAME%%
+        # STR_VAR_PURE_NAME: [],  # 存储文件名变量-无扩展-自动生成  %%PURE_NAME%%
+        # STR_VAR_CURR_DATE: [],  # 存储今|昨日期因变量-自动生成 %%CURR_DATE%%  YMD和MD格式
     }
 
     # DOMAIN PATH 因变量中的 符号替换规则, 替换后追加到域名因子列表
