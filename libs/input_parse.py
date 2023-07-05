@@ -27,7 +27,6 @@ def parse_input(config_dict):
     argument_parser.add_argument("-eu",
                                  f"--{vars_param_name(GB_EXCLUDE_URLS)}",
                                  default=config_dict[GB_EXCLUDE_URLS],
-                                 nargs="+",
                                  help=f"Specify the exclude URLs File, "
                                       f"Default is [{config_dict[GB_EXCLUDE_URLS]}]",
                                  )
