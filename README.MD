@@ -52,8 +52,7 @@ runtime/runtime_error.log 错误信息(需要关注)
 #### 2.结果文件路径及说明
 
 ```
-结果目录：result
-result/{目标}_result.csv 正常结果的项目(需要关注)
+result/{主机名}_result.csv 正常结果的项目(需要关注)
 result/{主机名}_ignore.csv 被404等静态特征及响应内容对比的动态特征排除的项目
 ```
 
