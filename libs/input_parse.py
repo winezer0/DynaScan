@@ -23,14 +23,6 @@ def parse_input(config_dict):
                                       f"Default is [{config_dict[GB_TARGET]}]",
                                  )
 
-    # 手动指定排除扫描的URLs文件
-    argument_parser.add_argument("-eu",
-                                 f"--{vars_param_name(GB_EXCLUDE_URLS)}",
-                                 default=config_dict[GB_EXCLUDE_URLS],
-                                 help=f"Specify the exclude URLs File, "
-                                      f"Default is [{config_dict[GB_EXCLUDE_URLS]}]",
-                                 )
-
     # 指定调用的字典目录
     argument_parser.add_argument("-r",
                                  f"--{vars_param_name(GB_DICT_RULE_SCAN)}",
@@ -79,6 +71,15 @@ def parse_input(config_dict):
                                  help=f"Specifies Display Debug Info, "
                                       f"Default is [{config_dict[GB_DEBUG_FLAG]}]",
                                  )
+
+    # 手动指定排除扫描的URLs文件
+    argument_parser.add_argument("-eu",
+                                 f"--{vars_param_name(GB_EXCLUDE_URLS)}",
+                                 default=config_dict[GB_EXCLUDE_URLS],
+                                 help=f"Specify the exclude URLs File, "
+                                      f"Default is [{config_dict[GB_EXCLUDE_URLS]}]",
+                                 )
+
     # 开启随机UA
     argument_parser.add_argument("-ru",
                                  f"--{vars_param_name(GB_RANDOM_REQ_UA)}",
