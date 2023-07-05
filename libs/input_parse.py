@@ -22,8 +22,17 @@ def parse_input(config_dict):
                                  help=f"Specify the target URLs or Target File, "
                                       f"Default is [{config_dict[GB_TARGET]}]",
                                  )
-    # 指定调用的字典目录
 
+    # 手动指定排除扫描的URLs文件
+    argument_parser.add_argument("-eu",
+                                 f"--{vars_param_name(GB_EXCLUDE_URLS)}",
+                                 default=config_dict[GB_EXCLUDE_URLS],
+                                 nargs="+",
+                                 help=f"Specify the exclude URLs File, "
+                                      f"Default is [{config_dict[GB_EXCLUDE_URLS]}]",
+                                 )
+
+    # 指定调用的字典目录
     argument_parser.add_argument("-r",
                                  f"--{vars_param_name(GB_DICT_RULE_SCAN)}",
                                  default=config_dict[GB_DICT_RULE_SCAN],
@@ -49,7 +58,6 @@ def parse_input(config_dict):
                                       f"Default is [{config_dict[GB_FREQUENCY_SYMBOL]}]",
                                  )
     # 指定请求代理服务
-
     argument_parser.add_argument("-x",
                                  f"--{vars_param_name(GB_PROXIES)}",
                                  default=config_dict[GB_PROXIES],
@@ -113,7 +121,6 @@ def parse_input(config_dict):
                                       f"Default is [{config_dict[GB_URL_ACCESS_TEST]}]",
                                  )
     # 开启 目标URL拆分
-
     argument_parser.add_argument("-sp",
                                  f"--{vars_param_name(GB_SPLIT_TARGET_PATH)}",
                                  default=config_dict[GB_SPLIT_TARGET_PATH],

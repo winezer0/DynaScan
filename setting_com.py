@@ -16,7 +16,7 @@ def initialize(config):
     config[GB_RUN_TIME] = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
     ##################################################################
     # 版本号配置
-    config[GB_VERSION] = "Ver 0.5.4 2023-06-30 21:30"
+    config[GB_VERSION] = "Ver 0.5.5 2023-07-05 12:30"
     ##################################################################
     # 是否显示DEBUG级别信息,默认False
     config[GB_DEBUG_FLAG] = False
@@ -33,6 +33,9 @@ def initialize(config):
     config[GB_HISTORY_FORMAT] = config[GB_BASE_DIR].joinpath("runtime", "history_{mark}.log").as_posix()
     # 每个HOST扫描URL的过滤,建议开启
     config[GB_HISTORY_EXCLUDE] = True
+    ##################################################################
+    # 自定义排除的历史URLs,用于联动其他工具
+    config[GB_EXCLUDE_URLS] = config[GB_BASE_DIR].joinpath("exclude_urls.txt").as_posix()
     ##################################################################
     # 设置输出结果文件目录
     config[GB_RESULT_DIR] = config[GB_BASE_DIR].joinpath("result")

@@ -240,15 +240,18 @@ def dyna_scan_controller(target_urls, paths_dict, config_dict):
         if config_dict[GB_MAX_URL_NUM] and isinstance(config_dict[GB_MAX_URL_NUM], int):
             current_url_list = current_url_list[:config_dict[GB_MAX_URL_NUM]]
 
+        # 过滤当前的 current_url_list
+        current_url_list = exclude_history_urls(current_url_list, config_dict[GB_EXCLUDE_URLS])
+
         # 历史记录文件路径 基于主机HOST动态生成
-        curr_host_port_no_symbol = f"{get_url_scheme(target_url)}_{get_host_port(target_url, True)}"
-        curr_host_history_file = config_dict[GB_HISTORY_FORMAT].format(mark=curr_host_port_no_symbol)
+        curr_host_port_string = f"{get_url_scheme(target_url)}_{get_host_port(target_url, True)}"
+        curr_host_history_file = config_dict[GB_HISTORY_FORMAT].format(mark=curr_host_port_string)
 
         # 过滤当前的 current_url_list
         if config_dict[GB_HISTORY_EXCLUDE]:
             current_url_list = exclude_history_urls(current_url_list, curr_host_history_file)
-        output(f"[*] 当前目标 {target_url} 所有URL访问开始进行...", level=LOG_INFO)
 
+        output(f"[*] 当前目标 {target_url} 所有URL访问开始进行...", level=LOG_INFO)
         # 组合爆破任务
         brute_task_list = [(url, url) for url in current_url_list]
 
@@ -258,9 +261,9 @@ def dyna_scan_controller(target_urls, paths_dict, config_dict):
         output(f"[*] 任务拆分 SIZE:[{task_size}] * NUM:[{len(brute_task_list)}]", level=LOG_INFO)
 
         # 直接被排除的请求记录
-        ignore_file_path = config_dict[GB_RESULT_DIR].joinpath(f"{curr_host_port_no_symbol}.ignore.csv")
+        ignore_file_path = config_dict[GB_RESULT_DIR].joinpath(f"{curr_host_port_string}.ignore.csv")
         # 根据主机名生成结果文件名
-        result_file_path = config_dict[GB_RESULT_DIR].joinpath(f"{curr_host_port_no_symbol}.result.csv")
+        result_file_path = config_dict[GB_RESULT_DIR].joinpath(f"{curr_host_port_string}.result.csv")
 
         # 统计本目标的总访问错误次数
         access_fail_count = 0

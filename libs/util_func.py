@@ -95,14 +95,14 @@ def product_folders_and_files(folder_list, files_list):
 
 
 # 排除历史扫描记录
-def exclude_history_urls(url_list, url_history_file):
+def exclude_history_urls(url_list, exclude_urls_file):
     # 排除历史扫描记录
-    if file_is_exist(url_history_file):
-        accessed_url_list = read_file_to_list(file_path=url_history_file,
-                                              de_strip=True,
-                                              de_weight=True,
-                                              de_unprintable=False)
-        url_list = list(set(url_list) - set(accessed_url_list))
-        output(f"[*] 历史访问URL {len(accessed_url_list)}个", level=LOG_INFO)
-        output(f"[*] 剔除历史URL 剩余URL:{len(url_list)}个", level=LOG_INFO)
+    if file_is_exist(exclude_urls_file):
+        exclude_urls = read_file_to_list(file_path=exclude_urls_file,
+                                         de_strip=True,
+                                         de_weight=True,
+                                         de_unprintable=False)
+        output(f"[*] 被排除文件包含元素数量: {len(exclude_urls)}", level=LOG_INFO)
+        url_list = list(set(url_list) - set(exclude_urls))
+        output(f"[*] 排除文件后剩余元素数量: {len(url_list)}", level=LOG_INFO)
     return url_list
