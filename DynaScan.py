@@ -240,18 +240,18 @@ def dyna_scan_controller(target_urls, paths_dict, config_dict):
         if config_dict[GB_MAX_URL_NUM] and isinstance(config_dict[GB_MAX_URL_NUM], int):
             current_url_list = current_url_list[:config_dict[GB_MAX_URL_NUM]]
 
-        # 过滤当前的 current_url_list
-        current_url_list = exclude_history_urls(current_url_list, config_dict[GB_EXCLUDE_URLS])
-
         # 历史记录文件路径 基于主机HOST动态生成
         curr_host_port_string = f"{get_url_scheme(target_url)}_{get_host_port(target_url, True)}"
         curr_host_history_file = config_dict[GB_HISTORY_FORMAT].format(mark=curr_host_port_string)
 
         # 过滤当前的 current_url_list
         if config_dict[GB_HISTORY_EXCLUDE]:
+            # 排除自定义的历史URL文件
+            current_url_list = exclude_history_urls(current_url_list, config_dict[GB_EXCLUDE_URLS])
+            # 排除自动生成的历史URL文件
             current_url_list = exclude_history_urls(current_url_list, curr_host_history_file)
 
-        output(f"[*] 当前目标 {target_url} 所有URL访问开始进行...", level=LOG_INFO)
+        output(f"[*] 当前目标 {target_url} 开始进行URL访问任务处理...", level=LOG_INFO)
         # 组合爆破任务
         brute_task_list = [(url, url) for url in current_url_list]
 

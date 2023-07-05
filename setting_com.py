@@ -29,11 +29,11 @@ def initialize(config):
     config[GB_ACCESS_NO_FILE] = config[GB_BASE_DIR].joinpath("runtime", "access_no.log").as_posix()
     # 记录可以访问的目标 # 没啥用
     config[GB_ACCESS_OK_FILE] = config[GB_BASE_DIR].joinpath("runtime", "access_ok.log").as_posix()
+    ##################################################################
+    #  扫描URL的排除过滤,建议开启
+    config[GB_HISTORY_EXCLUDE] = True
     # 记录扫描已完成的URL 针对每个目标生成不同的记录文件
     config[GB_HISTORY_FORMAT] = config[GB_BASE_DIR].joinpath("runtime", "history_{mark}.log").as_posix()
-    # 每个HOST扫描URL的过滤,建议开启
-    config[GB_HISTORY_EXCLUDE] = True
-    ##################################################################
     # 自定义排除的历史URLs,用于联动其他工具
     config[GB_EXCLUDE_URLS] = config[GB_BASE_DIR].joinpath("exclude_urls.txt").as_posix()
     ##################################################################
