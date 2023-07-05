@@ -245,7 +245,7 @@ def dyna_scan_controller(target_urls, paths_dict, config_dict):
         curr_host_history_file = config_dict[GB_HISTORY_FORMAT].format(mark=curr_host_port_string)
 
         # 过滤当前的 current_url_list
-        if config_dict[GB_HISTORY_EXCLUDE]:
+        if config_dict[GB_EXCLUDE_HISTORY]:
             # 排除自定义的历史URL文件
             current_url_list = exclude_history_urls(current_url_list, config_dict[GB_EXCLUDE_URLS])
             # 排除自动生成的历史URL文件

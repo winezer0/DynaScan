@@ -31,7 +31,7 @@ def initialize(config):
     config[GB_ACCESS_OK_FILE] = config[GB_BASE_DIR].joinpath("runtime", "access_ok.log").as_posix()
     ##################################################################
     #  扫描URL的排除过滤,建议开启
-    config[GB_HISTORY_EXCLUDE] = True
+    config[GB_EXCLUDE_HISTORY] = True
     # 记录扫描已完成的URL 针对每个目标生成不同的记录文件
     config[GB_HISTORY_FORMAT] = config[GB_BASE_DIR].joinpath("runtime", "history_{mark}.log").as_posix()
     # 自定义排除的历史URLs,用于联动其他工具

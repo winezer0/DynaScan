@@ -97,18 +97,18 @@ def parse_input(config_dict):
                                       f"Default is [{config_dict[GB_STREAM_MODE]}]",
                                  )
     # 关闭历史扫描URL过滤
-    argument_parser.add_argument("-sh",
-                                 f"--{vars_param_name(GB_HISTORY_EXCLUDE)}",
-                                 default=config_dict[GB_HISTORY_EXCLUDE],
+    argument_parser.add_argument("-se",
+                                 f"--{vars_param_name(GB_EXCLUDE_HISTORY)}",
+                                 default=config_dict[GB_EXCLUDE_HISTORY],
                                  action="store_false",
                                  help=f"Shutdown Exclude Request History, "
-                                      f"Default is [{config_dict[GB_HISTORY_EXCLUDE]}]",
+                                      f"Default is [{config_dict[GB_EXCLUDE_HISTORY]}]",
                                  )
     # 手动指定排除扫描的URLs文件
     argument_parser.add_argument("-eu",
                                  f"--{vars_param_name(GB_EXCLUDE_URLS)}",
                                  default=config_dict[GB_EXCLUDE_URLS],
-                                 help=f"Specify the exclude URLs File, "
+                                 help=f"Specify the Exclude Custom URLs File, "
                                       f"Default is [{config_dict[GB_EXCLUDE_URLS]}]",
                                  )
     # 关闭 URL目标可访问性判断
