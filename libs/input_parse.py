@@ -16,7 +16,7 @@ def parse_input(config_dict):
     argument_parser.description = Figlet().renderText("DynaScan")
     # 指定扫描URL或文件
     argument_parser.add_argument("-u",
-                                 f"--{vars_param_name(GB_TARGET)}",
+                                 f"--{vars_to_param(GB_TARGET)}",
                                  default=config_dict[GB_TARGET],
                                  nargs="+",
                                  help=f"Specify the target URLs or Target File, "
@@ -25,7 +25,7 @@ def parse_input(config_dict):
 
     # 指定调用的字典目录
     argument_parser.add_argument("-r",
-                                 f"--{vars_param_name(GB_DICT_RULE_SCAN)}",
+                                 f"--{vars_to_param(GB_DICT_RULE_SCAN)}",
                                  default=config_dict[GB_DICT_RULE_SCAN],
                                  nargs="+",
                                  choices=get_sub_dirs(config_dict[GB_DICT_RULE_PATH]),
@@ -35,7 +35,7 @@ def parse_input(config_dict):
                                  )
     # 指定最小提取频率
     argument_parser.add_argument("-f",
-                                 f"--{vars_param_name(GB_FREQUENCY_MIN)}",
+                                 f"--{vars_to_param(GB_FREQUENCY_MIN)}",
                                  default=config_dict[GB_FREQUENCY_MIN],
                                  type=int,
                                  help=f"Specifies the pair rule file level or prefix, "
@@ -43,21 +43,21 @@ def parse_input(config_dict):
                                  )
     # 指定频率分割符号
     argument_parser.add_argument("-fs",
-                                 f"--{vars_param_name(GB_FREQUENCY_SYMBOL)}",
+                                 f"--{vars_to_param(GB_FREQUENCY_SYMBOL)}",
                                  default=config_dict[GB_FREQUENCY_SYMBOL],
                                  help=f"Specifies Name Pass Link Symbol in history file, "
                                       f"Default is [{config_dict[GB_FREQUENCY_SYMBOL]}]",
                                  )
     # 指定请求代理服务
     argument_parser.add_argument("-x",
-                                 f"--{vars_param_name(GB_PROXIES)}",
+                                 f"--{vars_to_param(GB_PROXIES)}",
                                  default=config_dict[GB_PROXIES],
                                  help=f"Specifies http|https|socks5 proxies, "
                                       f"Default is [{config_dict[GB_PROXIES]}]",
                                  )
     # 指定请求线程数量
     argument_parser.add_argument("-t",
-                                 f"--{vars_param_name(GB_THREADS_COUNT)}",
+                                 f"--{vars_to_param(GB_THREADS_COUNT)}",
                                  default=config_dict[GB_THREADS_COUNT],
                                  type=int,
                                  help=f"Specifies request threads, "
@@ -65,7 +65,7 @@ def parse_input(config_dict):
                                  )
     # 开启调试功能
     argument_parser.add_argument("-d",
-                                 f"--{vars_param_name(GB_DEBUG_FLAG)}",
+                                 f"--{vars_to_param(GB_DEBUG_FLAG)}",
                                  default=config_dict[GB_DEBUG_FLAG],
                                  action="store_true",
                                  help=f"Specifies Display Debug Info, "
@@ -74,7 +74,7 @@ def parse_input(config_dict):
 
     # 开启随机UA
     argument_parser.add_argument("-ru",
-                                 f"--{vars_param_name(GB_RANDOM_REQ_UA)}",
+                                 f"--{vars_to_param(GB_RANDOM_REQ_UA)}",
                                  default=config_dict[GB_RANDOM_REQ_UA],
                                  action="store_true",
                                  help=f"Specifies Start Random useragent, "
@@ -82,7 +82,7 @@ def parse_input(config_dict):
                                  )
     # 开启随机XFF
     argument_parser.add_argument("-rx",
-                                 f"--{vars_param_name(GB_RANDOM_REQ_XFF)}",
+                                 f"--{vars_to_param(GB_RANDOM_REQ_XFF)}",
                                  default=config_dict[GB_RANDOM_REQ_XFF],
                                  action="store_true",
                                  help=f"Specifies Start Random XFF Header, "
@@ -90,7 +90,7 @@ def parse_input(config_dict):
                                  )
     # 关闭流模式扫描
     argument_parser.add_argument("-ss",
-                                 f"--{vars_param_name(GB_STREAM_MODE)}",
+                                 f"--{vars_to_param(GB_STREAM_MODE)}",
                                  default=config_dict[GB_STREAM_MODE],
                                  action="store_false",
                                  help=f"Shutdown Request Stream Mode, "
@@ -98,7 +98,7 @@ def parse_input(config_dict):
                                  )
     # 关闭历史扫描URL过滤
     argument_parser.add_argument("-se",
-                                 f"--{vars_param_name(GB_EXCLUDE_HISTORY)}",
+                                 f"--{vars_to_param(GB_EXCLUDE_HISTORY)}",
                                  default=config_dict[GB_EXCLUDE_HISTORY],
                                  action="store_false",
                                  help=f"Shutdown Exclude Request History, "
@@ -106,14 +106,14 @@ def parse_input(config_dict):
                                  )
     # 手动指定排除扫描的URLs文件
     argument_parser.add_argument("-eu",
-                                 f"--{vars_param_name(GB_EXCLUDE_URLS)}",
+                                 f"--{vars_to_param(GB_EXCLUDE_URLS)}",
                                  default=config_dict[GB_EXCLUDE_URLS],
                                  help=f"Specify the Exclude Custom URLs File, "
                                       f"Default is [{config_dict[GB_EXCLUDE_URLS]}]",
                                  )
     # 关闭 URL目标可访问性判断
     argument_parser.add_argument("-ua",
-                                 f"--{vars_param_name(GB_URL_ACCESS_TEST)}",
+                                 f"--{vars_to_param(GB_URL_ACCESS_TEST)}",
                                  default=config_dict[GB_URL_ACCESS_TEST],
                                  action="store_false",
                                  help=f"Shutdown URL Access Test, "
@@ -121,7 +121,7 @@ def parse_input(config_dict):
                                  )
     # 开启 目标URL拆分
     argument_parser.add_argument("-sp",
-                                 f"--{vars_param_name(GB_SPLIT_TARGET_PATH)}",
+                                 f"--{vars_to_param(GB_SPLIT_TARGET_PATH)}",
                                  default=config_dict[GB_SPLIT_TARGET_PATH],
                                  action="store_true",
                                  help=f"Start Split Target Path, "
@@ -129,7 +129,7 @@ def parse_input(config_dict):
                                  )
     # 排除匹配指定的状态码的响应结果
     argument_parser.add_argument("-es",
-                                 f"--{vars_param_name(GB_EXCLUDE_STATUS)}",
+                                 f"--{vars_to_param(GB_EXCLUDE_STATUS)}",
                                  default=config_dict[GB_EXCLUDE_STATUS],
                                  nargs='+',
                                  type=int,
@@ -138,7 +138,7 @@ def parse_input(config_dict):
                                  )
     # 排除匹配指定正则的响应结果
     argument_parser.add_argument("-er",
-                                 f"--{vars_param_name(GB_EXCLUDE_REGEXP)}",
+                                 f"--{vars_to_param(GB_EXCLUDE_REGEXP)}",
                                  default=config_dict[GB_EXCLUDE_REGEXP],
                                  help=f"Specified RE String When response matches the Str Excluded, "
                                       f"Default is [{config_dict[GB_EXCLUDE_REGEXP]}]",
@@ -146,7 +146,7 @@ def parse_input(config_dict):
 
     # 指定字典后缀名列表
     argument_parser.add_argument("-ds",
-                                 f"--{vars_param_name(GB_DICT_SUFFIX)}",
+                                 f"--{vars_to_param(GB_DICT_SUFFIX)}",
                                  default=config_dict[GB_DICT_SUFFIX],
                                  nargs='+',
                                  help=f"Specifies Dict File Suffix List, "
@@ -154,7 +154,7 @@ def parse_input(config_dict):
                                  )
     # 指定保留指定后缀的文件
     argument_parser.add_argument("-so",
-                                 f"--{vars_param_name(GB_ONLY_SCAN_SPECIFY_EXT)}",
+                                 f"--{vars_to_param(GB_ONLY_SCAN_SPECIFY_EXT)}",
                                  default=config_dict[GB_ONLY_SCAN_SPECIFY_EXT],
                                  nargs='+',
                                  help=f"Only Scan Specifies Suffix List Url, "
@@ -162,7 +162,7 @@ def parse_input(config_dict):
                                  )
     # 指定排除指定后缀的文件
     argument_parser.add_argument("-sn",
-                                 f"--{vars_param_name(GB_NO_SCAN_SPECIFY_EXT)}",
+                                 f"--{vars_to_param(GB_NO_SCAN_SPECIFY_EXT)}",
                                  default=config_dict[GB_NO_SCAN_SPECIFY_EXT],
                                  nargs='+',
                                  help=f"No Scan Specifies Suffix List Url, "
@@ -170,7 +170,7 @@ def parse_input(config_dict):
                                  )
     # 为生成的每条字典添加特定前缀
     argument_parser.add_argument("-cp",
-                                 f"--{vars_param_name(GB_CUSTOM_URL_PREFIX)}",
+                                 f"--{vars_to_param(GB_CUSTOM_URL_PREFIX)}",
                                  default=config_dict[GB_CUSTOM_URL_PREFIX],
                                  nargs='+',
                                  help=f"Add Custom Prefix List for Each Path, "
@@ -178,7 +178,7 @@ def parse_input(config_dict):
                                  )
     # 去除以特定字符结尾的URL
     argument_parser.add_argument("-rs",
-                                 f"--{vars_param_name(GB_REMOVE_END_SYMBOLS)}",
+                                 f"--{vars_to_param(GB_REMOVE_END_SYMBOLS)}",
                                  default=config_dict[GB_REMOVE_END_SYMBOLS],
                                  nargs='+',
                                  help=f"Remove Url When Url endswith the Char List, "
@@ -186,21 +186,21 @@ def parse_input(config_dict):
                                  )
     # 指定默认请求方法
     argument_parser.add_argument("-rm",
-                                 f"--{vars_param_name(GB_REQ_METHOD)}",
+                                 f"--{vars_to_param(GB_REQ_METHOD)}",
                                  default=config_dict[GB_REQ_METHOD],
                                  help=f"Specifies request method, "
                                       f"Default is [{config_dict[GB_REQ_METHOD]}]",
                                  )
     # 指定请求超时时间
     argument_parser.add_argument("-tt",
-                                 f"--{vars_param_name(GB_TIMEOUT)}",
+                                 f"--{vars_to_param(GB_TIMEOUT)}",
                                  default=config_dict[GB_TIMEOUT], type=int,
                                  help=f"Specifies request timeout, "
                                       f"Default is [{config_dict[GB_TIMEOUT]}]",
                                  )
     # 指定自动错误重试次数
     argument_parser.add_argument("-rt",
-                                 f"--{vars_param_name(GB_RETRY_TIMES)}",
+                                 f"--{vars_to_param(GB_RETRY_TIMES)}",
                                  default=config_dict[GB_RETRY_TIMES],
                                  type=int,
                                  help=f"Specifies request retry times, "
@@ -240,7 +240,7 @@ def args_dict_handle(args):
     return args
 
 
-def vars_param_name(var_name):
+def vars_to_param(var_name):
     # 实现全局变量到参数名的自动转换,和 config_dict_add_args中的修改过程相反
     # 基于变量的值实现，要求 变量="变量", 如:GB_PROXIES="GB_PROXIES"
     # param_name = str(var_name).replace("GB_", "").lower()
