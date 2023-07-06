@@ -19,10 +19,10 @@ def args_parser(config_dict):
     # 规则示例: { "param": "", "dest": "","name": "", "default": "", "nargs": "","action": "",  "choices": "", "type": "","help": ""}
     args_options = [
         # 指定扫描URL或文件
-        {"param": GB_TARGET,"name":"u", "nargs": "+", "help": f"Specify the Target URLs or Files"},
+        {"param": GB_TARGET, "nargs": "+", "help": f"Specify the Target URLs or Files"},
 
         # 指定调用的字典目录
-        {"param": GB_DICT_RULE_SCAN, "nargs": "+", "help": f"Specifies Rule dirs list To Scan",
+        {"param": GB_DICT_RULE_SCAN, "nargs": "+", "help": f"Specifies Rule dirs list",
          "choices": get_sub_dirs(config_dict[GB_DICT_RULE_PATH]), },
 
         # 指定最小提取频率
@@ -32,7 +32,7 @@ def args_parser(config_dict):
         {"param": GB_FREQUENCY_SYMBOL, "help": "Specifies Name Pass Link Symbol in history file"},
 
         # 指定请求代理服务
-        {"param": GB_PROXIES, "help": "Specifies http|https|socks5 proxies"},
+        {"param": GB_PROXIES, "help": "Specifies Proxy http|https|socks5"},
 
         # 指定请求线程数量
         {"param": GB_THREADS_COUNT, "type": int, "help": "Specifies request threads"},
@@ -52,7 +52,6 @@ def args_parser(config_dict):
         # 关闭历史扫描URL过滤
         {"param": GB_EXCLUDE_HISTORY, "action": "store_false", "help": "Specifies Start Random XFF Header"},
 
-
         # 手动指定排除扫描的URLs文件
         {"param": GB_EXCLUDE_URLS, "action": "store_true", "help": "Specify the Exclude Custom URLs File"},
 
@@ -69,10 +68,10 @@ def args_parser(config_dict):
         {"param": GB_EXCLUDE_REGEXP, "help": "Specified RE String When response matches the Str Excluded"},
 
         # 指定字典后缀名列表
-        {"param": GB_DICT_SUFFIX,  "nargs": "+", "help": "Specifies Dict File Suffix List"},
+        {"param": GB_DICT_SUFFIX, "nargs": "+", "help": "Specifies Dict File Suffix List"},
 
         # 指定仅扫描的URL后缀名列表
-        {"param": GB_ONLY_SCAN_SPECIFY_EXT,  "nargs": "+", "help": "Only Scan Specifies Suffix List Url"},
+        {"param": GB_ONLY_SCAN_SPECIFY_EXT, "nargs": "+", "help": "Only Scan Specifies Suffix List Url"},
 
         # 指定不扫描的URL后缀名列表
         {"param": GB_NO_SCAN_SPECIFY_EXT, "nargs": "+", "help": "No Scan Specifies Suffix List Url"},
@@ -87,33 +86,38 @@ def args_parser(config_dict):
         {"param": GB_REQ_METHOD, "help": "Specifies request method"},
 
         #  指定请求超时时间
-        {"param": GB_TIME_OUT, "nargs": "+", "help": "Specifies request timeout"},
+        {"param": GB_TIME_OUT, "type": int, "help": "Specifies request timeout"},
 
         # 指定自动错误重试次数
         {"param": GB_RETRY_TIMES, "type": int, "help": "Specifies request retry times"},
     ]
 
-    param_list = []  # 存储所有简短参数,用于自动处理重复的短参数名
-    options_to_argument(args_options, argument_parser, config_dict, param_list)
+    param_dict = {}  # 存储所有长-短 参数对应关系,用于自动处理重复的短参数名
+    options_to_argument(args_options, argument_parser, config_dict, param_dict)
 
     # 其他输出信息
-    example = """Examples:
+    shell_name = argument_parser.prog
+    argument_parser.epilog = f"""Examples:
+    
              \r  批量扫描 target.txt
-             \r  python3 {shell_name} -u target.txt
+             \r  python3 {shell_name} --{param_dict[GB_TARGET]} target.txt
+             
              \r  指定扫描 baidu.com
-             \r  python3 {shell_name} -u https://www.baidu.com
+             \r  python3 {shell_name} --{param_dict[GB_TARGET]} https://www.baidu.com
+             
              \r  进行备份文件字典扫描,筛选频率10以上的字典:
-             \r  python3 {shell_name} -u https://www.xxx.com -r backup -f 10
+             \r  python3 {shell_name} --{param_dict[GB_TARGET]} https://www.xxx.com --{param_dict[GB_DICT_RULE_SCAN]} backup -f 10
+             
              \r  进行Spring Boot文件字典扫描,筛选频率1以上的字典:
-             \r  python3 {shell_name} -u https://www.xxx.com -r backup -f 1
+             \r  python3 {shell_name} --{param_dict[GB_TARGET]} https://www.xxx.com --{param_dict[GB_DICT_RULE_SCAN]} backup -f 1
+             
              \r  进行所有文件字典扫描,设置Socks5请求代理:
-             \r  python3 {shell_name} -u https://www.baidu.com -p socks5://127.0.0.1:1080
+             \r  python3 {shell_name} --{param_dict[GB_TARGET]} https://www.baidu.com --{param_dict[GB_PROXIES]} socks5://127.0.0.1:1080
              \r
              \r  其他控制细节参数可通过setting_***.py进行配置
              \r
-             \r  Version: {version}
+             \r  Version: {config_dict[GB_VERSION]}
              \r  """
-    argument_parser.epilog = example.format(shell_name=argument_parser.prog, version=config_dict[GB_VERSION])
 
     args = argument_parser.parse_args()
     return args
@@ -145,13 +149,13 @@ def config_dict_handle(config_dict):
     return config_dict
 
 
-def options_to_argument(args_options, argument_parser, config_dict, param_list):
+def options_to_argument(args_options, argument_parser, config_dict, param_dict):
     """
     将参数字典转换为参数选项
     :param args_options:
     :param argument_parser:
     :param config_dict:
-    :param param_list:
+    :param param_dict: 全局变量<-->短参数对应关系字典
     :return:
     """
     support_list = ["param", "dest", "name", "default", "nargs", "action", "choices", "type", "help"]
@@ -168,13 +172,16 @@ def options_to_argument(args_options, argument_parser, config_dict, param_list):
             else:
                 tmp_param = option["param"]
                 tmp_dest = vars_to_param(tmp_param) if "dest" not in option.keys() else option["dest"]
-                tmp_name = extract_initial(tmp_dest, param_list) if "name" not in option.keys() else option["name"]
+                tmp_name = extract_heads(tmp_dest, param_dict) if "name" not in option.keys() else option["name"]
                 tmp_default = config_dict[tmp_param] if "default" not in option.keys() else option["default"]
                 tmp_nargs = None if "nargs" not in option.keys() else option["nargs"]
                 tmp_action = None if "action" not in option.keys() else option["action"]
                 tmp_help = f"Specify the {vars_to_param(tmp_param)}" if "help" not in option.keys() else option["help"]
                 tmp_type = None if "type" not in option.keys() else option["type"]
                 tmp_choices = None if "choices" not in option.keys() else option["choices"]
+
+                # 存储长短参数对应关系
+                param_dict[tmp_param] = tmp_name
 
                 # print(f"param:{param},name:{name},dest:{dest},nargs:{nargs},action:{action},help:{help},default:{default}, ")
                 if tmp_action:
@@ -201,14 +208,13 @@ def options_to_argument(args_options, argument_parser, config_dict, param_list):
             print(f"[!] 参数 {option} 解析发生错误, ERROR:{error}")
             exit()
 
-def extract_initial(string, param_list):
+
+def extract_heads(param_len, param_dict):
     # 实现提取字符串首字母的函数,作为参数名, 需要考虑重复问题
-    words = string.split("_")  # 根据下划线拆分字符串为单词
-    initials = [word[0] for word in words]  # 提取每个单词的首字母
+    initials = [word[0] for word in param_len.split("_")]  # 提取每个单词的首字母
     initials = "".join(initials)  # 将所有首字母拼接成一个字符串
 
-    if initials not in param_list:
-        param_list.append(initials)
+    if initials not in param_dict.keys():
         return initials
     else:
         # 处理重复项问题
@@ -216,8 +222,7 @@ def extract_initial(string, param_list):
         while True:
             i += 1
             new_initials = f"{initials}{i}"
-            if new_initials not in param_list:
-                param_list.append(new_initials)
+            if new_initials not in param_dict.keys():
                 break
         return new_initials
 
