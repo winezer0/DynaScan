@@ -125,25 +125,27 @@ def args_parser(config_dict):
 
 def args_dict_handle(args):
     # 记录已经更新过的数据
-    updates = {}
-    # # 格式化输入的Proxy参数 如果输入了代理参数就会变为字符串
+    update_dict = {}
+    # 格式化输入的Proxy参数 如果输入了代理参数就会变为字符串
     if args.proxies and isinstance(args.proxies, str):
         if "socks" in args.proxies or "http" in args.proxies:
-            args.proxies = {'http': args.proxies.replace('https://', 'http://'),
-                            'https': args.proxies.replace('https://', 'http://')}
+            args.proxies = {
+                'http': args.proxies.replace('https://', 'http://'),
+                'https': args.proxies.replace('https://', 'http://')
+            }
+            update_dict["proxies"] = args.proxies
         else:
             output(f"[!] 输入的代理地址[{args.proxies}]不正确,正确格式:Proto://IP:PORT", level=LOG_ERROR)
-        updates["proxies"] = args.proxies
-    return updates
+    return update_dict
 
 
 def config_dict_handle(config_dict):
     # 记录已经更新过的数据
-    updates = {}
+    update_dict = {}
     # 格式化输入的规则目录
     if not config_dict[GB_DICT_RULE_SCAN]:
         config_dict[GB_DICT_RULE_SCAN] = get_sub_dirs(config_dict[GB_DICT_RULE_PATH])
-        updates[GB_DICT_RULE_SCAN] = config_dict[GB_DICT_RULE_SCAN]
+        update_dict[GB_DICT_RULE_SCAN] = config_dict[GB_DICT_RULE_SCAN]
 
     # HTTP 头设置
     config_dict[GB_REQ_HEADERS] = {
@@ -151,8 +153,8 @@ def config_dict_handle(config_dict):
         'X_FORWARDED_FOR': random_x_forwarded_for(config_dict[GB_RANDOM_XFF]),
         'Accept-Encoding': ''
     }
-    updates[GB_REQ_HEADERS] = config_dict[GB_REQ_HEADERS]
-    return updates
+    update_dict[GB_REQ_HEADERS] = config_dict[GB_REQ_HEADERS]
+    return update_dict
 
 
 def options_to_argument(args_options, argument_parser, config_dict, param_dict):
