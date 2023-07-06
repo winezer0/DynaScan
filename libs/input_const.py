@@ -1,7 +1,9 @@
 import inspect
 
+import inspect
 
-def update_global_vars(starts_gb=True, require_blank=True, debug=False):
+
+def update_global_vars(startswith="GB_", require_blank=True, debug=False):
     # 修改所有全局变量名的值为变量名字符串
     # 当前本函数必须放置到本目录内才行
 
@@ -40,9 +42,9 @@ def update_global_vars(starts_gb=True, require_blank=True, debug=False):
                             and name != "inspect"  # 排除内置inspect包的变量
                             ]
 
-        # 仅处理以GB_开头的变量
-        if starts_gb:
-            global_var_names = [name for name in global_var_names if name.startswith("GB_")]
+        # 仅处理以 startswith 开头的变量
+        if startswith:
+            global_var_names = [name for name in global_var_names if name.startswith(startswith)]
 
         return global_var_names
 
@@ -166,4 +168,5 @@ GB_HIT_PATH_FILE = ""
 GB_HIT_DIR_FILE = ""
 GB_HIT_FILE_FILE = ""
 ######################################################
-update_global_vars()  # 自动更新变量的值为变量名字符串
+update_global_vars(startswith="GB_", require_blank=True, debug=False)  # 自动更新变量的值为变量名字符串 # 必须放在末尾
+
