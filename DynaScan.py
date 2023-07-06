@@ -23,7 +23,7 @@ from libs.lib_file_operate.file_write import write_lines, write_path_list_to_fre
 from libs.lib_log_print.logger_printer import output, LOG_INFO, set_logger, LOG_ERROR, LOG_DEBUG
 from libs.input_const import *
 from libs.lib_requests.check_protocol import check_host_list_proto, check_url_list_access
-from libs.input_parse import parse_input, args_dict_handle, config_dict_add_args, config_dict_handle, show_config_dict
+from libs.input_parse import args_parser, args_dict_handle, config_dict_add_args, config_dict_handle, show_config_dict
 from libs.util_func import analysis_ends_url, exclude_history_urls, url_to_raw_rule_classify
 
 
@@ -57,7 +57,7 @@ def init_target(config_dict):
                                     req_path="/",
                                     req_headers=config_dict[GB_REQ_HEADERS],
                                     req_proxies=config_dict[GB_PROXIES],
-                                    req_timeout=config_dict[GB_TIMEOUT],
+                                    req_timeout=config_dict[GB_TIME_OUT],
                                     verify_ssl=config_dict[GB_SSL_VERIFY],
                                     default_proto=config_dict[GB_DEFAULT_PROTO])
 
@@ -70,7 +70,7 @@ def init_target(config_dict):
         req_headers=config_dict[GB_REQ_HEADERS],
         req_proxies=config_dict[GB_PROXIES],
         verify_ssl=config_dict[GB_SSL_VERIFY],
-        req_timeout=config_dict[GB_TIMEOUT],
+        req_timeout=config_dict[GB_TIME_OUT],
         req_allow_redirects=config_dict[GB_ALLOW_REDIRECTS],
         retry_times=config_dict[GB_RETRY_TIMES])
 
@@ -177,7 +177,7 @@ def gen_dynamic_exclude_dict(target_url, config_dict):
         req_headers=config_dict[GB_REQ_HEADERS],
         req_data=config_dict[GB_REQ_BODY],
         req_proxies=config_dict[GB_PROXIES],
-        req_timeout=config_dict[GB_TIMEOUT],
+        req_timeout=config_dict[GB_TIME_OUT],
         verify_ssl=config_dict[GB_SSL_VERIFY],
         req_allow_redirects=config_dict[GB_ALLOW_REDIRECTS],
         req_stream=config_dict[GB_STREAM_MODE],
@@ -209,7 +209,7 @@ def dyna_scan_controller(target_urls, paths_dict, config_dict):
         curr_dynamic_exclude_dict = gen_dynamic_exclude_dict(target_url, config_dict)
 
         # 根据URL层级拆分为多个目标
-        current_url_list = get_segment_urls(target_url) if config_dict[GB_SPLIT_TARGET_PATH] else [target_url]
+        current_url_list = get_segment_urls(target_url) if config_dict[GB_SPLIT_TARGET] else [target_url]
         output(f"[*] URL元素 {current_url_list}", level=LOG_INFO)
 
         # 分别合并urls列表和paths列表
@@ -281,7 +281,7 @@ def dyna_scan_controller(target_urls, paths_dict, config_dict):
                                                               req_headers=config_dict[GB_REQ_HEADERS],
                                                               req_data=config_dict[GB_REQ_BODY],
                                                               req_proxies=config_dict[GB_PROXIES],
-                                                              req_timeout=config_dict[GB_TIMEOUT],
+                                                              req_timeout=config_dict[GB_TIME_OUT],
                                                               verify_ssl=config_dict[GB_SSL_VERIFY],
                                                               req_allow_redirects=config_dict[GB_ALLOW_REDIRECTS],
                                                               req_stream=config_dict[GB_STREAM_MODE],
@@ -340,7 +340,7 @@ if __name__ == '__main__':
     setting_http.init_custom(CONFIG)
     setting_dict.init_custom(CONFIG)
     # 输入参数解析
-    args = parse_input(CONFIG)
+    args = args_parser(CONFIG)
     # output(f"[*] 输入参数信息: {args}")
 
     # 处理输入参数

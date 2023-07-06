@@ -62,7 +62,7 @@ def init_custom(config):
     config[GB_MAX_ERROR_NUM] = None
     ##################################################################
     # 对输入的URL路径进行分解 # 示例：https://XXX/item/DD/ 会被分解为 https://XXX/item/DD/,https://XXX/item/,https://XXX/
-    config[GB_SPLIT_TARGET_PATH] = True
+    config[GB_SPLIT_TARGET] = True
     ##################################################################
     # 是否开启命中结果动态排除开关，排除相同的命中结果。适用于网站路由是正则的情况 /index.xxx = /index
     config[GB_HIT_INFO_EXCLUDE] = True

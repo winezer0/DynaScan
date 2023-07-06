@@ -38,7 +38,7 @@ def init_custom(config):
     # 是否开启https服务器的证书校验
     config[GB_SSL_VERIFY] = False
     # 超时时间 # URL重定向会严重影响程序的运行时间
-    config[GB_TIMEOUT] = 10
+    config[GB_TIME_OUT] = 10
     # 是否允许URL重定向 # URL重定向会严重影响程序的运行时间
     config[GB_ALLOW_REDIRECTS] = False
     # 访问没有结果时,自动重试的最大次数
@@ -49,9 +49,9 @@ def init_custom(config):
     # 是否自动根据URL设置动态refer头
     config[GB_DYNA_REQ_REFER] = True
     # 随机User-Agent # 可能会导致无法建立默认会话 # 报错内容 Exceeded 30 redirects
-    config[GB_RANDOM_REQ_UA] = False
+    config[GB_RANDOM_UA] = False
     # 是否允许随机X-Forwarded-For
-    config[GB_RANDOM_REQ_XFF] = False # 需要优化多个XFF头支持
+    config[GB_RANDOM_XFF] = False # 需要优化多个XFF头支持
     ########################扩展的调用函数###################################
     # 排除指定结果
     # 判断URI不存在的状态码，多个以逗号隔开,符合该状态码的响应将不会写入结果文件

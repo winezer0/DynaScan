@@ -1,7 +1,5 @@
 import inspect
 
-import inspect
-
 
 def update_global_vars(startswith="GB_", require_blank=True, debug=False):
     # 修改所有全局变量名的值为变量名字符串
@@ -102,15 +100,15 @@ GB_REQ_METHOD = ""
 GB_REQ_BODY = ""
 
 GB_REQ_HEADERS = ""
-GB_RANDOM_REQ_UA = ""
-GB_RANDOM_REQ_XFF = ""
+GB_RANDOM_UA = ""
+GB_RANDOM_XFF = ""
 GB_DYNA_REQ_HOST = ""
 GB_DYNA_REQ_REFER = ""
 
 GB_STREAM_MODE = ""
 GB_URL_ACCESS_TEST = ""
 
-GB_SPLIT_TARGET_PATH = ""
+GB_SPLIT_TARGET = ""
 GB_EXCLUDE_STATUS = ""
 GB_EXCLUDE_REGEXP = ""
 
@@ -130,7 +128,7 @@ GB_NO_SCAN_SPECIFY_EXT = ""
 GB_CUSTOM_URL_PREFIX = ""
 GB_REMOVE_END_SYMBOLS = ""
 
-GB_TIMEOUT = ""
+GB_TIME_OUT = ""
 GB_RETRY_TIMES = ""
 
 # 其他常量
@@ -169,4 +167,3 @@ GB_HIT_DIR_FILE = ""
 GB_HIT_FILE_FILE = ""
 ######################################################
 update_global_vars(startswith="GB_", require_blank=True, debug=False)  # 自动更新变量的值为变量名字符串 # 必须放在末尾
-
