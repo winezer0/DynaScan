@@ -168,7 +168,7 @@ def options_to_argument(args_options, argument_parser, config_dict, param_dict):
             # 使用 issubset() 方法判断字典的所有键是否都是列表 support_list 的子集
             if not set(option.keys()).issubset(support_list):
                 not_allowed_keys = set(option.keys()) - set(support_list)
-                print(f"[!] 参数选项:[{option}]存在非预期参数[{not_allowed_keys}]!!!")
+                output(f"[!] 参数选项:[{option}]存在非预期参数[{not_allowed_keys}]!!!", level=LOG_ERROR)
             else:
                 tmp_param = option["param"]
                 tmp_dest = vars_to_param(tmp_param) if "dest" not in option.keys() else option["dest"]
@@ -183,7 +183,6 @@ def options_to_argument(args_options, argument_parser, config_dict, param_dict):
                 # 存储长短参数对应关系
                 param_dict[tmp_param] = tmp_name
 
-                # print(f"param:{param},name:{name},dest:{dest},nargs:{nargs},action:{action},help:{help},default:{default}, ")
                 if tmp_action:
                     argument_parser.add_argument(f"-{tmp_name.strip('-')}",
                                                  f"--{tmp_dest.strip('-')}",
@@ -205,7 +204,7 @@ def options_to_argument(args_options, argument_parser, config_dict, param_dict):
                                                  help=f"{tmp_help}. Default Is [{tmp_default}].",
                                                  )
         except Exception as error:
-            print(f"[!] 参数 {option} 解析发生错误, ERROR:{error}")
+            output(f"[!] 参数选项 {option} 解析发生错误, ERROR:{error}", level=LOG_ERROR)
             exit()
 
 

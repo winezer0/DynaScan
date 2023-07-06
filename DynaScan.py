@@ -339,6 +339,10 @@ if __name__ == '__main__':
     setting_com.init_custom(CONFIG)
     setting_http.init_custom(CONFIG)
     setting_dict.init_custom(CONFIG)
+
+    # 设置默认debug参数日志打印器属性
+    set_logger(CONFIG[GB_LOG_INFO_FILE], CONFIG[GB_LOG_ERROR_FILE], CONFIG[GB_LOG_DEBUG_FILE], True)
+
     # 输入参数解析
     args = args_parser(CONFIG)
     # output(f"[*] 输入参数信息: {args}")
@@ -348,7 +352,6 @@ if __name__ == '__main__':
 
     # 输出所有参数信息
     # output(f"[*] 输入参数处理: {args}")
-    sleep(0.1)
 
     # 更新输入参数
     config_dict_add_args(CONFIG, args)
@@ -356,10 +359,7 @@ if __name__ == '__main__':
     # output(f"[*] 更新参数字典: {CONFIG}")
 
     # 根据用户输入的debug参数设置日志打印器属性
-    set_logger(CONFIG[GB_LOG_INFO_FILE],
-               CONFIG[GB_LOG_ERROR_FILE],
-               CONFIG[GB_LOG_DEBUG_FILE],
-               CONFIG[GB_DEBUG_FLAG])
+    set_logger(CONFIG[GB_LOG_INFO_FILE], CONFIG[GB_LOG_ERROR_FILE],  CONFIG[GB_LOG_DEBUG_FILE], CONFIG[GB_DEBUG_FLAG])
 
     # 输出所有参数信息
     output(f"[*] 当前参数信息: {CONFIG}", level=LOG_INFO)
