@@ -166,4 +166,5 @@ GB_HIT_PATH_FILE = ""
 GB_HIT_DIR_FILE = ""
 GB_HIT_FILE_FILE = ""
 ######################################################
-update_global_vars(startswith="GB_", require_blank=True, debug=False)  # 自动更新变量的值为变量名字符串 # 必须放在末尾
+# 自动更新变量的值为变量名字符串 # 必须放在末尾
+update_global_vars(startswith="GB_", require_blank=True, debug=False)
