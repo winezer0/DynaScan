@@ -345,24 +345,24 @@ if __name__ == '__main__':
 
     # 输入参数解析
     args = args_parser(CONFIG)
-    # output(f"[*] 输入参数信息: {args}")
+    output(f"[*] 输入参数信息: {args}")
 
     # 处理输入参数
-    args = args_dict_handle(args)
+    updates = args_dict_handle(args)
+    output(f"[*] 更新输入参数: {updates}")
 
-    # 输出所有参数信息
-    # output(f"[*] 输入参数处理: {args}")
-
-    # 更新输入参数
+    # 将输入参数加入到全局CONFIG
     config_dict_add_args(CONFIG, args)
-    config_dict_handle(CONFIG)
-    # output(f"[*] 更新参数字典: {CONFIG}")
+
+    # 更新全局CONFIG
+    updates = config_dict_handle(CONFIG)
+    output(f"[*] 更新参数字典: {updates}")
 
     # 根据用户输入的debug参数设置日志打印器属性
     set_logger(CONFIG[GB_LOG_INFO_FILE], CONFIG[GB_LOG_ERROR_FILE],  CONFIG[GB_LOG_DEBUG_FILE], CONFIG[GB_DEBUG_FLAG])
 
     # 输出所有参数信息
-    output(f"[*] 当前参数信息: {CONFIG}", level=LOG_INFO)
+    output(f"[*] 最终参数信息: {CONFIG}", level=LOG_INFO)
     # show_config_dict(CONFIG)
 
     # 对输入的目标数量进行处理
