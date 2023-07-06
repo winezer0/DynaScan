@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 # encoding: utf-8
-from pathlib import Path
-import time
 from libs.input_const import *
 from libs.lib_dyna_rule.dyna_rule_const import *
 
 
-def initialize(config):
+def init_custom(config):
     # 需要读取的字典文件后缀 通过file.endswith匹配
     config[GB_DICT_SUFFIX] = ['.lst']
     # 基本变量文件路径

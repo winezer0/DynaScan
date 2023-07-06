@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
-from pathlib import Path
-import time
 from libs.input_const import *
 
 
-def initialize(config):
+def init_custom(config):
     ##################################################################
     # 对HOST:PORT格式的目标进行测试,动态判断是否添加https协议头
     config[GB_DEFAULT_PROTO] = None  # 可选 http|https|None表示自动获取

@@ -6,8 +6,12 @@ from libs.input_const import *
 from libs.lib_file_operate.file_path import auto_make_dir
 
 
-def initialize(config):
-    # 全局配置文件
+def init_common(config):
+    """
+    初始化本程序的通用参数
+    :param config:
+    :return:
+    """
     ##################################################################
     # 获取setting.py脚本所在路径作为的基本路径
     config[GB_BASE_DIR] = Path(__file__).parent.resolve()
@@ -16,7 +20,7 @@ def initialize(config):
     config[GB_RUN_TIME] = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
     ##################################################################
     # 版本号配置
-    config[GB_VERSION] = "Ver 0.5.5 2023-07-05 12:30"
+    config[GB_VERSION] = "Ver 0.5.6 2023-07-06 12:30"
     ##################################################################
     # 是否显示DEBUG级别信息,默认False
     config[GB_DEBUG_FLAG] = False
@@ -25,6 +29,13 @@ def initialize(config):
     config[GB_LOG_INFO_FILE] = config[GB_BASE_DIR].joinpath("runtime", "runtime_info.log").as_posix()
     config[GB_LOG_DEBUG_FILE] = config[GB_BASE_DIR].joinpath("runtime", "runtime_debug.log").as_posix()
     config[GB_LOG_ERROR_FILE] = config[GB_BASE_DIR].joinpath("runtime", "runtime_error.log").as_posix()
+    ##################################################################
+
+
+def init_custom(config):
+    # 初始化通用配置
+    init_common(config)
+    ##################################################################
     # 记录不可访问的目标 # 没啥用
     config[GB_ACCESS_NO_FILE] = config[GB_BASE_DIR].joinpath("runtime", "access_no.log").as_posix()
     # 记录可以访问的目标 # 没啥用
