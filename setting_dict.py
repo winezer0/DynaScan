@@ -28,7 +28,7 @@ def init_custom(config):
     # 要提取的最小路径频率阈值，大于等于 FREQUENCY_MIN 的字典会被提取
     config[GB_FREQUENCY_MIN] = 10
     # 字典文件的行注释符号
-    config[GB_ANNOTATION_SYMBOL] = '#'
+    config[GB_ANNOTATION_SYMBOL] = "###"
 
     ##################################################################
     # 存储自定义基本变量  # 已弃用

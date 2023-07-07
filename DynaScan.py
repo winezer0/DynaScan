@@ -336,6 +336,7 @@ def dyna_scan_controller(target_urls, paths_dict, config_dict):
 
 if __name__ == '__main__':
     # 加载初始设置参数
+    setting_com.init_common(CONFIG)
     setting_com.init_custom(CONFIG)
     setting_http.init_custom(CONFIG)
     setting_dict.init_custom(CONFIG)

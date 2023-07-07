@@ -26,7 +26,7 @@ def format_dicts(dict_dirs):
                                           path_list=[],
                                           encoding=file_encoding(dict_file),
                                           frequency_symbol="<-->",
-                                          annotation_symbol="#",
+                                          annotation_symbol="###",
                                           hit_over_write=True)
 
 

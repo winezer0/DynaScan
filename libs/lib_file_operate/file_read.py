@@ -41,12 +41,12 @@ def read_file_to_list(file_path, encoding=None, de_strip=True, de_weight=False, 
     return result_list
 
 
-def read_file_to_frequency_dict(file_path, encoding=None, frequency_symbol='<-->', annotation_symbol='#'):
+def read_file_to_frequency_dict(file_path, encoding=None, frequency_symbol='<-->', annotation_symbol="###"):
     """
     读取一个文件内容并返回结果字典 {"路径”:频率}
     文件的每一行格式类似 path frequency_symbol 10
     frequency_symbol 指定切割每一行的字符串 没有 frequency_symbol 的默认为1
-    annotation_symbol = '#' 如果启用注释,对#号开头的行,和频率字符串后面的#号都会进行删除
+    annotation_symbol = "###" 如果启用注释,对###号开头的行,和频率字符串后面的###号都会进行删除
     """
     result_dict = {}
     if os.path.exists(file_path):
@@ -56,7 +56,7 @@ def read_file_to_frequency_dict(file_path, encoding=None, frequency_symbol='<-->
 
         with open(file_path, 'r', encoding=encoding) as f_obj:
             for line in f_obj.readlines():
-                # 忽略 #号开头的行
+                # 忽略 ###号开头的行
                 if annotation_symbol and line.strip().startswith(annotation_symbol):
                     line = ''
                 if line.strip() != "":
@@ -65,7 +65,7 @@ def read_file_to_frequency_dict(file_path, encoding=None, frequency_symbol='<-->
                     # 如果规则存在频率选项 path [<-->10]
                     if frequency_symbol in line.strip():
                         line_string = line.rsplit(frequency_symbol, 1)[0].strip()
-                        # 忽略frequency字符串后 #号开头的内容
+                        # 忽略frequency字符串后 ### 号开头的内容
                         line_frequency = line.rsplit(frequency_symbol, 1)[-1].split(annotation_symbol, 1)[0].strip()
                         line_frequency = int(line_frequency)
                         # output(line_string,line_frequency)
@@ -159,12 +159,12 @@ def read_files_to_list(file_list, encoding=None, de_strip=True, de_weight=False,
     return result_list
 
 
-def read_files_to_frequency_dict(file_list, encoding=None, frequency_symbol='<-->', annotation_symbol='#'):
+def read_files_to_frequency_dict(file_list, encoding=None, frequency_symbol='<-->', annotation_symbol="###"):
     """
     读取文件列表内所有文件的内容并返回结果字典 {"路径”:频率}
     文件的每一行格式类似 path frequency_symbol 10
     frequency_symbol 指定切割每一行的字符串 没有 frequency_symbol 的默认为1
-    annotation_symbol = '#' 如果启用注释,对#号开头的行,和频率字符串后面的#号都会进行删除
+    annotation_symbol = "###" 如果启用注释,对###号开头的行,和频率字符串后面的###号都会进行删除
     """
     result_dict = {}
     for file_path in file_list:

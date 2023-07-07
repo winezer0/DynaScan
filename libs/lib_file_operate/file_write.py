@@ -34,7 +34,7 @@ def write_path_list_to_frequency_file(file_path=None,
                                       path_list=None,
                                       encoding='utf-8',
                                       frequency_symbol="<-->",
-                                      annotation_symbol="#",
+                                      annotation_symbol="###",
                                       hit_over_write=True):
     # 写入列表到频率文件中
     if not hit_over_write:
