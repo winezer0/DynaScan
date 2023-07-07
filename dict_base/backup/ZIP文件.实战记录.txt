@@ -1,0 +1,32 @@
+【支持】http://***.cn/www.zip		            %ROOT目录%.zip
+【支持】http://***.com/web.zip		            %ROOT目录%.zip
+【支持】http://www.***.com/www.***.com.tar.gz	%%DOMAIN%%.tar.gz
+【支持】http://www.***.com/***.zip			    %%DOMAIN%%.zip
+【支持】http://www.***.com/wwwroot.zip		    %ROOT目录%.zip
+【支持】http://***.com/www.zip				    %ROOT目录%.zip
+【支持】http://www.***.com/web.rar				%ROOT目录%.rar
+【支持】http://www.***.com/wwwroot.rar			%ROOT目录%.zip
+
+【支持】http://www.***.com/admin.zip	            %SRC目录%.tar.gz
+
+【支持】http://www.***.com/***.tar.gz	        %%DOMAIN%%.tar.gz
+【支持】http://www.***.com/www.***.com.zip		%%DOMAIN%%.zip
+【支持】http://www.***.com/***.sql		        %%DOMAIN%%.sql
+/%ROOT目录%.sql  <-->10
+/%ROOT目录%.sql.gz  <-->10
+
+
+【支持-不随机部分】db_***_***_20230630_120002_koGLYw.sql.gz	 db_%%DOMAIN%%_{当前日期}$_{特定时间点}_{随机字符串}.sql.gz
+db_%%DOMAIN%%_{date=year_mon_day:*-5}$_230002.sql.gz  <-->5
+db_%%DOMAIN%%_{date=year_mon_day:*-5}$_120002.sql.gz  <-->5
+db_%%DOMAIN%%_{date=year_mon_day:*-5}$_000002.sql.gz  <-->5
+db_%%DOMAIN%%_{date=year_mon_day:*-5}$_1200.sql.gz  <-->5
+db_%%DOMAIN%%_{date=year_mon_day:*-5}$_0000.sql.gz  <-->5
+db_%%DOMAIN%%_{date=year_mon_day:*-5}$_2300.sql.gz  <-->5
+db_%%DOMAIN%%_{date=year_mon_day:*-5}$.sql.gz  <-->5
+
+【支持】http://XX企业名的网站/XX企业名.zip	        ### 需要自定义输入企业名|20230707添加规则
+
+
+
+
