@@ -17,6 +17,7 @@ new  <-->13
 ftp  <-->13
 template  <-->13
 master  <-->13
+files  <-->13
 dev  <-->12
 conf  <-->12
 install  <-->12
@@ -29,7 +30,6 @@ mysql  <-->12
 main  <-->12
 include  <-->12
 common  <-->12
-files  <-->12
 home  <-->11
 vip  <-->11
 userlist  <-->11
@@ -56,12 +56,12 @@ bk  <-->7
 log  <-->7
 clients  <-->7
 app  <-->7
+file  <-->6
 tools  <-->6
 setup  <-->6
 logs  <-->6
 auth  <-->6
 Upload  <-->5
-file  <-->5
 Data  <-->5
 local  <-->5
 test  <-->3

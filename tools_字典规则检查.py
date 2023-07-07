@@ -105,6 +105,7 @@ def get_all_base_var(dirs):
 
 if __name__ == '__main__':
     # 加载初始设置参数
+    setting_com.init_common(CONFIG)
     setting_com.init_custom(CONFIG)
     setting_http.init_custom(CONFIG)
     setting_dict.init_custom(CONFIG)

@@ -1,28 +1,13 @@
 sql  <-->18
-backup  <-->18
-back  <-->18
 temp  <-->16
+backup  <-->10
+±¸·İ  <-->1
 {date=year_mon_day:*-5}$  <-->8
 {date=year_mon:*-5}$  <-->8
 {date=year:*-5}$  <-->8
-backupdata  <-->7
-data  <-->5
 test  <-->4
-db  <-->4
-old  <-->3
-bak  <-->2
-databak  <-->2
 lastbackup  <-->1
-webbak  <-->1
 gg  <-->1
-backups  <-->1
-sqldata  <-->1
-databack  <-->1
-databackup  <-->1
-database  <-->1
-databasebak  <-->1
-file  <-->1
-files  <-->1
 520  <-->1
 123123  <-->1
 {re=exrex:[abcdefgwABCDEFGW012345]}$  <-->1
@@ -35,4 +20,3 @@ files  <-->1
 {int=overlap#4:0-3}$  <-->1
 {int=overlap#5:0-3}$  <-->1
 {int=overlap#6:0-3}$  <-->1
-
