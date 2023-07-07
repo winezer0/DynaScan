@@ -1,0 +1,14 @@
+###其他的字典规则
+web{re=exrex:[1-5]}$  <-->1
+web{date=year_mon_day:*-5}$  <-->1
+{date=year_mon:*-5}$.backup  <-->1
+{date=year:*-5}$.backup  <-->1
+
+###实战记录### db_%%DOMAIN%%_{date=year_mon_day:*-*}$_{120002}_{随机字符串}.sql.gz    <-->0
+db_%%DOMAIN%%_{date=year_mon_day:*-5}$_230002.sql.gz  <-->5
+db_%%DOMAIN%%_{date=year_mon_day:*-5}$_120002.sql.gz  <-->5
+db_%%DOMAIN%%_{date=year_mon_day:*-5}$_000002.sql.gz  <-->5
+db_%%DOMAIN%%_{date=year_mon_day:*-5}$_1200.sql.gz  <-->5
+db_%%DOMAIN%%_{date=year_mon_day:*-5}$_0000.sql.gz  <-->5
+db_%%DOMAIN%%_{date=year_mon_day:*-5}$_2300.sql.gz  <-->5
+db_%%DOMAIN%%_{date=year_mon_day:*-5}$.sql.gz  <-->5

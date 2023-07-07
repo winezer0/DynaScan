@@ -35,7 +35,4 @@ files  <-->1
 {int=overlap#4:0-3}$  <-->1
 {int=overlap#5:0-3}$  <-->1
 {int=overlap#6:0-3}$  <-->1
-web{re=exrex:[1-5]}$  <-->1
-web{date=year_mon_day:*-5}$  <-->1
-{date=year_mon:*-5}$.backup  <-->1
-{date=year:*-5}$.backup  <-->1
+
