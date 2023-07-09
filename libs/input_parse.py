@@ -221,7 +221,8 @@ def extract_heads(param_len, param_dict):
     initials = [word[0] for word in param_len.split("_")]  # 提取每个单词的首字母
     initials = "".join(initials)  # 将所有首字母拼接成一个字符串
 
-    if initials not in param_dict.keys():
+    # 需要 param_dict 字典的值是短参数名
+    if initials not in param_dict.values():
         return initials
     else:
         # 处理重复项问题
@@ -229,7 +230,7 @@ def extract_heads(param_len, param_dict):
         while True:
             i += 1
             new_initials = f"{initials}{i}"
-            if new_initials not in param_dict.keys():
+            if new_initials not in param_dict.values():
                 break
         return new_initials
 
