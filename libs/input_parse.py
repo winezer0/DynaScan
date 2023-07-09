@@ -92,7 +92,7 @@ def args_parser(config_dict):
         {"param": GB_RETRY_TIMES, "type": int, "help": "Specifies request retry times"},
     ]
 
-    param_dict = {}  # 存储所有长-短 参数对应关系,用于自动处理重复的短参数名
+    param_dict = {"help": "h"}  # 存储所有长-短 参数对应关系,用于自动处理重复的短参数名
     options_to_argument(args_options, argument_parser, config_dict, param_dict)
 
     # 其他输出信息
@@ -178,18 +178,18 @@ def options_to_argument(args_options, argument_parser, config_dict, param_dict):
                 not_allowed_keys = set(option.keys()) - set(support_list)
                 output(f"[!] 参数选项:[{option}]存在非预期参数[{not_allowed_keys}]!!!", level=LOG_ERROR)
             else:
-                tmp_param = option["param"]
-                tmp_dest = vars_to_param(tmp_param) if "dest" not in option.keys() else option["dest"]
+                gb_param = option["param"]
+                tmp_dest = vars_to_param(gb_param) if "dest" not in option.keys() else option["dest"]
                 tmp_name = extract_heads(tmp_dest, param_dict) if "name" not in option.keys() else option["name"]
-                tmp_default = config_dict[tmp_param] if "default" not in option.keys() else option["default"]
+                tmp_default = config_dict[gb_param] if "default" not in option.keys() else option["default"]
                 tmp_nargs = None if "nargs" not in option.keys() else option["nargs"]
                 tmp_action = None if "action" not in option.keys() else option["action"]
-                tmp_help = f"Specify the {vars_to_param(tmp_param)}" if "help" not in option.keys() else option["help"]
+                tmp_help = f"Specify the {vars_to_param(gb_param)}" if "help" not in option.keys() else option["help"]
                 tmp_type = None if "type" not in option.keys() else option["type"]
                 tmp_choices = None if "choices" not in option.keys() else option["choices"]
 
                 # 存储长短参数对应关系
-                param_dict[tmp_param] = tmp_name
+                param_dict[gb_param] = tmp_name
 
                 if tmp_action:
                     argument_parser.add_argument(f"-{tmp_name.strip('-')}",
