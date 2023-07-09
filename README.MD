@@ -32,10 +32,10 @@ dynamic Weak File Scanner 动态敏感文件扫描器  By NOVASEC && WINEZER0
 
 ```
 必选：
-    优化备份文件扫描字典
-其他：
     新建springboot扫描字典
+其他：
     新建其他敏感文件扫描字典
+    优化备份文件扫描字典 
 ```
 
 ## 1、程序说明
