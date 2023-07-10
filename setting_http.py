@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-from libs.input_const import *
+from libs.lib_args.input_const import *
 
 
 def init_custom(config):

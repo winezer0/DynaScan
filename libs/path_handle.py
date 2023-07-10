@@ -2,14 +2,13 @@
 # encoding: utf-8
 import os.path
 
-from libs.input_const import *
+from libs.lib_args.input_const import *
 from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
 from libs.lib_dyna_rule.base_rule_parser import base_rule_render_list
 from libs.lib_dyna_rule.dyna_rule_tools import get_key_list_with_frequency
-from libs.lib_dyna_rule.set_basic_var import set_base_var_dict_frequency
 from libs.lib_file_operate.file_path import get_dir_path_file_info_dict
 from libs.lib_file_operate.file_read import read_files_to_frequency_dict
-from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_ERROR, LOG_DEBUG
+from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_ERROR
 from libs.lib_url_analysis.url_handle import specify_ext_store, specify_ext_delete, replace_multi_slashes, \
     remove_url_end_symbol, url_path_lowercase, url_path_chinese_encode, url_path_url_encode
 from libs.lib_url_analysis.url_parser import combine_urls_and_paths

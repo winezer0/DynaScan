@@ -3,7 +3,6 @@
 import os
 
 import setting_com
-from time import sleep
 import setting_dict
 import setting_http
 from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
@@ -21,9 +20,10 @@ from libs.lib_file_operate.file_path import file_is_exist, auto_make_dir
 from libs.lib_file_operate.file_read import read_file_to_list
 from libs.lib_file_operate.file_write import write_lines, write_path_list_to_frequency_file
 from libs.lib_log_print.logger_printer import output, LOG_INFO, set_logger, LOG_ERROR, LOG_DEBUG
-from libs.input_const import *
+from libs.lib_args.input_const import *
 from libs.lib_requests.check_protocol import check_host_list_proto, check_url_list_access
-from libs.input_parse import args_parser, args_dict_handle, config_dict_add_args, config_dict_handle, show_config_dict
+from libs.lib_args.input_parse import args_parser, args_dict_handle, config_dict_handle
+from libs.lib_args.input_basic import config_dict_add_args
 from libs.util_func import analysis_ends_url, exclude_history_urls, url_to_raw_rule_classify
 
 

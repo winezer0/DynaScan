@@ -3,7 +3,7 @@
 import setting_com
 import setting_dict
 import setting_http
-from libs.input_const import *
+from libs.lib_args.input_const import *
 from libs.lib_attribdict.config import CONFIG
 from libs.lib_file_operate.file_coding import file_encoding
 from libs.lib_file_operate.file_path import get_dir_path_file_info_dict
