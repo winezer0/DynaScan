@@ -3,7 +3,8 @@
 
 import re
 from urllib.parse import unquote
-from libs.lib_dyna_rule.dyna_rule_tools import list_to_re_str, cartesian_product_merging, frozen_tuple_list
+from libs.lib_dyna_rule.dyna_rule_tools import list_to_re_str
+from libs.lib_collect_opera.collect_operation import cartesian_product_merging, frozen_tuple_list
 from libs.lib_file_operate.file_path import file_is_exist
 from libs.lib_file_operate.file_read import read_file_to_list
 from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_ERROR
