@@ -66,7 +66,6 @@ def init_target(config_dict):
         accessible_target, inaccessible_target = check_url_list_access(
             target_list=targets,
             thread_sleep=config_dict[GB_THREAD_SLEEP],
-            url_access_test=config_dict[GB_URL_ACCESS_TEST],
             req_method=config_dict[GB_REQ_METHOD],
             req_headers=config_dict[GB_REQ_HEADERS],
             req_proxies=config_dict[GB_PROXIES],
