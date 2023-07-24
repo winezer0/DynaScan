@@ -16,7 +16,7 @@ def check_protocol(req_host, req_path, req_method, req_headers, req_proxies, req
     # 开始多线程请求
     access_result_dict_list = multi_thread_requests_url_sign(task_list=req_url_task_list,
                                                              threads_count=min(30, len(req_url)),
-                                                             thread_sleep=0.1,
+                                                             thread_sleep=0,
                                                              req_method=req_method,
                                                              req_headers=req_headers,
                                                              req_data=None,
@@ -58,7 +58,7 @@ def check_protocol(req_host, req_path, req_method, req_headers, req_proxies, req
 
 # 判断输入的URL列表是否添加协议头,及是否能够访问
 def check_url_list_access(target_list,
-                          thread_sleep=0.1,
+                          thread_sleep=0,
                           req_method=None,
                           req_headers=None,
                           req_proxies=None,
@@ -81,7 +81,6 @@ def check_url_list_access(target_list,
 
     output("[*] 批量访问筛选URL列表...", level=LOG_INFO)
     # 批量进行URL访问测试
-    target_list = target_list
     access_result_dict_list = multi_thread_requests_url(task_list=target_list,
                                                         threads_count=min(30, len(target_list)),
                                                         thread_sleep=thread_sleep,
