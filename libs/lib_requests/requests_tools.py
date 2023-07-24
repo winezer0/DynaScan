@@ -7,10 +7,34 @@ import copy
 import hashlib
 import random
 import re
-
+import chardet
 from libs.lib_file_operate.file_write import write_line, write_title
 from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_DEBUG, LOG_ERROR
 from libs.lib_requests.requests_const import *
+
+
+def content_encode(content):
+    # 自动分析响应编码
+    # 1、使用import chardet
+    code_result = chardet.detect(content)  # 利用chardet来检测这个网页使用的是什么编码方式
+    # output(content,code_result)  # 扫描到压缩包时,没法获取编码结果
+    # 取code_result字典中encoding属性，如果取不到，那么就使用utf-8
+    encoding = code_result.get("encoding", "utf-8")
+    if not encoding:
+        encoding = "utf-8"
+    content = content.decode(encoding, 'replace')
+    # 2、字符集编码，可以使用r.encoding='xxx'模式，然后再r.text()会根据设定的字符集进行转换后输出。
+    # resp.encoding='utf-8'
+    # output(resp.text)，
+
+    # 3、请求后的响应response,先获取bytes 二进制类型数据，再指定encoding，也可
+    # output(resp.content.decode(encoding="utf-8"))
+
+    # 4、使用apparent_encoding可获取程序真实编码
+    # resp.encoding = resp.apparent_encoding
+    # content = req.content.decode(encoding, 'replace').encode('utf-8', 'replace')
+    # content = resp.content.decode(resp.encoding, 'replace')  # 如果设置为replace，则会用?取代非法字符；
+    return content
 
 
 # 判断列表内的元素是否存在有包含在字符串内的

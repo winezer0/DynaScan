@@ -4,18 +4,16 @@ import hashlib
 import re
 import sys
 import time
-import urllib
 from binascii import b2a_hex
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlparse, urljoin, quote
 
-import chardet
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
 from libs.lib_log_print.logger_printer import output, LOG_DEBUG, LOG_ERROR
 from libs.lib_requests.requests_const import *
-from libs.lib_requests.requests_tools import list_ele_in_str
+from libs.lib_requests.requests_tools import list_ele_in_str, content_encode
 
 requests.packages.urllib3.disable_warnings()
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
@@ -192,25 +190,7 @@ def requests_plus(req_url,
                 resp_text_title = HTTP_IGNORE_TITLE
             else:
                 # 解决响应解码问题
-                # 0、使用import chardet
-                encode_content = resp.content  # output(type(resp.content)) # bytes类型
-                code_result = chardet.detect(encode_content)  # 利用chardet来检测这个网页使用的是什么编码方式
-                # output(encode_content,code_result)  # 扫描到压缩包时,没法获取编码结果
-                # 取code_result字典中encoding属性，如果取不到，那么就使用utf-8
-                encoding = code_result.get("encoding", "utf-8")
-                if not encoding: encoding = "utf-8"
-                encode_content = encode_content.decode(encoding, 'replace')
-                # 1、字符集编码，可以使用r.encoding='xxx'模式，然后再r.text()会根据设定的字符集进行转换后输出。
-                # resp.encoding='utf-8'
-                # output(resp.text)，
-
-                # 2、请求后的响应response,先获取bytes 二进制类型数据，再指定encoding，也可
-                # output(resp.content.decode(encoding="utf-8"))
-
-                # 3、使用apparent_encoding可获取程序真实编码
-                # resp.encoding = resp.apparent_encoding
-                # encode_content = req.content.decode(encoding, 'replace').encode('utf-8', 'replace')
-                # encode_content = resp.content.decode(resp.encoding, 'replace')  # 如果设置为replace，则会用?取代非法字符；
+                encode_content = content_encode(resp.content)  # type(resp.content)  # bytes类型
                 re_find_result_list = re.findall(r"<title.*?>(.+?)</title>", encode_content)
                 resp_text_title = ",".join(re_find_result_list)
                 # 解决所有系统下字符串无法编码输出的问题,比如windows下控制台gbk的情况下,不能gbk解码就是BUG
@@ -220,7 +200,7 @@ def requests_plus(req_url,
                 try:
                     resp_text_title.encode(sys.stdout.encoding)
                 except Exception as error:
-                    resp_text_title = urllib.parse.quote(resp_text_title.encode('utf-8'))
+                    resp_text_title = quote(resp_text_title.encode('utf-8'))
                     output(f"[!] 字符串使用当前控制台编码 {sys.stdout.encoding} 编码失败,"
                            f"自动转换为UTF-8型URL编码 {resp_text_title}, "
                            f"ERROR:{error}",
