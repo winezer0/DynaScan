@@ -282,8 +282,8 @@ def request_retry(req_url,
         retry_strategy = Retry(
             total=retry_times,  # 重试的最大次数
             backoff_factor=1,  # 重试的延迟时间因子 默认值为0，表示不延迟。
-            status_forcelist=[429, 500, 502, 503, 504],  # 需要强制重试的HTTP状态码列表。
-            allowed_methods=["HEAD", "GET", "OPTIONS"],  # 允许进行重试的HTTP请求方法列表。
+            status_forcelist=[429, 500, 503, 504],  # 需要强制重试的HTTP状态码列表。
+            allowed_methods=["HEAD", "GET", "POST"],  # 允许进行重试的HTTP请求方法列表。
             connect=5,  # 连接超时时间
             read=5,  # 读取超时时间
         )
