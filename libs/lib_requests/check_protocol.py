@@ -59,7 +59,6 @@ def check_protocol(req_host, req_path, req_method, req_headers, req_proxies, req
 # 判断输入的URL列表是否添加协议头,及是否能够访问
 def check_url_list_access(target_list,
                           thread_sleep=0.1,
-                          url_access_test=True,
                           req_method=None,
                           req_headers=None,
                           req_proxies=None,
@@ -80,39 +79,36 @@ def check_url_list_access(target_list,
     # 存储最终的不可访问的URL列表
     inaccessible_target = []
 
-    if not url_access_test:
-        accessible_target = target_list
-    else:
-        output("[*] 批量访问筛选URL列表...", level=LOG_INFO)
-        # 批量进行URL访问测试
-        target_list = target_list
-        access_result_dict_list = multi_thread_requests_url(task_list=target_list,
-                                                            threads_count=min(30, len(target_list)),
-                                                            thread_sleep=thread_sleep,
-                                                            req_method=req_method,
-                                                            req_headers=req_headers,
-                                                            req_data=None,
-                                                            req_proxies=req_proxies,
-                                                            req_timeout=req_timeout,
-                                                            verify_ssl=verify_ssl,
-                                                            req_allow_redirects=req_allow_redirects,
-                                                            req_stream=False,
-                                                            retry_times=retry_times,
-                                                            const_sign=None,
-                                                            add_host_header=True,
-                                                            add_refer_header=True,
-                                                            ignore_encode_error=True,
-                                                            )
-        # 分析多线程检测结果
-        for access_result_dict in access_result_dict_list:
-            req_url = access_result_dict[HTTP_REQ_URL]
-            resp_status = access_result_dict[HTTP_RESP_STATUS]
-            if resp_status > 0:
-                output(f"[*] 当前目标 {req_url} 将被添加 响应结果:{access_result_dict}", level=LOG_INFO)
-                accessible_target.append(req_url)
-            else:
-                output(f"[*] 当前目标 {req_url} 将被忽略 响应结果:{access_result_dict}", level=LOG_ERROR)
-                inaccessible_target.append(req_url)
+    output("[*] 批量访问筛选URL列表...", level=LOG_INFO)
+    # 批量进行URL访问测试
+    target_list = target_list
+    access_result_dict_list = multi_thread_requests_url(task_list=target_list,
+                                                        threads_count=min(30, len(target_list)),
+                                                        thread_sleep=thread_sleep,
+                                                        req_method=req_method,
+                                                        req_headers=req_headers,
+                                                        req_data=None,
+                                                        req_proxies=req_proxies,
+                                                        req_timeout=req_timeout,
+                                                        verify_ssl=verify_ssl,
+                                                        req_allow_redirects=req_allow_redirects,
+                                                        req_stream=False,
+                                                        retry_times=retry_times,
+                                                        const_sign=None,
+                                                        add_host_header=True,
+                                                        add_refer_header=True,
+                                                        ignore_encode_error=True,
+                                                        )
+    # 分析多线程检测结果
+    for access_result_dict in access_result_dict_list:
+        req_url = access_result_dict[HTTP_REQ_URL]
+        resp_status = access_result_dict[HTTP_RESP_STATUS]
+        if resp_status > 0:
+            output(f"[*] 当前目标 {req_url} 将被添加 响应结果:{access_result_dict}", level=LOG_INFO)
+            accessible_target.append(req_url)
+        else:
+            output(f"[*] 当前目标 {req_url} 将被忽略 响应结果:{access_result_dict}", level=LOG_ERROR)
+            inaccessible_target.append(req_url)
 
     return accessible_target, inaccessible_target
 

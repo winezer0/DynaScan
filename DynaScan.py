@@ -62,28 +62,26 @@ def init_target(config_dict):
                                     default_proto=config_dict[GB_DEFAULT_PROTO])
 
     # 尝试对输入的目标访问测试等处理
-    accessible_target, inaccessible_target = check_url_list_access(
-        target_list=targets,
-        thread_sleep=config_dict[GB_THREAD_SLEEP],
-        url_access_test=config_dict[GB_URL_ACCESS_TEST],
-        req_method=config_dict[GB_REQ_METHOD],
-        req_headers=config_dict[GB_REQ_HEADERS],
-        req_proxies=config_dict[GB_PROXIES],
-        verify_ssl=config_dict[GB_SSL_VERIFY],
-        req_timeout=config_dict[GB_TIME_OUT],
-        req_allow_redirects=config_dict[GB_ALLOW_REDIRECTS],
-        retry_times=config_dict[GB_RETRY_TIMES])
+    if config_dict[GB_URL_ACCESS_TEST]:
+        accessible_target, inaccessible_target = check_url_list_access(
+            target_list=targets,
+            thread_sleep=config_dict[GB_THREAD_SLEEP],
+            url_access_test=config_dict[GB_URL_ACCESS_TEST],
+            req_method=config_dict[GB_REQ_METHOD],
+            req_headers=config_dict[GB_REQ_HEADERS],
+            req_proxies=config_dict[GB_PROXIES],
+            verify_ssl=config_dict[GB_SSL_VERIFY],
+            req_timeout=config_dict[GB_TIME_OUT],
+            req_allow_redirects=config_dict[GB_ALLOW_REDIRECTS],
+            retry_times=config_dict[GB_RETRY_TIMES])
+        # 记录可以访问的目标到文件
+        write_lines(config_dict[GB_ACCESS_OK_FILE], accessible_target, encoding="utf-8", new_line=True, mode="a+")
+        # 记录不可访问的目标到文件
+        write_lines(config_dict[GB_ACCESS_NO_FILE], inaccessible_target, encoding="utf-8", new_line=True, mode="a+")
+        # 需要扫描的目标列表
+        targets = list(set(accessible_target))
 
-    # 记录可以访问的目标到文件
-
-    write_lines(config_dict[GB_ACCESS_OK_FILE], accessible_target, encoding="utf-8", new_line=True, mode="a+")
-    # 记录不可访问的目标到文件
-    write_lines(config_dict[GB_ACCESS_NO_FILE], inaccessible_target, encoding="utf-8", new_line=True, mode="a+")
-
-    # 需要扫描的目标列表
-    targets = list(set(accessible_target))
     output(f"[*] 当前整合URL 剩余目标 {len(targets)}个", level=LOG_INFO)
-
     return targets
 
 
@@ -360,7 +358,7 @@ if __name__ == '__main__':
     output(f"[*] 配置参数更新: {updates}")
 
     # 根据用户输入的debug参数设置日志打印器属性
-    set_logger(CONFIG[GB_LOG_INFO_FILE], CONFIG[GB_LOG_ERROR_FILE],  CONFIG[GB_LOG_DEBUG_FILE], CONFIG[GB_DEBUG_FLAG])
+    set_logger(CONFIG[GB_LOG_INFO_FILE], CONFIG[GB_LOG_ERROR_FILE], CONFIG[GB_LOG_DEBUG_FILE], CONFIG[GB_DEBUG_FLAG])
 
     # 输出所有参数信息
     output(f"[*] 最终配置信息: {CONFIG}", level=LOG_INFO)
