@@ -12,8 +12,9 @@ from libs.lib_file_operate.rw_json_file import load_json_to_dict, dump_dict_to_j
 from libs.lib_requests.requests_const import HTTP_FILTER_VALUE_DICT, HTTP_FILTER_IGNORE_KEYS, HTTP_CONST_SIGN
 from libs.lib_requests.requests_thread import multi_thread_requests_url, multi_thread_requests_url_sign
 from libs.lib_requests.requests_tools import get_random_str, analysis_dict_same_keys, access_result_handle
-from libs.lib_url_analysis.url_parser import get_curr_dir_url, combine_urls_and_paths, get_segment_urls
-from libs.lib_url_analysis.url_tools import get_url_scheme, get_host_port
+from libs.lib_url_analysis.parse_path import get_curr_dir_url
+from libs.lib_url_analysis.url_utils import combine_urls_and_paths, get_segment_urls
+from libs.lib_url_analysis.parse_host import get_proto, get_host_port
 from libs.path_handle import url_and_paths_dict_handle
 from libs.lib_attribdict.config import CONFIG
 from libs.lib_file_operate.file_utils import auto_make_dir, file_is_exist, exclude_history_files, file_is_empty
@@ -203,7 +204,7 @@ def dyna_scan_controller(target_urls, paths_dict, config_dict):
         output(f"[+] 任务进度 {target_index + 1}/{len(target_urls)} {target_url}", level=LOG_INFO)
 
         # 历史记录文件路径 基于主机HOST动态生成
-        curr_host_port_string = f"{get_url_scheme(target_url)}_{get_host_port(target_url, True)}"
+        curr_host_port_string = f"{get_proto(target_url)}_{get_host_port(target_url, True)}"
         curr_host_history_file = config_dict[GB_HISTORY_FORMAT].format(mark=curr_host_port_string)
         curr_host_dyna_cache = config_dict[GB_DYNA_DICT_CACHE].format(mark=curr_host_port_string)
 

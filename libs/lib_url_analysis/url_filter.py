@@ -5,7 +5,7 @@ import re
 import urllib
 
 from libs.lib_log_print.logger_printer import output, LOG_ERROR
-from libs.lib_url_analysis.url_parser import get_url_ext
+from libs.lib_url_analysis.url_utils import get_url_ext
 
 
 # 保留指定后缀的URL目标

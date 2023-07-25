@@ -3,10 +3,9 @@
 
 from libs.lib_args.input_const import *
 from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_ERROR
-from libs.lib_url_analysis.url_handle import specify_ext_store, specify_ext_delete, replace_multi_slashes, \
+from libs.lib_url_analysis.url_filter import specify_ext_store, specify_ext_delete, replace_multi_slashes, \
     remove_url_end_symbol, url_path_lowercase, url_path_chinese_encode, url_path_url_encode
-from libs.lib_url_analysis.url_parser import combine_urls_and_paths
-from libs.lib_url_analysis.url_tools import urls_to_url_paths
+from libs.lib_url_analysis.url_utils import combine_urls_and_paths, urls_to_url_paths
 from libs.utils import product_folders_and_files
 
 

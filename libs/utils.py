@@ -11,7 +11,8 @@ from libs.lib_collect_opera.collect_operation import cartesian_product_merging, 
 from libs.lib_file_operate.file_path import get_dirs_file_info_dict
 from libs.lib_file_operate.rw_freq_file import read_files_to_freq_dict
 from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_ERROR
-from libs.lib_url_analysis.url_parser import get_root_dir_url, get_url_ext, combine_urls_and_paths
+from libs.lib_url_analysis.parse_path import get_root_dir_url
+from libs.lib_url_analysis.url_utils import combine_urls_and_paths, get_url_ext
 
 
 # 进行URL检查

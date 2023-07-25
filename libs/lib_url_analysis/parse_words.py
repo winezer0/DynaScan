@@ -1,29 +1,22 @@
 #!/usr/bin/env python
 # encoding: utf-8
+
 import re
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 from tldextract import extract
 from libs.lib_log_print.logger_printer import output, LOG_ERROR
-from libs.lib_url_analysis.url_parser import get_curr_dir_url, split_path_to_words, get_segment_urls, get_url_ext, \
-    list_ele_in_str, parse_url_path_part
 
 
-def get_url_scheme(url):
-    # 从URL中获取HTTP协议
-    scheme = urlparse(url).scheme
-    return scheme
-
-
-def get_host_port(url, replace_symbol=False):
-    """
-    从URL中获取HOST头部
-    output(get_host_port('http://www.baidu.com.cn:8080/111/222/3.aspx?p=123')) #www.baidu.com.cn:8080
-    """
-    path_obj = urlparse(url)
-    host_port = path_obj.netloc
-    if replace_symbol:
-        host_port = str(host_port).replace(":", "_")
-    return host_port
+def list_ele_in_str(list_=None, str_=None, default=True):
+    flag = False
+    if list_:
+        for ele in list_:
+            if ele in str_:
+                flag = True
+                break
+    else:
+        flag = default
+    return flag
 
 
 def get_path_words(url, symbol_replace_dict=None, not_allowed_symbol=None):
@@ -35,8 +28,8 @@ def get_path_words(url, symbol_replace_dict=None, not_allowed_symbol=None):
         symbol_replace_dict = {}
 
     # 拆分长URL为多个URL目录
-    parser_url = urlparse(get_curr_dir_url(url))
-    path_words_list = split_path_to_words(parser_url.path)
+    parser_url = urlparse(urljoin(url, "./"))
+    path_words_list = [dirs for dirs in parser_url.path.split('/') if dirs.strip()]
 
     # 对所有结果再进行一次替换和添加
     for path_var in path_words_list:
@@ -44,6 +37,7 @@ def get_path_words(url, symbol_replace_dict=None, not_allowed_symbol=None):
             for symbol in value:
                 if key in path_var:
                     path_words_list.append(str(path_var).replace(key, symbol))
+
     if path_words_list:
         path_words_list = [i for i in path_words_list if i and str(i).strip()]
         path_words_list = list(set(path_words_list))
@@ -59,7 +53,6 @@ def get_path_words(url, symbol_replace_dict=None, not_allowed_symbol=None):
     return path_words_list
 
 
-# 获取基于域名的单词
 def get_domain_words(url, ignore_ip_format=True, symbol_replace_dict={}, not_allowed_symbol=None):
     """
     从URL中获取域名相关的单词
@@ -124,17 +117,9 @@ def get_domain_words(url, ignore_ip_format=True, symbol_replace_dict={}, not_all
         return real_domain_val_list
 
 
-def urls_to_url_paths(url_list):
-    # 拆分URL和路径 可能是多个host
-    url_path_dict = {}
-    for url in url_list:
-        url_part, path_part = parse_url_path_part(url)
-        # setdefault 方法检查字典中是否存在指定的键，如果不存在则将其添加到字典中
-        url_path_dict.setdefault(url_part, []).append(path_part)
-    return url_path_dict
+def split_path_to_words(path):
+    # 切割path路径为多个单词
+    words = [dirs for dirs in path.split('/') if dirs.strip()]
+    return words
 
 
-if __name__ == '__main__':
-    surl = "https://www.baidu.com/aaa/bbb/index.php"
-    # print(get_segment_urls(surl)) # ['https://www.baidu.com/', 'https://www.baidu.com/aaa', 'https://www.baidu.com/aaa/bbb']
-    # print(get_url_ext(surl))  # php

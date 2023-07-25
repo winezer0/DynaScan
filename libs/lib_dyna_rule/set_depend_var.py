@@ -7,8 +7,8 @@ import copy
 from libs.lib_dyna_rule.dyna_rule_const import *
 from libs.lib_log_print.logger_printer import output, LOG_ERROR
 from libs.lib_dyna_rule.dyna_rule_tools import dict_content_base_rule_render
-from libs.lib_url_analysis.url_parser import parse_url_file_part
-from libs.lib_url_analysis.url_tools import get_domain_words, get_path_words
+from libs.lib_url_analysis.parse_path import parse_url_file_part
+from libs.lib_url_analysis.parse_words import get_path_words, get_domain_words
 
 
 # 获取 基于 HTTP 请求的 因变量
