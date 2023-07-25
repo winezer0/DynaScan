@@ -9,14 +9,13 @@ from libs.lib_file_operate.file_write import write_lines
 
 def write_list_to_freq_file(file_path, path_list=None, encoding='utf-8', freq_symbol="<-->", anno_symbol="###"):
     # 先读取以前的命中文件文件内容
-    freq_dict = read_file_to_freq_dict(file_path=file_path, encoding=encoding, freq_symbol=freq_symbol,
-                                       anno_symbol=anno_symbol)
+    freq_dict = read_file_to_freq_dict(file_path=file_path, encoding=encoding, freq_symbol=freq_symbol, anno_symbol=anno_symbol)
     # 遍历命中结果列表对结果列表进行添加
     freq_dict.update({path: freq_dict[path] + 1 if path in freq_dict.keys() else 1 for path in path_list})
     # 根据字典的值进行排序
     sorted_dict = dict(sorted(freq_dict.items(), key=lambda item: item[1], reverse=True))
     # 将结果字典写入文件
-    str_list = [f"{path}  {freq_symbol}{frequency}" for path, frequency in sorted_dict.items()]
+    str_list = [f"{path}  {freq_symbol}{freq}" for path, freq in sorted_dict.items()]
     write_lines(file_path, str_list, encoding=encoding, new_line=True, mode="w+")
     return True
 
@@ -24,7 +23,7 @@ def write_list_to_freq_file(file_path, path_list=None, encoding='utf-8', freq_sy
 def read_file_to_freq_dict(file_path, encoding=None, freq_symbol='<-->', anno_symbol="###", default_freq=1):
     """
     读取一个文件内容并返回结果字典 {"路径”:频率} 文件的每一行格式类似 path freq_symbol 10
-    freq_symbol 指定切割每一行的字符串 没有 frequency_symbol 的默认为1
+    freq_symbol 指定切割每一行的字符串 没有 freq_symbol 的默认为1
     anno_symbol = "###" 如果启用注释, ###号后的字符都会进行删除
     """
     if file_is_empty(file_path):
@@ -54,19 +53,16 @@ def read_file_to_freq_dict(file_path, encoding=None, freq_symbol='<-->', anno_sy
     return freq_dict
 
 
-def read_files_to_freq_dict(file_list, encoding=None, frequency_symbol='<-->', annotation_symbol="###"):
+def read_files_to_freq_dict(file_list, encoding=None, freq_symbol='<-->', anno_symbol="###"):
     """
     读取文件列表内所有文件的内容并返回结果字典 {"路径”:频率}
-    文件的每一行格式类似 path frequency_symbol 10
-    frequency_symbol 指定切割每一行的字符串 没有 frequency_symbol 的默认为1
-    annotation_symbol = "###" 如果启用注释,对###号开头的行,和频率字符串后面的###号都会进行删除
+    文件的每一行格式类似 path freq_symbol 10
+    freq_symbol 指定切割每一行的字符串 没有 frequency_symbol 的默认为1
+    anno_symbol = "###" 如果启用注释,对###号开头的行,和频率字符串后面的###号都会进行删除
     """
     freq_dict = {}
     for file_path in file_list:
-        raw_dict = read_file_to_freq_dict(file_path, encoding=encoding,
-                                          freq_symbol=frequency_symbol,
-                                          anno_symbol=annotation_symbol)
-
+        raw_dict = read_file_to_freq_dict(file_path, encoding=encoding, freq_symbol=freq_symbol, anno_symbol=anno_symbol)
         # 合并到结果字典 # 使用 set(dict_a) | set(dict_b) 来获取 dict_a 和 dict_b 的所有键
         freq_dict.update({key: freq_dict.get(key, 0) + raw_dict.get(key, 0) for key in set(freq_dict) | set(raw_dict)})
     return freq_dict

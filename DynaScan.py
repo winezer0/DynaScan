@@ -14,7 +14,7 @@ from libs.lib_requests.requests_thread import multi_thread_requests_url, multi_t
 from libs.lib_requests.requests_tools import get_random_str, analysis_dict_same_keys, access_result_handle
 from libs.lib_url_analysis.url_parser import get_curr_dir_url, combine_urls_and_paths, get_segment_urls
 from libs.lib_url_analysis.url_tools import get_url_scheme, get_host_port
-from libs.path_handle import read_path_files_and_rule_parse_frequency, combine_urls_and_path_dict, \
+from libs.path_handle import read_dir_and_parse_rule_with_freq, combine_urls_and_path_dict, \
     url_and_paths_dict_handle
 from libs.lib_attribdict.config import CONFIG
 from libs.lib_file_operate.file_utils import auto_make_dir, file_is_exist, exclude_history_files, file_is_empty
@@ -96,9 +96,9 @@ def init_load_dict(config_dict):
     #     base_var_dir=config_dict[GB_BASE_VAR_DIR],
     #     ext_list=config_dict[GB_DICT_SUFFIX],
     #     base_replace_dict=config_dict[GB_BASE_REPLACE_DICT],
-    #     frequency_symbol=config_dict[GB_FREQUENCY_SYMBOL],
-    #     annotation_symbol=config_dict[GB_ANNOTATION_SYMBOL],
-    #     frequency_min=config_dict[GB_FREQUENCY_MIN]
+    #     freq_symbol=config_dict[GB_FREQUENCY_SYMBOL],
+    #     anno_symbol=config_dict[GB_ANNOTATION_SYMBOL],
+    #     freq_min=config_dict[GB_FREQUENCY_MIN]
     # )
     # output(f"[*] 获取基本变量完成:{base_replace_dict.keys()}", level=LOG_DEBUG)
 
@@ -117,7 +117,7 @@ def init_load_dict(config_dict):
             base_replace_dict=config_dict[GB_BASE_REPLACE_DICT],
             freq_symbol=config_dict[GB_FREQUENCY_SYMBOL],
             anno_symbol=config_dict[GB_ANNOTATION_SYMBOL],
-            frequency_min=config_dict[GB_FREQUENCY_MIN]
+            freq_min=config_dict[GB_FREQUENCY_MIN]
         )
         output(f"[*] 获取[{rule_dir}]目录基本变量完成:{base_replace_dict.keys()}", level=LOG_INFO)
 
@@ -126,24 +126,24 @@ def init_load_dict(config_dict):
 
         # 2、读取直接追加到当前目录的字典
         if config_dict[GB_SCAN_BASE_PATH]:
-            base_path_dict_list = read_path_files_and_rule_parse_frequency(
+            base_path_dict_list = read_dir_and_parse_rule_with_freq(
                 read_dir_path=base_path_path,
-                extension_list=config_dict[GB_DICT_SUFFIX],
-                frequency_symbol=config_dict[GB_FREQUENCY_SYMBOL],
-                annotation_symbol=config_dict[GB_ANNOTATION_SYMBOL],
-                frequency_min=config_dict[GB_FREQUENCY_MIN],
+                ext_list=config_dict[GB_DICT_SUFFIX],
+                freq_symbol=config_dict[GB_FREQUENCY_SYMBOL],
+                anno_symbol=config_dict[GB_ANNOTATION_SYMBOL],
+                freq_min=config_dict[GB_FREQUENCY_MIN],
                 replace_dict=base_replace_dict)
             output(f"[+] 加载元素数量 {len(base_path_dict_list)} <--> {base_path_path}", level=LOG_INFO)
             bse_path_dict[STR_BASE_PATH].extend(base_path_dict_list)
 
         # 3、读取追加到根目录下的字典
         if config_dict[GB_SCAN_BASE_ROOT]:
-            base_root_dict_list = read_path_files_and_rule_parse_frequency(
+            base_root_dict_list = read_dir_and_parse_rule_with_freq(
                 read_dir_path=base_root_path,
-                extension_list=config_dict[GB_DICT_SUFFIX],
-                frequency_symbol=config_dict[GB_FREQUENCY_SYMBOL],
-                annotation_symbol=config_dict[GB_ANNOTATION_SYMBOL],
-                frequency_min=config_dict[GB_FREQUENCY_MIN],
+                ext_list=config_dict[GB_DICT_SUFFIX],
+                freq_symbol=config_dict[GB_FREQUENCY_SYMBOL],
+                anno_symbol=config_dict[GB_ANNOTATION_SYMBOL],
+                freq_min=config_dict[GB_FREQUENCY_MIN],
                 replace_dict=base_replace_dict)
             output(f"[+] 加载元素数量 {len(base_root_dict_list)} <--> {base_root_path}", level=LOG_INFO)
             bse_path_dict[STR_BASE_ROOT].extend(base_root_dict_list)

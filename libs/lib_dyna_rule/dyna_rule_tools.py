@@ -35,14 +35,15 @@ def dict_content_base_rule_render(var_dict):
 
 
 # 得到{"路径”:频率}字典中频率大于指定值的列表
-def get_key_list_with_frequency(frequency_dict, frequency_min):
-    if frequency_dict is None:
-        frequency_dict = {}
-    frequency_list = []
-    for key, value in frequency_dict.items():
-        if frequency_min <= value:
-            frequency_list.append(key)
-    return frequency_list
+def get_key_list_with_freq(freq_dict, freq_min):
+    if freq_dict is None:
+        return []
+
+    freq_list = []
+    for key, value in freq_dict.items():
+        if freq_min <= value:
+            freq_list.append(key)
+    return freq_list
 
 
 # 将变量列表转换为正则表达式

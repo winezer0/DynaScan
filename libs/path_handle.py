@@ -5,7 +5,7 @@ import os.path
 from libs.lib_args.input_const import *
 from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
 from libs.lib_dyna_rule.base_rule_parser import base_rule_render_list
-from libs.lib_dyna_rule.dyna_rule_tools import get_key_list_with_frequency
+from libs.lib_dyna_rule.dyna_rule_tools import get_key_list_with_freq
 from libs.lib_file_operate.file_path import get_dir_path_file_info_dict
 from libs.lib_file_operate.rw_freq_file import read_files_to_freq_dict
 from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_ERROR
@@ -16,12 +16,7 @@ from libs.lib_url_analysis.url_tools import urls_to_url_paths
 from libs.util_func import product_folders_and_files
 
 
-def read_path_files_and_rule_parse_frequency(read_dir_path,
-                                             extension_list,
-                                             frequency_symbol,
-                                             annotation_symbol,
-                                             frequency_min,
-                                             replace_dict):
+def read_dir_and_parse_rule_with_freq(read_dir_path, ext_list, freq_symbol, anno_symbol, freq_min, replace_dict):
     # 按频率读取目录下的所有字典文件,并进行动态解析
 
     # 读取前判断文件路径是否存在
@@ -29,26 +24,24 @@ def read_path_files_and_rule_parse_frequency(read_dir_path,
         return []
 
     # 获取目录下所有文件名
-    dir_path_files = get_dir_path_file_info_dict(dir_path=read_dir_path, ext_list=extension_list)
+    files_info = get_dir_path_file_info_dict(dir_path=read_dir_path, ext_list=ext_list)
 
     # 读取前判断文件路径是否存在
-    if not dir_path_files:
+    if not files_info:
         return []
 
     # 读取目录下所有文件内容到频率字典
-    path_frequency_dict = read_files_to_freq_dict(list(dir_path_files.keys()),
-                                                  frequency_symbol=frequency_symbol,
-                                                  annotation_symbol=annotation_symbol)
+    path_freq_dict = read_files_to_freq_dict(list(files_info.keys()), freq_symbol=freq_symbol, anno_symbol=anno_symbol)
     # 筛选频率字典
-    path_frequency_list = get_key_list_with_frequency(path_frequency_dict, frequency_min)
+    path_freq_list = get_key_list_with_freq(path_freq_dict, freq_min)
 
     # 对 列表 中的规则进行 进行 动态解析
-    path_frequency_list, _, _ = base_rule_render_list(path_frequency_list)
+    path_freq_list, _, _ = base_rule_render_list(path_freq_list)
 
     # 对每个元素进行规则替换
-    path_frequency_list, _, _ = replace_list_has_key_str(path_frequency_list, replace_dict)
+    path_freq_list, _, _ = replace_list_has_key_str(path_freq_list, replace_dict)
 
-    return path_frequency_list
+    return path_freq_list
 
 
 def combine_urls_and_path_dict(base_urls, paths_dict):
@@ -65,13 +58,13 @@ def combine_urls_and_path_dict(base_urls, paths_dict):
     return url_list
 
 
-def url_and_paths_dict_handle(url_list,config_dict):
+def url_and_paths_dict_handle(url_list, config_dict):
     # 对最后生成的URL进行处理
     new_url_list = []
     url_paths_dict = urls_to_url_paths(url_list)
     for url, paths in url_paths_dict.items():
         # 进行path处理
-        paths = path_list_handle(paths,config_dict)
+        paths = path_list_handle(paths, config_dict)
         # url_paths_dict[url] = paths
         # 组合新的url
         combine_urls = combine_urls_and_paths([url], paths)
@@ -125,4 +118,3 @@ def path_list_handle(path_list, config_dict):
             output(f"[+] URL编码完毕 剩余元素 {len(path_list)}个", level=LOG_INFO)
 
     return path_list
-
