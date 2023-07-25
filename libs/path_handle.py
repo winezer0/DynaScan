@@ -7,7 +7,7 @@ from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
 from libs.lib_dyna_rule.base_rule_parser import base_rule_render_list
 from libs.lib_dyna_rule.dyna_rule_tools import get_key_list_with_frequency
 from libs.lib_file_operate.file_path import get_dir_path_file_info_dict
-from libs.lib_file_operate.file_read import read_files_to_frequency_dict
+from libs.lib_file_operate.rw_freq_file import read_files_to_freq_dict
 from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_ERROR
 from libs.lib_url_analysis.url_handle import specify_ext_store, specify_ext_delete, replace_multi_slashes, \
     remove_url_end_symbol, url_path_lowercase, url_path_chinese_encode, url_path_url_encode
@@ -36,9 +36,9 @@ def read_path_files_and_rule_parse_frequency(read_dir_path,
         return []
 
     # 读取目录下所有文件内容到频率字典
-    path_frequency_dict = read_files_to_frequency_dict(list(dir_path_files.values()),
-                                                       frequency_symbol=frequency_symbol,
-                                                       annotation_symbol=annotation_symbol)
+    path_frequency_dict = read_files_to_freq_dict(list(dir_path_files.keys()),
+                                                  frequency_symbol=frequency_symbol,
+                                                  annotation_symbol=annotation_symbol)
     # 筛选频率字典
     path_frequency_list = get_key_list_with_frequency(path_frequency_dict, frequency_min)
 

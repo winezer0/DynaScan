@@ -159,10 +159,10 @@ def access_result_handle(result_dict_list,
                          history_field=HTTP_CONST_SIGN,
                          hit_saving_field=HTTP_CONST_SIGN,
                          hit_info_exclude=False,
-                         hit_info_hash_list=None):
+                         hit_info_hashes=None):
     # 兼容旧版本 记录已命中结果的特征信息,用于过滤已命中的结果
-    if hit_info_hash_list is None:
-        hit_info_hash_list = []
+    if hit_info_hashes is None:
+        hit_info_hashes = []
 
     # 错误结果超出阈值
     should_stop_run = False
@@ -209,12 +209,12 @@ def access_result_handle(result_dict_list,
         # 计算结果hash并判断是否是已命中结果
         if hit_info_exclude and not IGNORE_RESP:
             hit_info_hash = calc_dict_info_hash(copy_dict_remove_keys(access_resp_dict))
-            if hit_info_hash in hit_info_hash_list:
+            if hit_info_hash in hit_info_hashes:
                 output(f"[!] 忽略命中 [{hit_info_hash}] <--> {access_resp_dict[HTTP_REQ_URL]}", level=LOG_ERROR)
                 IGNORE_RESP = True
             else:
                 # output(f"[!] 保留命中 [{hit_info_hash}]", level=LOG_INFO)
-                hit_info_hash_list.append(hit_info_hash)
+                hit_info_hashes.append(hit_info_hash)
 
         # 写入结果格式
         result_format = "\"%s\"," * len(access_resp_dict.keys()) + "\n"

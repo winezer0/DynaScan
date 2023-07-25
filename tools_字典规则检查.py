@@ -8,8 +8,8 @@ import setting_http
 from libs.lib_args.input_const import *
 from libs.lib_attribdict.config import CONFIG
 from libs.lib_dyna_rule.base_rule_parser import RuleParser
-from libs.lib_file_operate.file_path import get_dir_path_file_info_dict, file_name_remove_ext_list, \
-    get_dir_path_dir_info_dict
+from libs.lib_file_operate.file_path import get_dir_path_file_info_dict, get_dir_path_dir_info_dict
+from libs.lib_file_operate.file_utils import file_name_remove_ext
 from libs.lib_file_operate.file_read import read_file_to_list
 from libs.lib_log_print.logger_printer import output, LOG_ERROR, set_logger, LOG_INFO
 
@@ -58,7 +58,7 @@ def check_rule_base_var_format(dirs, base_vars):
 
     for base_var_dir, ext_list in dirs.items():
         file_info_dict = get_dir_path_file_info_dict(base_var_dir, ext_list=ext_list)
-        for file_name, file_path in file_info_dict.items():
+        for file_path, file_name in file_info_dict.items():
             output(f"[*] 正在检查 {file_path}")
             # 读取字典文件到列表
             rule_content = read_file_to_list(file_path)
@@ -87,14 +87,14 @@ def get_all_base_var(dirs):
     base_vars = []
     for base_var_dir, ext_list in dirs.items():
         file_info_dict = get_dir_path_file_info_dict(base_var_dir, ext_list=ext_list)
-        for base_var_file_name in file_info_dict.keys():
+        for base_var_file_name in file_info_dict.values():
             # 组装 {基本变量名: [基本变量文件内容列表]}
-            base_var_pure_name = file_name_remove_ext_list(base_var_file_name, ext_list)
+            base_var_pure_name = file_name_remove_ext(base_var_file_name, ext_list)
             base_vars.append(f"%{base_var_pure_name}%")
             # output(f"{base_var_file_name} <--> [%{base_var_pure_name}%]")
 
         dir_info_dict = get_dir_path_dir_info_dict(base_var_dir)
-        for base_var_dir_name in dir_info_dict.keys():
+        for base_var_dir_name in dir_info_dict.values():
             # 组装 {基本变量名: [基本变量文件内容列表]}
             base_vars.append(f"%{base_var_dir_name}%")
             # output(f"{base_var_dir_name} <--> [%{base_var_dir_name}%]")

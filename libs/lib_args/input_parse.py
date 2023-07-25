@@ -25,7 +25,7 @@ def args_parser(config_dict):
 
         # 指定调用的字典目录
         {"param": GB_DICT_RULE_SCAN, "nargs": "+", "help": f"Specifies Rule dirs list",
-         "choices": get_sub_dirs(config_dict[GB_DICT_RULE_PATH]), },
+         "choices": get_sub_dirs(config_dict[GB_DICT_RULE_PATH]).values(), },
 
         # 指定最小提取频率
         {"param": GB_FREQUENCY_MIN, "type": int, "help": "Specifies the pair rule file level or prefix"},
@@ -146,7 +146,7 @@ def config_dict_handle(config_dict):
     update_dict = {}
     # 格式化输入的规则目录
     if not config_dict[GB_DICT_RULE_SCAN]:
-        config_dict[GB_DICT_RULE_SCAN] = get_sub_dirs(config_dict[GB_DICT_RULE_PATH])
+        config_dict[GB_DICT_RULE_SCAN] = get_sub_dirs(config_dict[GB_DICT_RULE_PATH]).values()
         update_dict[GB_DICT_RULE_SCAN] = config_dict[GB_DICT_RULE_SCAN]
 
     # HTTP 头设置

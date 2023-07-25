@@ -30,12 +30,6 @@ def set_logger(info_log_file_path=None, err_log_file_path=None, dbg_log_file_pat
     # 选择写入到文件使用哪个格式
     logger_format_writer = logger_format_write
 
-    # 设置显示INFO到桌面
-    # logger.add(sys.stdout, format=logger_format1, level="INFO")
-
-    # 设置显示DEBUG到桌面
-    # logger.add(sys.stdout, format=logger_format1, level="DEBUG")
-
     # 设置显示INFO到文件
     logger.add(info_log_file_path, format=logger_format_writer, rotation="100 MB", level="INFO", enqueue=True,
                encoding="utf-8", errors="ignore")
@@ -46,17 +40,18 @@ def set_logger(info_log_file_path=None, err_log_file_path=None, dbg_log_file_pat
     logger.add(err_log_file_path, format=logger_format_writer, rotation="100 MB", level="ERROR", enqueue=True,
                encoding="utf-8", errors="ignore")
 
-    # 根据输入的debug参数指定窗口输出的日志信息级别,不执行语句会导致没有控制台页面输出
-    logger_format_show_info = "[<blue>{time:HH:mm:ss}</blue>] <level>{message}</level>"
-    logger_format_show_debug = "[<green>{time:HH:mm:ss}</green>] <level>{message}</level>"
-
     # import codecs # 解决韩文乱码问题
     # sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach()) # utf-8会导致控制台输出其他结果输出乱码
     # sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')  # “gb18030”，能正常显示其他结果并,不能正常显示韩文
+
+    # 根据输入的debug参数指定窗口输出的日志信息级别,不执行语句会导致没有控制台页面输出
+    logger_format = "<green>[{time:HH:mm:ss}] <level>{message}</level></green>"
     if debug:
-        logger.add(sys.stdout, format=logger_format_show_debug, level="DEBUG")
+        # 设置显示DEBUG到桌面
+        logger.add(sys.stdout, format=logger_format, level="DEBUG")
     else:
-        logger.add(sys.stdout, format=logger_format_show_info, level="INFO")
+        # 设置显示INFO到桌面
+        logger.add(sys.stdout, format=logger_format, level="INFO")
 
     # 修改全局变量 SET_LOGGER 设置  仅本文件可用
     globals()["LOGGER_SET"] = True

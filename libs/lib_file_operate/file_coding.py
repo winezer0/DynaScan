@@ -1,26 +1,4 @@
-from libs.lib_file_operate.file_path import file_is_exist
-
-
-def file_type(file_path):
-    """判断文件类型gbk、utf-8"""
-    file_code = "gbk"
-    try:
-        data = open(file_path, 'r', encoding=file_code)
-        data.read()
-    except UnicodeDecodeError:
-        file_code = "utf-8"
-    else:
-        data.close()
-    return file_code
-
-
-def file_encoding(file_path: str):
-    # 获取文件编码类型
-    if file_is_exist(file_path):
-        with open(file_path, 'rb') as f:
-            return string_encoding(f.read())
-    else:
-        return "utf-8"
+import os.path
 
 
 def string_encoding(data: bytes):
@@ -40,3 +18,21 @@ def string_encoding(data: bytes):
         except UnicodeDecodeError:
             continue
     return 'unknown'
+
+
+def file_encoding(file_path: str):
+    # 获取文件编码类型
+    if not os.path.exists(file_path):
+        return "utf-8"
+    with open(file_path, 'rb') as f:
+        return string_encoding(f.read())
+
+
+def file_chardet(file_path: str):
+    # 获取文件编码类型
+    import chardet
+    if not os.path.exists(file_path):
+        return "utf-8"
+    with open(file_path, 'rb') as file:
+        result = chardet.detect(file.read())
+        return result['encoding']

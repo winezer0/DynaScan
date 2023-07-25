@@ -16,9 +16,10 @@ from libs.lib_url_analysis.url_tools import get_url_scheme, get_host_port
 from libs.path_handle import read_path_files_and_rule_parse_frequency, combine_urls_and_path_dict, \
     url_and_paths_dict_handle
 from libs.lib_attribdict.config import CONFIG
-from libs.lib_file_operate.file_path import file_is_exist, auto_make_dir
+from libs.lib_file_operate.file_utils import auto_make_dir, file_is_exist
 from libs.lib_file_operate.file_read import read_file_to_list
-from libs.lib_file_operate.file_write import write_lines, write_path_list_to_frequency_file
+from libs.lib_file_operate.file_write import write_lines
+from libs.lib_file_operate.rw_freq_file import write_list_to_freq_file
 from libs.lib_log_print.logger_printer import output, LOG_INFO, set_logger, LOG_ERROR, LOG_DEBUG
 from libs.lib_args.input_const import *
 from libs.lib_requests.check_protocol import check_host_list_proto, check_url_list_access
@@ -300,7 +301,7 @@ def dyna_scan_controller(target_urls, paths_dict, config_dict):
                                                           max_error_num=config_dict[GB_MAX_ERROR_NUM],
                                                           hit_saving_field=HTTP_CONST_SIGN,
                                                           hit_info_exclude=config_dict[GB_HIT_INFO_EXCLUDE],
-                                                          hit_info_hash_list=hit_info_hash_list
+                                                          hit_info_hashes=hit_info_hash_list
                                                           )
 
             # 写入命中结果
@@ -316,12 +317,11 @@ def dyna_scan_controller(target_urls, paths_dict, config_dict):
                 # 将命中的路径分别写到不同的频率文件中
                 for file_name, path_list in hit_classify_dict.items():
                     auto_make_dir(os.path.dirname(file_name))
-                    write_path_list_to_frequency_file(file_path=file_name,
-                                                      path_list=path_list,
-                                                      encoding='utf-8',
-                                                      frequency_symbol=config_dict[GB_FREQUENCY_SYMBOL],
-                                                      annotation_symbol=config_dict[GB_ANNOTATION_SYMBOL],
-                                                      hit_over_write=config_dict[GB_HIT_OVER_CALC])
+                    write_list_to_freq_file(file_path=file_name,
+                                            path_list=path_list,
+                                            encoding='utf-8',
+                                            freq_symbol=config_dict[GB_FREQUENCY_SYMBOL],
+                                            anno_symbol=config_dict[GB_ANNOTATION_SYMBOL])
                 output(f"[*] 记录命中结果规则: {len(hit_url_list)}", level=LOG_INFO)
             # 停止扫描任务
             if stop_run:
