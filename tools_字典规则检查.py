@@ -41,7 +41,7 @@ def base_rule_check(rule_line):
     return status
 
 
-def check_rule_base_var_format(dirs, base_vars):
+def check_rule_base_var_format(dirs, base_vars, depend_vars):
     """
     检查 rule文件夹下的每一行规则，是否符合基本变量替换规则 %XXX%的形式
     符合的话，看其在不在当前基本字典内,不在的话提出警告
@@ -71,8 +71,10 @@ def check_rule_base_var_format(dirs, base_vars):
                     # 提取其中不存在的变量
                     diff_set = set(rule_vars) - set(base_vars)
                     if diff_set:
-                        output(f"[!] 警告: 字典文件【{file_path}】 字典规则【{rule}】 发现非预期变量【{diff_set}】", level=LOG_ERROR)
-                        error_rules_dict[f"{file_path}<-->{rule}"] = f"非预期变量 {diff_set}"
+                        for var in list(diff_set):
+                            if f"%{var}%" not in str(depend_vars):
+                                output(f"[!] 警告: 字典文件【{file_path}】 字典规则【{rule}】 发现非预期变量【{diff_set}】", level=LOG_ERROR)
+                                error_rules_dict[f"{file_path}<-->{rule}"] = f"非预期变量 {diff_set}"
                 # 进行规则解析测试
                 rule_status = base_rule_check(rule)
                 if not rule_status:
@@ -110,10 +112,7 @@ if __name__ == '__main__':
     setting_dict.init_custom(CONFIG)
 
     # 根据用户输入的debug参数设置日志打印器属性
-    set_logger(CONFIG[GB_LOG_INFO_FILE],
-               CONFIG[GB_LOG_ERROR_FILE],
-               CONFIG[GB_LOG_DEBUG_FILE],
-               True)
+    set_logger(CONFIG[GB_LOG_INFO_FILE],  CONFIG[GB_LOG_ERROR_FILE],  CONFIG[GB_LOG_DEBUG_FILE], True)
 
     base_dict_ext = [".lst"]
 
@@ -131,12 +130,17 @@ if __name__ == '__main__':
 
         # 1、获取所有基础变量
         all_base_var = get_all_base_var(base_dirs)                              # 内置基本变量
-        all_base_var.extend(list(CONFIG[GB_BASE_REPLACE_DICT].keys()))          # 自定义 基本变量
-        all_base_var.extend(list(CONFIG[GB_DEPENDENT_REPLACE_DICT].keys()))     # 动态因变量 及 自定义因变量
-        output(f"[+] MODULE[{module}]模块的所有替换变量【{len(all_base_var)}】个, 详情：{all_base_var}")
+        output(f"[+] MODULE[{module}]模块 所有基本变量【{len(all_base_var)}】个, 详情：{all_base_var}")
 
-        # 2、检查每一个模块和每一行规则
-        error_info = check_rule_base_var_format(rule_dirs, all_base_var)
+        all_base_var.extend(list(CONFIG[GB_BASE_REPLACE_DICT].keys()))          # 自定义 基本变量
+        output(f"[+] MODULE[{module}]模块 扩充基本变量【{len(all_base_var)}】个, 详情：{all_base_var}")
+
+        # 2、所有因变量
+        all_depend_var = list(CONFIG[GB_DEPENDENT_REPLACE_DICT].keys())    # 动态因变量 及 自定义因变量
+        output(f"[+] MODULE[{module}]模块的所有因变量替换变量【{len(all_depend_var)}】个, 详情：{all_depend_var}")
+
+        # 3、检查每一行规则中的变量是否在数其中
+        error_info = check_rule_base_var_format(rule_dirs, all_base_var, all_depend_var)
         if error_info:
             output(f"[-] MODULE[{module}]: 发现错误变量|错误规则【{len(error_info)}】个, 详情:{error_info}", level=LOG_ERROR)
         else:

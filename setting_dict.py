@@ -38,10 +38,10 @@ def init_custom(config):
     config[GB_DEPENDENT_REPLACE_DICT] = {
         STR_VAR_DEPENDENT: [],  # 存储自定义因变量  %%DEPENDENT%%
         STR_VAR_BLANK: [''],  # 存储空字符-默认存储   %%BLANK%%
-        # STR_VAR_DOMAIN: [],  # 存储动态PATH因变量-自动生成-自动生成  %%DOMAIN%%
-        # STR_VAR_PATH: [],  # 存储动态域名因变量-自动生成-自动生成  %%PATH%%
-        # STR_VAR_FILE_NAME: [],  # 存储文件名变量-带扩展-自动生成  %%FILE_NAME%%
-        # STR_VAR_PURE_NAME: [],  # 存储文件名变量-无扩展-自动生成  %%PURE_NAME%%
+        STR_VAR_DOMAIN: [],  # 存储动态PATH因变量-自动生成-自动生成  %%DOMAIN%%
+        STR_VAR_PATH: [],  # 存储动态域名因变量-自动生成-自动生成  %%PATH%%
+        STR_VAR_FILE_NAME: [],  # 存储文件名变量-带扩展-自动生成  %%FILE_NAME%%
+        STR_VAR_PURE_NAME: [],  # 存储文件名变量-无扩展-自动生成  %%PURE_NAME%%
     }
 
     # DOMAIN PATH 因变量中的 符号替换规则, 替换后追加到域名因子列表
