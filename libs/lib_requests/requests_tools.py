@@ -98,21 +98,20 @@ def analysis_dict_same_keys(result_dict_list, default_value_dict, filter_ignore_
     same_key_value_dict = {}
     # 对结果字典的每个键做对比
     for key in list(result_dict_list[0].keys()):
-        if key not in filter_ignore_keys:
-            value_list = [value_dict[key] for value_dict in result_dict_list]
-            # all() 是 Python 的内置函数之一，用于判断可迭代对象中的所有元素是否都为 True
-            if all(value == value_list[0] for value in value_list):
-                value = value_list[0]
-                if key in list(default_value_dict.keys()):
-                    if value not in default_value_dict[key]:
-                        output(f"[*] 所有DICT [{key}] 值 [{value}] 相等 且不为默认或空值 [{default_value_dict[key]}]",
-                               level=LOG_DEBUG)
-                        same_key_value_dict[key] = value
-                    else:
-                        output(f"[-] 所有DICT [{key}] 值 [{value}] 相等 但是默认或空值 [{default_value_dict[key]}]",
-                               level=LOG_DEBUG)
+        if key in filter_ignore_keys:
+            continue
+        value_list = [value_dict[key] for value_dict in result_dict_list]
+        # all() 是 Python 的内置函数之一，用于判断可迭代对象中的所有元素是否都为 True
+        if all(value == value_list[0] for value in value_list):
+            value = value_list[0]
+            if key in list(default_value_dict.keys()):
+                if value not in default_value_dict[key]:
+                    output(f"[*] 所有DICT [{key}] 值 [{value}] 相等 且不为默认或空值 [{default_value_dict[key]}]", level=LOG_DEBUG)
+                    same_key_value_dict[key] = value
                 else:
-                    output(f"[!] 存在未预期的键{key},该键不在默认值字典[{list(default_value_dict.keys())}]内!!!", level=LOG_ERROR)
+                    output(f"[-] 所有DICT [{key}] 值 [{value}] 相等 但是默认或空值 [{default_value_dict[key]}]", level=LOG_DEBUG)
+            else:
+                output(f"[!] 存在未预期的键{key},该键不在默认值字典[{list(default_value_dict.keys())}]内!!!", level=LOG_ERROR)
     return same_key_value_dict
 
 

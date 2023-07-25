@@ -119,7 +119,7 @@ def init_load_dict(config_dict):
             annotation_symbol=config_dict[GB_ANNOTATION_SYMBOL],
             frequency_min=config_dict[GB_FREQUENCY_MIN]
         )
-        output(f"[*] 获取[{rule_dir}]目录基本变量完成:{base_replace_dict.keys()}", level=LOG_ERROR)
+        output(f"[*] 获取[{rule_dir}]目录基本变量完成:{base_replace_dict.keys()}", level=LOG_INFO)
 
         base_path_path = config_dict[GB_BASE_PATH_STR].format(RULE_DIR=rule_dir)
         base_root_path = config_dict[GB_BASE_ROOT_STR].format(RULE_DIR=rule_dir)
