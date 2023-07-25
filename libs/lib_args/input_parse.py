@@ -7,7 +7,7 @@ from libs.lib_file_operate.file_path import get_sub_dirs
 from libs.lib_log_print.logger_printer import output, LOG_ERROR
 from libs.lib_args.input_const import *
 from libs.lib_requests.requests_const import HTTP_USER_AGENTS
-from libs.lib_requests.requests_tools import random_useragent, random_x_forwarded_for
+from libs.lib_requests.requests_utils import random_useragent, random_x_forwarded_for
 
 
 def args_parser(config_dict):

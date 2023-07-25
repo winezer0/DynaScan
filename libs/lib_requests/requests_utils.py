@@ -13,6 +13,16 @@ from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_DEBUG, LOG_E
 from libs.lib_requests.requests_const import *
 
 
+def replace_content(content):
+    # 替换 \n 为空格
+    content = content.replace('\n', ' ')
+    # 替换双引号为单引号
+    content = content.replace('"', "'")
+    # 替换 \ 为 /
+    content = content.replace('\\', '/')
+    return content
+
+
 def content_encode(content):
     # 自动分析响应编码
     # 1、使用import chardet
@@ -39,23 +49,25 @@ def content_encode(content):
 
 # 判断列表内的元素是否存在有包含在字符串内的
 def list_ele_in_str(list_=None, str_=None, default=False):
-    if list_ is None:
-        list_ = []
-
-    flag = False
-    if list_:
-        for ele in list_:
-            if ele in str_:
-                flag = True
-                break
-    else:
+    if not list_:
         flag = default
+    else:
+        # flag = False
+        # for ele in list_:
+        #     if ele in str_:
+        #         flag = True
+        #         break
+        # 在 lists为空列表时，any(key in string for key in lists) 会返回 False。
+        flag = any(key in str(str_) for key in list_)
     return flag
 
 
 # 获得随机字符串
-def get_random_str(length=12, has_num=True, has_capital=True, has_symbols=False, has_dot=False, with_slash=False):
-    base_str = 'abcdefghigklmnopqrstuvwxyz'
+def get_random_str(length=12, has_char=True, has_num=True, has_capital=True,
+                   has_symbols=False, has_dot=False, with_slash=False):
+    base_str = ""
+    if has_char:
+        base_str += 'abcdefghigklmnopqrstuvwxyz'
     if has_num:
         base_str += '0123456789'
     if has_capital:
@@ -115,33 +127,42 @@ def analysis_dict_same_keys(result_dict_list, default_value_dict, filter_ignore_
     return same_key_value_dict
 
 
-def calc_dict_info_hash(resp_dict, crc_mode=True):
+def sorted_data_dict(data_dict):
+    # 快速将响应头字典固定为字符串
+    sorted_items = sorted(data_dict.items())
+    stores_string = ', '.join([f'{key}: {value}' for key, value in sorted_items])
+    return stores_string
+
+
+def calc_dict_info_hash(data_dict, crc_mode=True):
     # 计算响应结果的特征值
-    # 对字典的键值对进行排序
-    str_sorted_items = str(sorted(resp_dict.items()))
+
+    # 对字典的键值对进行固定和排序
+    str_sorted_items = data_dict if isinstance(data_dict, str) else sorted_data_dict(data_dict)
+
     if crc_mode:
         # 计算crc32的值,比md5更快
         mark_value = binascii.crc32(str_sorted_items.encode())
-        mark_value = f"crc32_{mark_value}"
+        mark_value = f"CRC32_{mark_value}"
     else:
         mark_value = hashlib.md5(str_sorted_items.encode()).hexdigest()
-        mark_value = f"md5_{mark_value}"
+        mark_value = f"MD5_{mark_value}"
     return mark_value
 
 
 def copy_dict_remove_keys(resp_dict, remove_keys=None):
     # 移除响应字典中和URL相关的选项, 仅保留响应部分
-    # {'HTTP_REQ_URL': 'https://www.baidu.com/home.rar',  # 需要排除
+    # {'HTTP_REQ_TARGET': 'https://www.baidu.com/home.rar',  # 需要排除
     # 'HTTP_CONST_SIGN': 'https://www.baidu.com/home.rar',  # 需要排除
-    # 'HTTP_RESP_REDIRECT_URL': 'HTTP_RAW_REDIRECT_URL'}   # 可选排除
+    # 'HTTP_RESP_REDIRECT': 'RESP_REDIRECT_ORIGIN'}   # 可选排除
     # 保留原始dict数据
     copy_resp_dict = copy.copy(resp_dict)
     if remove_keys is None:
-        remove_keys = [HTTP_REQ_URL, HTTP_CONST_SIGN]
+        remove_keys = [HTTP_REQ_TARGET, HTTP_CONST_SIGN]
     for remove_key in remove_keys:
         # copy_resp_dict[remove_key] = ""  # 清空指定键的值
         copy_resp_dict.pop(remove_key, "")  # 删除指定键并返回其对应的值 # 删除不存在的键时，指定默认值，不会引发异常
-    # output(f"[*] 新的字典键数量:{len(copy_resp_dict.keys())}, 原始字典键数量:{len(resp_dict.keys())}", level=LOG_DEBUG)
+    # output(f"[*] 新的字典键数量:{len(copy_resp_dict.keys())}, 原始字典键数量:{len(data_dict.keys())}", level=LOG_DEBUG)
     return copy_resp_dict
 
 
@@ -162,7 +183,7 @@ def access_result_handle(result_dict_list,
     should_stop_run = False
 
     # 访问失败的结果 # 就是除去URL和SING之外都是默认值
-    access_fail_resp_dict = copy_dict_remove_keys(HTTP_DEFAULT_RESP_DICT)
+    access_fail_resp_dict = copy_dict_remove_keys(DEFAULT_HTTP_RESP_DICT)
 
     # 本次扫描的所有命中结果 默认保存的是 请求响应的 CONST_SIGN 属性
     hit_result_list = []
@@ -184,7 +205,7 @@ def access_result_handle(result_dict_list,
             IGNORE_RESP = True
 
         # 排除标题被匹配的情况
-        resp_text_title = access_resp_dict[HTTP_RESP_TEXT_TITLE]
+        resp_text_title = access_resp_dict[HTTP_RESP_TITLE]
         if not IGNORE_RESP and exclude_title_regexp and re.match(exclude_title_regexp, resp_text_title, re.IGNORECASE):
             IGNORE_RESP = True
 
@@ -193,7 +214,7 @@ def access_result_handle(result_dict_list,
             for filter_key in list(dynamic_exclude_dict.keys()):
                 filter_value = dynamic_exclude_dict[filter_key]  # 被排除的值
                 access_resp_value = access_resp_dict[filter_key]
-                ignore_value_list = HTTP_FILTER_VALUE_DICT[filter_key]
+                ignore_value_list = FILTER_HTTP_VALUE_DICT[filter_key]
                 if access_resp_value != filter_value and access_resp_value not in ignore_value_list:
                     # 存在和排除关键字不同的项, 并且 这个值不是被忽略的值时 写入结果文件
                     break
@@ -204,7 +225,7 @@ def access_result_handle(result_dict_list,
         if not IGNORE_RESP and isinstance(hit_info_hashes, list):
             hit_info_hash = calc_dict_info_hash(copy_dict_remove_keys(access_resp_dict))
             if hit_info_hash in hit_info_hashes:
-                output(f"[!] 忽略命中 [{hit_info_hash}] <--> {access_resp_dict[HTTP_REQ_URL]}", level=LOG_ERROR)
+                output(f"[!] 忽略命中 [{hit_info_hash}] <--> {access_resp_dict[HTTP_REQ_TARGET]}", level=LOG_ERROR)
                 IGNORE_RESP = True
             else:
                 # output(f"[!] 保留命中 [{hit_info_hash}]", level=LOG_INFO)

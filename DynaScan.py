@@ -9,9 +9,9 @@ from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
 from libs.lib_dyna_rule.set_basic_var import set_base_var_dict_with_freq
 from libs.lib_dyna_rule.set_depend_var import set_dependent_var_dict
 from libs.lib_file_operate.rw_json_file import load_json_to_dict, dump_dict_to_json
-from libs.lib_requests.requests_const import HTTP_FILTER_VALUE_DICT, HTTP_FILTER_IGNORE_KEYS, HTTP_CONST_SIGN
+from libs.lib_requests.requests_const import FILTER_HTTP_VALUE_DICT, FILTER_DYNA_IGNORE_KEYS, HTTP_CONST_SIGN
 from libs.lib_requests.requests_thread import multi_thread_requests_url, multi_thread_requests_url_sign
-from libs.lib_requests.requests_tools import get_random_str, analysis_dict_same_keys, access_result_handle
+from libs.lib_requests.requests_utils import get_random_str, analysis_dict_same_keys, access_result_handle
 from libs.lib_url_analysis.parse_path import get_curr_dir_url
 from libs.lib_url_analysis.url_utils import combine_urls_and_paths, get_segment_urls
 from libs.lib_url_analysis.parse_host import get_proto, get_host_port
@@ -111,7 +111,7 @@ def init_load_dict(config_dict):
 
     # 循环读取每个文件夹下的规则字典
     for rule_dir in cur_rule_dir_list:
-        # 1、获取基本变量替换字典 # 只获取目标文件的下的依赖
+        # 1、获取基本变量替换字典 # 只获取目标文件下的依赖
         base_replace_dict = set_base_var_dict_with_freq(
             base_var_dir=config_dict[GB_BASE_VAR_DIR].joinpath(rule_dir),
             ext_list=config_dict[GB_DICT_SUFFIX],
@@ -192,8 +192,8 @@ def gen_dynamic_exclude_dict(target_url, config_dict):
 
     # 分析测试结果
     dynamic_exclude_dict = analysis_dict_same_keys(test_result_dict_list,
-                                                   HTTP_FILTER_VALUE_DICT,
-                                                   HTTP_FILTER_IGNORE_KEYS)
+                                                   FILTER_HTTP_VALUE_DICT,
+                                                   FILTER_DYNA_IGNORE_KEYS)
     return dynamic_exclude_dict
 
 

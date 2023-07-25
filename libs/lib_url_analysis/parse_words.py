@@ -7,18 +7,6 @@ from tldextract import extract
 from libs.lib_log_print.logger_printer import output, LOG_ERROR
 
 
-def list_ele_in_str(list_=None, str_=None, default=True):
-    flag = False
-    if list_:
-        for ele in list_:
-            if ele in str_:
-                flag = True
-                break
-    else:
-        flag = default
-    return flag
-
-
 def get_path_words(url, symbol_replace_dict=None, not_allowed_symbol=None):
     # 获取URL目录中的单词
     if not_allowed_symbol is None:
@@ -46,7 +34,8 @@ def get_path_words(url, symbol_replace_dict=None, not_allowed_symbol=None):
     if not_allowed_symbol:
         tmp_words_list = []
         for word in path_words_list:
-            if not list_ele_in_str(not_allowed_symbol, word):
+            # if not list_ele_in_str(not_allowed_symbol, word):
+            if not any(key in word for key in not_allowed_symbol):
                 tmp_words_list.append(word)
         path_words_list = tmp_words_list
 
@@ -102,7 +91,8 @@ def get_domain_words(url, ignore_ip_format=True, symbol_replace_dict={}, not_all
         if not_allowed_symbol:
             tmp_list = []
             for domain_val in real_domain_val_list:
-                if not list_ele_in_str(not_allowed_symbol, domain_val, default=False):
+                # if not list_ele_in_str(not_allowed_symbol, domain_val, default=False):
+                if not any(key in domain_val for key in not_allowed_symbol):
                     tmp_list.append(domain_val)
             real_domain_val_list = tmp_list
 

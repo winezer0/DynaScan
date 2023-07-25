@@ -24,7 +24,10 @@ def multi_thread_requests_url(task_list,
                               const_sign,
                               add_host_header,
                               add_refer_header,
-                              ignore_encode_error
+                              ignore_encode_error,
+                              resp_headers_need=False,
+                              resp_content_need=False,
+                              active_retry_dict=None,
                               ):
     """
     # 对URL列表进行访问测试,输出返回响应结果
@@ -50,7 +53,11 @@ def multi_thread_requests_url(task_list,
                                const_sign=const_sign,
                                add_host_header=add_host_header,
                                add_refer_header=add_refer_header,
-                               ignore_encode_error=ignore_encode_error)
+                               ignore_encode_error=ignore_encode_error,
+                               resp_headers_need=resp_headers_need,
+                               resp_content_need=resp_content_need,
+                               active_retry_dict=active_retry_dict,
+                               )
             time.sleep(thread_sleep)
             all_task.append(task)
             output(f"[*] 当前进度 {task_index + 1}/{len(task_list)} {req_url}", level=LOG_DEBUG)
@@ -79,8 +86,10 @@ def multi_thread_requests_url_sign(task_list,
                                    # const_sign,
                                    add_host_header,
                                    add_refer_header,
-                                   ignore_encode_error
-                                   ):
+                                   ignore_encode_error,
+                                   resp_headers_need=None,
+                                   resp_content_need=None,
+                                   active_retry_dict=None):
     # 存储所有响应结果
     access_result_dict_list = []
     with ThreadPoolExecutor(max_workers=threads_count) as pool:
@@ -100,7 +109,11 @@ def multi_thread_requests_url_sign(task_list,
                                const_sign=const_sign,
                                add_host_header=add_host_header,
                                add_refer_header=add_refer_header,
-                               ignore_encode_error=ignore_encode_error)
+                               ignore_encode_error=ignore_encode_error,
+                               resp_headers_need=resp_headers_need,
+                               resp_content_need=resp_content_need,
+                               active_retry_dict=active_retry_dict,
+                               )
             time.sleep(thread_sleep)
             all_task.append(task)
             output(f"[*] 当前进度 {task_index + 1}/{len(task_list)} {const_sign}", level=LOG_DEBUG)
@@ -119,7 +132,7 @@ def multi_thread_requests_url_body_sign(task_list,
                                         # target_url,
                                         req_method,
                                         req_headers,
-                                        # req_data,
+                                        # data,
                                         req_proxies,
                                         req_timeout,
                                         verify_ssl,
@@ -129,8 +142,10 @@ def multi_thread_requests_url_body_sign(task_list,
                                         # const_sign,
                                         add_host_header,
                                         add_refer_header,
-                                        ignore_encode_error
-                                        ):
+                                        ignore_encode_error,
+                                        resp_headers_need=False,
+                                        resp_content_need=False,
+                                        active_retry_dict=None):
     # 存储所有响应结果
     access_result_dict_list = []
     with ThreadPoolExecutor(max_workers=threads_count) as pool:
@@ -149,7 +164,11 @@ def multi_thread_requests_url_body_sign(task_list,
                                const_sign=const_sign,
                                add_host_header=add_host_header,
                                add_refer_header=add_refer_header,
-                               ignore_encode_error=ignore_encode_error)
+                               ignore_encode_error=ignore_encode_error,
+                               resp_headers_need=resp_headers_need,
+                               resp_content_need=resp_content_need,
+                               active_retry_dict=active_retry_dict,
+                               )
             time.sleep(thread_sleep)
             access_result_dict_list.append(task)
             output(f"[*] 当前进度 {task_index + 1}/{len(task_list)} {const_sign}", level=LOG_DEBUG)
@@ -163,8 +182,8 @@ def multi_thread_requests_url_body_headers_sign(task_list,
                                                 thread_sleep,
                                                 # target_url,
                                                 req_method,
-                                                # req_headers,
-                                                # req_data,
+                                                # headers,
+                                                # data,
                                                 req_proxies,
                                                 req_timeout,
                                                 verify_ssl,
@@ -174,7 +193,10 @@ def multi_thread_requests_url_body_headers_sign(task_list,
                                                 # const_sign,
                                                 add_host_header,
                                                 add_refer_header,
-                                                ignore_encode_error
+                                                ignore_encode_error,
+                                                resp_headers_need=False,
+                                                resp_content_need=False,
+                                                active_retry_dict=None,
                                                 ):
     # 存储所有响应结果
     access_result_dict_list = []
@@ -194,7 +216,11 @@ def multi_thread_requests_url_body_headers_sign(task_list,
                                const_sign=const_sign,
                                add_host_header=add_host_header,
                                add_refer_header=add_refer_header,
-                               ignore_encode_error=ignore_encode_error)
+                               ignore_encode_error=ignore_encode_error,
+                               resp_headers_need=resp_headers_need,
+                               resp_content_need=resp_content_need,
+                               active_retry_dict=active_retry_dict,
+                               )
             time.sleep(thread_sleep)
             access_result_dict_list.append(task)
             output(f"[*] 当前进度 {task_index + 1}/{len(task_list)} {const_sign}", level=LOG_DEBUG)
