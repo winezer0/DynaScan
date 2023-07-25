@@ -64,12 +64,7 @@ def set_base_var_dict(base_var_dir,
 
 
 # 获取基本变量替换字典
-def set_base_var_dict_frequency(base_var_dir,
-                                ext_list,
-                                base_replace_dict,
-                                frequency_symbol,
-                                annotation_symbol,
-                                frequency_min):
+def set_base_var_dict_with_freq(base_var_dir, ext_list, base_replace_dict, freq_symbol, anno_symbol, frequency_min):
     """
     # 1 读取 所有基本替换变量字典 到频率字典
     # 2 按频率筛选 并加入到 基本变量替换字典
@@ -81,12 +76,12 @@ def set_base_var_dict_frequency(base_var_dir,
     base_var_file_info_dict = get_dir_path_file_info_dict(base_var_dir, ext_list=ext_list)
 
     # 生成文件名对应基本变量
-    for base_var_file_path,base_var_file_name in base_var_file_info_dict.items():
+    for base_var_file_path, base_var_file_name in base_var_file_info_dict.items():
         # 获取频率字典
         file_content_frequency_dict = read_file_to_freq_dict(base_var_file_path,
                                                              encoding=None,
-                                                             freq_symbol=frequency_symbol,
-                                                             anno_symbol=annotation_symbol)
+                                                             freq_symbol=freq_symbol,
+                                                             anno_symbol=anno_symbol)
         # 筛选频率字典
         file_content_frequency_list = get_key_list_with_frequency(file_content_frequency_dict, frequency_min)
 
