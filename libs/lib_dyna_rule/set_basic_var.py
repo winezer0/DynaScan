@@ -5,7 +5,7 @@
 import copy
 
 from libs.lib_dyna_rule.dyna_rule_tools import dict_content_base_rule_render, get_key_list_with_freq
-from libs.lib_file_operate.file_path import get_dir_path_file_info_dict, get_dir_path_dir_info_dict
+from libs.lib_file_operate.file_path import get_dirs_file_info_dict, get_dirs_dir_info_dict
 from libs.lib_file_operate.file_utils import file_name_remove_ext
 from libs.lib_file_operate.file_read import read_file_to_list
 from libs.lib_file_operate.rw_freq_file import read_file_to_freq_dict
@@ -18,7 +18,7 @@ def set_base_var_dict(base_var_dir,
     base_var_replace_dict = copy.copy(base_replace_dict)
 
     # 获取目录下的文件名信息字典
-    base_var_file_info_dict = get_dir_path_file_info_dict(base_var_dir, ext_list=ext_list)
+    base_var_file_info_dict = get_dirs_file_info_dict(base_var_dir, ext_list=ext_list)
 
     # 生成文件名对应基本变量
     for base_var_file_path, base_var_file_name in base_var_file_info_dict.items():
@@ -37,12 +37,12 @@ def set_base_var_dict(base_var_dir,
     base_var_replace_dict = dict_content_base_rule_render(base_var_replace_dict)
 
     # 获取目录下的目录名信息字典
-    base_var_dir_info_dict = get_dir_path_dir_info_dict(base_var_dir)
+    base_var_dir_info_dict = get_dirs_dir_info_dict(base_var_dir)
 
     # 生成目录名对应基本变量
     for base_var_dir_path, base_var_dir_name in base_var_dir_info_dict.items():
         # 获取目录下符合条件的文件名
-        temp_file_info_dict = get_dir_path_file_info_dict(base_var_dir_path, ext_list=ext_list)
+        temp_file_info_dict = get_dirs_file_info_dict(base_var_dir_path, ext_list=ext_list)
 
         # # 读多个文件到内容列表  #函数使用更加灵活,但会增加读写,还需要渲染一次
         # base_var_files_content = read_files_to_list(list(temp_file_info_dict.values()),
@@ -73,7 +73,7 @@ def set_base_var_dict_with_freq(base_var_dir, ext_list, base_replace_dict, freq_
     base_var_replace_dict = copy.copy(base_replace_dict)
 
     # 获取目录下的文件名信息字典
-    base_var_file_info_dict = get_dir_path_file_info_dict(base_var_dir, ext_list=ext_list)
+    base_var_file_info_dict = get_dirs_file_info_dict(base_var_dir, ext_list=ext_list)
 
     # 生成文件名对应基本变量
     for base_var_file_path, base_var_file_name in base_var_file_info_dict.items():
@@ -93,12 +93,12 @@ def set_base_var_dict_with_freq(base_var_dir, ext_list, base_replace_dict, freq_
     base_var_replace_dict = dict_content_base_rule_render(base_var_replace_dict)
 
     # 获取目录下的目录名信息字典
-    base_var_dir_info_dict = get_dir_path_dir_info_dict(base_var_dir)
+    base_var_dir_info_dict = get_dirs_dir_info_dict(base_var_dir)
 
     # 生成目录名对应基本变量
     for base_var_dir_path, base_var_dir_name in base_var_dir_info_dict.items():
         # 获取目录下符合条件的文件名
-        temp_file_info_dict = get_dir_path_file_info_dict(base_var_dir_path, ext_list=ext_list)
+        temp_file_info_dict = get_dirs_file_info_dict(base_var_dir_path, ext_list=ext_list)
 
         # # 获取频率字典  #函数使用更加灵活,但会增加读写,还需要渲染一次
         # files_content_freq_dict = read_files_to_freq_dict(list(temp_file_info_dict.values()),

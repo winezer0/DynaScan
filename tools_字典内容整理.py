@@ -6,7 +6,7 @@ import setting_http
 from libs.lib_args.input_const import *
 from libs.lib_attribdict.config import CONFIG
 from libs.lib_file_operate.file_coding import file_encoding
-from libs.lib_file_operate.file_path import get_dir_path_file_info_dict
+from libs.lib_file_operate.file_path import get_dirs_file_info_dict
 from libs.lib_file_operate.rw_freq_file import write_list_to_freq_file
 from libs.lib_log_print.logger_printer import output, set_logger
 
@@ -17,7 +17,7 @@ def format_dicts(dict_dirs):
     for dir_path, ext_list in dict_dirs.items():
         for dict_ext in ext_list:
             # 获取目录下所有【指定后缀的】文件
-            file_info_dict = get_dir_path_file_info_dict(dir_path, ext_list=dict_ext)
+            file_info_dict = get_dirs_file_info_dict(dir_path, ext_list=dict_ext)
             dict_file_list.extend(list(file_info_dict.keys()))
 
     for dict_file in dict_file_list:

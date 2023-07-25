@@ -6,7 +6,7 @@ from libs.lib_args.input_const import *
 from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
 from libs.lib_dyna_rule.base_rule_parser import base_rule_render_list
 from libs.lib_dyna_rule.dyna_rule_tools import get_key_list_with_freq
-from libs.lib_file_operate.file_path import get_dir_path_file_info_dict
+from libs.lib_file_operate.file_path import get_dirs_file_info_dict
 from libs.lib_file_operate.rw_freq_file import read_files_to_freq_dict
 from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_ERROR
 from libs.lib_url_analysis.url_handle import specify_ext_store, specify_ext_delete, replace_multi_slashes, \
@@ -24,7 +24,7 @@ def read_dir_and_parse_rule_with_freq(read_dir_path, ext_list, freq_symbol, anno
         return []
 
     # 获取目录下所有文件名
-    files_info = get_dir_path_file_info_dict(dir_path=read_dir_path, ext_list=ext_list)
+    files_info = get_dirs_file_info_dict(dir_path=read_dir_path, ext_list=ext_list)
 
     # 读取前判断文件路径是否存在
     if not files_info:

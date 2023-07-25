@@ -5,7 +5,7 @@ import os
 
 
 # 获取目录下的文件名信息, 返回 {文件绝对路径:文件名}
-def get_dir_path_file_info_dict(dir_path, ext_list=['.txt']):
+def get_dirs_file_info_dict(dir_path, ext_list=['.txt']):
     """
     获取目录下的文件名信息, 返回 {文件绝对路径:文件名}
     存在问题,如果目录下存在同名文件|目录,会被覆盖.
@@ -30,7 +30,7 @@ def get_dir_path_file_info_dict(dir_path, ext_list=['.txt']):
 
 
 # 获取目录下的目录名信息, 返回 {目录名绝对路径:目录名}
-def get_dir_path_dir_info_dict(dir_path):
+def get_dirs_dir_info_dict(dir_path):
     """
     获取目录下的目录名信息, 返回 {目录名:目录名绝对路径}
     存在问题,如果目录下存在同名文件|目录,会被覆盖.
@@ -42,7 +42,7 @@ def get_dir_path_dir_info_dict(dir_path):
     return info_dict
 
 
-def get_dir_path_all_info_dict(dir_path):
+def get_dirs_all_info_dict(dir_path):
     """
     获取目录下的目录名|文件名信息, 返回 file_info_dict
     {'dir': {path : name}, 'file':{path : name}}
@@ -56,7 +56,7 @@ def get_dir_path_all_info_dict(dir_path):
     return info_dict
 
 
-def get_dir_path_sub_info_dict(dir_path):
+def get_dirs_sub_info_dict(dir_path):
     """
     获取第一层目录下的目录名|文件名信息, 返回 file_info_dict
     {'dir': {path : name}, 'file':{path : name}}
