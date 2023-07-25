@@ -37,15 +37,12 @@ if __name__ == '__main__':
     setting_dict.init_custom(CONFIG)
 
     # 根据用户输入的debug参数设置日志打印器属性
-    set_logger(CONFIG[GB_LOG_INFO_FILE],
-               CONFIG[GB_LOG_ERROR_FILE],
-               CONFIG[GB_LOG_DEBUG_FILE],
-               True)
+    set_logger(CONFIG[GB_LOG_INFO_FILE], CONFIG[GB_LOG_ERROR_FILE], CONFIG[GB_LOG_DEBUG_FILE], True)
 
     dirs_dict = {
-        CONFIG[GB_BASE_DIR].joinpath("dict_hit"): CONFIG.GB_DICT_SUFFIX,  # 命中文件目录
-        CONFIG[GB_BASE_DIR].joinpath("dict_base"): CONFIG.GB_DICT_SUFFIX,  # 基本变量目录
-        CONFIG[GB_BASE_DIR].joinpath("dict_rule"):CONFIG.GB_DICT_SUFFIX,  # 直接字典
+        CONFIG[GB_BASE_DIR].joinpath("dict_hit"): CONFIG[GB_DICT_SUFFIX],  # 命中文件目录
+        CONFIG[GB_BASE_DIR].joinpath("dict_base"): CONFIG[GB_DICT_SUFFIX],  # 基本变量目录
+        CONFIG[GB_BASE_DIR].joinpath("dict_rule"):CONFIG[GB_DICT_SUFFIX],  # 直接字典
     }
 
     # 格式化目录下的字典 （统计频率）

@@ -8,7 +8,7 @@ import setting_http
 from libs.lib_args.input_const import *
 from libs.lib_attribdict.config import CONFIG
 from libs.lib_dyna_rule.base_rule_parser import RuleParser
-from libs.lib_file_operate.file_path import get_dirs_file_info_dict, get_dirs_dir_info_dict
+from libs.lib_file_operate.file_path import get_dirs_file_info_dict, get_dirs_dir_info_dict, get_sub_dirs
 from libs.lib_file_operate.file_utils import file_name_remove_ext
 from libs.lib_file_operate.file_read import read_file_to_list
 from libs.lib_log_print.logger_printer import output, LOG_ERROR, set_logger, LOG_INFO
@@ -45,13 +45,12 @@ def check_rule_base_var_format(dirs, base_vars):
     """
     检查 rule文件夹下的每一行规则，是否符合基本变量替换规则 %XXX%的形式
     符合的话，看其在不在当前基本字典内,不在的话提出警告
-    :param dirs:
-    :return:
     """
+
     error_rules_dict = {}
 
     # 定义正则表达式模式，使用圆括号括起要提取的部分
-    base_var_pattern = r'(%[^%\s]+%)'
+    base_var_pattern = r'(%[^%.\s]+%)'
     # \w+，表示匹配一个或多个字母、数字或下划线
     # [\u4e00-\u9fa5] 表示匹配中文字符的 Unicode 编码范围
     # [^%\s]+，表示匹配一个或多个非 % 号、非空格的字符
@@ -59,7 +58,7 @@ def check_rule_base_var_format(dirs, base_vars):
     for base_var_dir, ext_list in dirs.items():
         file_info_dict = get_dirs_file_info_dict(base_var_dir, ext_list=ext_list)
         for file_path, file_name in file_info_dict.items():
-            output(f"[*] 正在检查 {file_path}")
+            output(f"[*] 正在检查 {file_path}", level=LOG_INFO)
             # 读取字典文件到列表
             rule_content = read_file_to_list(file_path)
             # output(f"[*] 文件 {file_name} 内容 {rule_content}")
@@ -117,28 +116,28 @@ if __name__ == '__main__':
                True)
 
     base_dict_ext = [".lst"]
-    base_dirs = {
-        CONFIG[GB_BASE_DIR].joinpath("dict_base"): base_dict_ext,
-    }
 
-    rule_dirs = {
-        CONFIG[GB_BASE_PATH_STR]: base_dict_ext,  # 直接字典
-        CONFIG[GB_BASE_ROOT_STR]: base_dict_ext,  # 合并目录
-    }
+    all_module = get_sub_dirs(CONFIG[GB_BASE_DIR].joinpath("dict_base")).values()
 
-    # 1、获取所有基础变量
-    all_base_var = get_all_base_var(base_dirs)
-    output(f"[+] 目前所有基础变量【{len(all_base_var)}】个, 详情：{all_base_var}")
+    for module in all_module:
+        # 检查每一个模块的基础变量
+        # 模块的基础变量目录信息
+        base_dirs = {CONFIG[GB_BASE_DIR].joinpath("dict_base", module): base_dict_ext}
+        # 模块对于的规则文件地址
+        rule_dirs = {
+            CONFIG[GB_BASE_PATH_STR].format(RULE_DIR=module): base_dict_ext,  # 直接字典
+            CONFIG[GB_BASE_ROOT_STR].format(RULE_DIR=module): base_dict_ext,  # 合并目录
+        }
 
-    # 扩充因变量字典
-    all_base_var.extend(list(CONFIG[GB_BASE_REPLACE_DICT].keys()))  # 自定义 基本变量
-    all_base_var.extend(list(CONFIG[GB_DEPENDENT_REPLACE_DICT].keys()))  # 动态因变量 及 自定义因变量
+        # 1、获取所有基础变量
+        all_base_var = get_all_base_var(base_dirs)                              # 内置基本变量
+        all_base_var.extend(list(CONFIG[GB_BASE_REPLACE_DICT].keys()))          # 自定义 基本变量
+        all_base_var.extend(list(CONFIG[GB_DEPENDENT_REPLACE_DICT].keys()))     # 动态因变量 及 自定义因变量
+        output(f"[+] MODULE[{module}]模块的所有替换变量【{len(all_base_var)}】个, 详情：{all_base_var}")
 
-    output(f"[+] 目前所有替换变量【{len(all_base_var)}】个, 详情：{all_base_var}")
-
-    # 2、检查每一行规则
-    error_rules_info = check_rule_base_var_format(rule_dirs, all_base_var)
-    if error_rules_info:
-        output(f"[-] 发现错误变量|错误规则【{len(error_rules_info)}】个, 详情:{error_rules_info}", level=LOG_ERROR)
-    else:
-        output(f"[+] 没有发现错误变量|错误规则...", level=LOG_INFO)
+        # 2、检查每一个模块和每一行规则
+        error_info = check_rule_base_var_format(rule_dirs, all_base_var)
+        if error_info:
+            output(f"[-] MODULE[{module}]: 发现错误变量|错误规则【{len(error_info)}】个, 详情:{error_info}", level=LOG_ERROR)
+        else:
+            output(f"[+] MODULE[{module}]: 没有发现错误变量|错误规则 ...", level=LOG_INFO)
