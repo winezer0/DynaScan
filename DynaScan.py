@@ -14,8 +14,7 @@ from libs.lib_requests.requests_thread import multi_thread_requests_url, multi_t
 from libs.lib_requests.requests_tools import get_random_str, analysis_dict_same_keys, access_result_handle
 from libs.lib_url_analysis.url_parser import get_curr_dir_url, combine_urls_and_paths, get_segment_urls
 from libs.lib_url_analysis.url_tools import get_url_scheme, get_host_port
-from libs.path_handle import read_dir_and_parse_rule_with_freq, combine_urls_and_path_dict, \
-    url_and_paths_dict_handle
+from libs.path_handle import url_and_paths_dict_handle
 from libs.lib_attribdict.config import CONFIG
 from libs.lib_file_operate.file_utils import auto_make_dir, file_is_exist, exclude_history_files, file_is_empty
 from libs.lib_file_operate.file_read import read_file_to_list
@@ -26,7 +25,8 @@ from libs.lib_args.input_const import *
 from libs.lib_requests.check_protocol import check_host_list_proto, check_url_list_access
 from libs.lib_args.input_parse import args_parser, args_dict_handle, config_dict_handle
 from libs.lib_args.input_basic import config_dict_add_args
-from libs.util_func import analysis_ends_url, url_to_raw_rule_classify
+from libs.utils import analysis_ends_url, url_to_raw_rule_classify, read_dir_and_parse_rule_with_freq, \
+    combine_urls_and_path_dict
 
 
 # 读取用户输入的URL和目标文件参数
@@ -274,7 +274,7 @@ def dyna_scan_controller(target_urls, paths_dict, config_dict):
         access_fail_count = 0
 
         # 记录已命中结果的特征信息,用于过滤已命中的结果
-        hit_info_hash_list = []
+        hit_info_hash_list = [] if config_dict[GB_HIT_INFO_EXCLUDE] else None
 
         # 循环多线程请求操作
         for sub_task_index, sub_task_list in enumerate(brute_task_list):
@@ -307,15 +307,14 @@ def dyna_scan_controller(target_urls, paths_dict, config_dict):
                                                           exclude_title_regexp=config_dict[GB_EXCLUDE_REGEXP],
                                                           max_error_num=config_dict[GB_MAX_ERROR_NUM],
                                                           hit_saving_field=HTTP_CONST_SIGN,
-                                                          hit_info_exclude=config_dict[GB_HIT_INFO_EXCLUDE],
-                                                          hit_info_hashes=hit_info_hash_list
+                                                          hit_info_hashes=hit_info_hash_list,
                                                           )
 
             # 写入命中结果
             if config_dict[GB_SAVE_HIT_RESULT] and hit_url_list:
                 # 分析命中的URL 并返回命中的path部分 path部分是字典 分类包括 后缀、路径、目录、文件
                 hit_classify_dict = url_to_raw_rule_classify(hit_url_list=hit_url_list,
-                                                             reverse_replace_dict_list=[current_dependent_dict],
+                                                             replace_dict_list=[current_dependent_dict],
                                                              hit_ext_file=config_dict[GB_HIT_EXT_FILE],
                                                              hit_direct_file=config_dict[GB_HIT_PATH_FILE],
                                                              hit_folder_file=config_dict[GB_HIT_DIR_FILE],
