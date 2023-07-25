@@ -110,7 +110,7 @@ def remove_not_used_key(replace_used_dict, rule_str_list):
     for key in replace_used_dict.keys():
         if str(key) not in str(rule_str_list):
             del new_replace_used_dict[key]
-    output(f"[*] 基本变量清理结束:{len(replace_used_dict.keys())} --> {len(new_replace_used_dict.keys())}")
+    output(f"[*] 变量字典清理结束:{len(replace_used_dict.keys())} --> {len(new_replace_used_dict.keys())}")
     return new_replace_used_dict
 
 
