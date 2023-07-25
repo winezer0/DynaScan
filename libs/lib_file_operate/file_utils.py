@@ -3,6 +3,8 @@
 
 import os
 
+from libs.lib_file_operate.file_read import read_file_to_list
+
 
 def file_is_exist(file_path):
     # 判断文件是否存在
@@ -51,3 +53,19 @@ def auto_make_dir(path):
         os.makedirs(path)
         return True
     return False
+
+
+def exclude_history_files(str_list, exclude_files):
+    # 排除文件里包含的记录
+    if isinstance(exclude_files, str):
+        exclude_files = [exclude_files]
+
+    exclude_list = []
+    for file_path in exclude_files:
+        if file_is_exist(file_path):
+            temp_list = read_file_to_list(file_path, de_strip=True, de_weight=True, de_unprintable=False)
+            exclude_list.extend(temp_list)
+
+    if exclude_list and str_list:
+        str_list = list(set(str_list) - set(exclude_list))
+    return str_list

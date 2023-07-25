@@ -16,7 +16,7 @@ from libs.lib_url_analysis.url_tools import get_url_scheme, get_host_port
 from libs.path_handle import read_path_files_and_rule_parse_frequency, combine_urls_and_path_dict, \
     url_and_paths_dict_handle
 from libs.lib_attribdict.config import CONFIG
-from libs.lib_file_operate.file_utils import auto_make_dir, file_is_exist
+from libs.lib_file_operate.file_utils import auto_make_dir, file_is_exist, exclude_history_files
 from libs.lib_file_operate.file_read import read_file_to_list
 from libs.lib_file_operate.file_write import write_lines
 from libs.lib_file_operate.rw_freq_file import write_list_to_freq_file
@@ -25,7 +25,7 @@ from libs.lib_args.input_const import *
 from libs.lib_requests.check_protocol import check_host_list_proto, check_url_list_access
 from libs.lib_args.input_parse import args_parser, args_dict_handle, config_dict_handle
 from libs.lib_args.input_basic import config_dict_add_args
-from libs.util_func import analysis_ends_url, exclude_history_urls, url_to_raw_rule_classify
+from libs.util_func import analysis_ends_url, url_to_raw_rule_classify
 
 
 # 读取用户输入的URL和目标文件参数
@@ -245,9 +245,10 @@ def dyna_scan_controller(target_urls, paths_dict, config_dict):
         # 过滤当前的 current_url_list
         if config_dict[GB_EXCLUDE_HISTORY]:
             # 排除自定义的历史URL文件
-            current_url_list = exclude_history_urls(current_url_list, config_dict[GB_EXCLUDE_URLS])
+            current_url_list = exclude_history_files(current_url_list, config_dict[GB_EXCLUDE_URLS])
             # 排除自动生成的历史URL文件
-            current_url_list = exclude_history_urls(current_url_list, curr_host_history_file)
+            current_url_list = exclude_history_files(current_url_list, curr_host_history_file)
+            output(f"[*] 排除历史文件后剩余元素数量: {len(current_url_list)}", level=LOG_INFO)
 
         output(f"[*] 当前目标 {target_url} 开始进行URL访问任务处理...", level=LOG_INFO)
         # 组合爆破任务

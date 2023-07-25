@@ -12,9 +12,7 @@ def write_list_to_freq_file(file_path, path_list=None, encoding='utf-8', freq_sy
     freq_dict = read_file_to_freq_dict(file_path=file_path, encoding=encoding, freq_symbol=freq_symbol,
                                        anno_symbol=anno_symbol)
     # 遍历命中结果列表对结果列表进行添加
-    freq_dict = {
-        path: freq_dict[path] + 1 if path in freq_dict.keys() else 1 for path in path_list
-    }
+    freq_dict.update({path: freq_dict[path] + 1 if path in freq_dict.keys() else 1 for path in path_list})
     # 根据字典的值进行排序
     sorted_dict = dict(sorted(freq_dict.items(), key=lambda item: item[1], reverse=True))
     # 将结果字典写入文件

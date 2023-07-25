@@ -5,8 +5,6 @@ import re
 from urllib.parse import unquote
 from libs.lib_dyna_rule.dyna_rule_tools import list_to_re_str
 from libs.lib_collect_opera.collect_operation import cartesian_product_merging, frozen_tuple_list
-from libs.lib_file_operate.file_utils import file_is_exist
-from libs.lib_file_operate.file_read import read_file_to_list
 from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_ERROR
 from libs.lib_url_analysis.url_parser import get_root_dir_url, get_url_ext
 
@@ -95,15 +93,3 @@ def product_folders_and_files(folder_list, files_list):
     return group_folder_files_list
 
 
-# 排除历史扫描记录
-def exclude_history_urls(url_list, exclude_urls_file):
-    # 排除历史扫描记录
-    if file_is_exist(exclude_urls_file):
-        exclude_urls = read_file_to_list(file_path=exclude_urls_file,
-                                         de_strip=True,
-                                         de_weight=True,
-                                         de_unprintable=False)
-        output(f"[*] 被排除文件包含元素数量: {len(exclude_urls)}", level=LOG_INFO)
-        url_list = list(set(url_list) - set(exclude_urls))
-        output(f"[*] 排除文件后剩余元素数量: {len(url_list)}", level=LOG_INFO)
-    return url_list
