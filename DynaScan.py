@@ -8,6 +8,7 @@ import setting_http
 from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
 from libs.lib_dyna_rule.set_basic_var import set_base_var_dict_frequency
 from libs.lib_dyna_rule.set_depend_var import set_dependent_var_dict
+from libs.lib_file_operate.rw_json_file import load_json_to_dict, dump_dict_to_json
 from libs.lib_requests.requests_const import HTTP_FILTER_VALUE_DICT, HTTP_FILTER_IGNORE_KEYS, HTTP_CONST_SIGN
 from libs.lib_requests.requests_thread import multi_thread_requests_url, multi_thread_requests_url_sign
 from libs.lib_requests.requests_tools import get_random_str, analysis_dict_same_keys, access_result_handle
@@ -16,7 +17,7 @@ from libs.lib_url_analysis.url_tools import get_url_scheme, get_host_port
 from libs.path_handle import read_path_files_and_rule_parse_frequency, combine_urls_and_path_dict, \
     url_and_paths_dict_handle
 from libs.lib_attribdict.config import CONFIG
-from libs.lib_file_operate.file_utils import auto_make_dir, file_is_exist, exclude_history_files
+from libs.lib_file_operate.file_utils import auto_make_dir, file_is_exist, exclude_history_files, file_is_empty
 from libs.lib_file_operate.file_read import read_file_to_list
 from libs.lib_file_operate.file_write import write_lines
 from libs.lib_file_operate.rw_freq_file import write_list_to_freq_file
@@ -90,16 +91,16 @@ def init_load_dict(config_dict):
     cur_rule_dir_list = config_dict[GB_DICT_RULE_SCAN]
     output(f"[*] 当前指定加载目录:{cur_rule_dir_list}", level=LOG_DEBUG)
 
-    # 1、获取基本变量替换字典
-    base_replace_dict = set_base_var_dict_frequency(
-        base_var_dir=config_dict[GB_BASE_VAR_DIR],
-        ext_list=config_dict[GB_DICT_SUFFIX],
-        base_replace_dict=config_dict[GB_BASE_REPLACE_DICT],
-        frequency_symbol=config_dict[GB_FREQUENCY_SYMBOL],
-        annotation_symbol=config_dict[GB_ANNOTATION_SYMBOL],
-        frequency_min=config_dict[GB_FREQUENCY_MIN]
-    )
-    output(f"[*] 获取基本变量完成:{base_replace_dict.keys()}", level=LOG_DEBUG)
+    # # 1、获取所有的基本变量替换字典
+    # base_replace_dict = set_base_var_dict_frequency(
+    #     base_var_dir=config_dict[GB_BASE_VAR_DIR],
+    #     ext_list=config_dict[GB_DICT_SUFFIX],
+    #     base_replace_dict=config_dict[GB_BASE_REPLACE_DICT],
+    #     frequency_symbol=config_dict[GB_FREQUENCY_SYMBOL],
+    #     annotation_symbol=config_dict[GB_ANNOTATION_SYMBOL],
+    #     frequency_min=config_dict[GB_FREQUENCY_MIN]
+    # )
+    # output(f"[*] 获取基本变量完成:{base_replace_dict.keys()}", level=LOG_DEBUG)
 
     # 读取扫描字典
     bse_path_dict = {
@@ -109,16 +110,16 @@ def init_load_dict(config_dict):
 
     # 循环读取每个文件夹下的规则字典
     for rule_dir in cur_rule_dir_list:
-        # # 1、获取基本变量替换字典 # 只获取目标文件的下的依赖
-        # base_replace_dict = set_base_var_dict_frequency(
-        #     base_var_dir=config_dict[GB_BASE_VAR_DIR].joinpath(rule_dir),
-        #     ext_list=config_dict[GB_DICT_SUFFIX],
-        #     base_replace_dict=config_dict[GB_BASE_REPLACE_DICT],
-        #     frequency_symbol=config_dict[GB_FREQUENCY_SYMBOL],
-        #     annotation_symbol=config_dict[GB_ANNOTATION_SYMBOL],
-        #     frequency_min=config_dict[GB_FREQUENCY_MIN]
-        # )
-        # output(f"[*] 获取[{rule_dir}]基本变量完成:{base_replace_dict.keys()}", level=LOG_DEBUG)
+        # 1、获取基本变量替换字典 # 只获取目标文件的下的依赖
+        base_replace_dict = set_base_var_dict_frequency(
+            base_var_dir=config_dict[GB_BASE_VAR_DIR].joinpath(rule_dir),
+            ext_list=config_dict[GB_DICT_SUFFIX],
+            base_replace_dict=config_dict[GB_BASE_REPLACE_DICT],
+            frequency_symbol=config_dict[GB_FREQUENCY_SYMBOL],
+            annotation_symbol=config_dict[GB_ANNOTATION_SYMBOL],
+            frequency_min=config_dict[GB_FREQUENCY_MIN]
+        )
+        output(f"[*] 获取[{rule_dir}]目录基本变量完成:{base_replace_dict.keys()}", level=LOG_ERROR)
 
         base_path_path = config_dict[GB_BASE_PATH_STR].format(RULE_DIR=rule_dir)
         base_root_path = config_dict[GB_BASE_ROOT_STR].format(RULE_DIR=rule_dir)
@@ -166,7 +167,7 @@ def gen_dynamic_exclude_dict(target_url, config_dict):
     base_urls = [get_curr_dir_url(target_url)]  # 这里应该采用当前目录
     test_url_path_list = combine_urls_and_paths(base_urls, test_path_list)
     # 执行测试任务
-    output(f"[+] 随机访问测试 {test_url_path_list}", level=LOG_INFO)
+    output(f"[+] 随机访问测试 {test_url_path_list}", level=LOG_DEBUG)
     test_result_dict_list = multi_thread_requests_url(
         task_list=test_url_path_list,
         threads_count=config_dict[GB_THREADS_COUNT],
@@ -192,8 +193,6 @@ def gen_dynamic_exclude_dict(target_url, config_dict):
     dynamic_exclude_dict = analysis_dict_same_keys(test_result_dict_list,
                                                    HTTP_FILTER_VALUE_DICT,
                                                    HTTP_FILTER_IGNORE_KEYS)
-
-    output(f"[+] 动态排除字典 {target_url} -> {dynamic_exclude_dict}", level=LOG_INFO)
     return dynamic_exclude_dict
 
 
@@ -203,8 +202,19 @@ def dyna_scan_controller(target_urls, paths_dict, config_dict):
     for target_index, target_url in enumerate(target_urls):
         output(f"[+] 任务进度 {target_index + 1}/{len(target_urls)} {target_url}", level=LOG_INFO)
 
+        # 历史记录文件路径 基于主机HOST动态生成
+        curr_host_port_string = f"{get_url_scheme(target_url)}_{get_host_port(target_url, True)}"
+        curr_host_history_file = config_dict[GB_HISTORY_FORMAT].format(mark=curr_host_port_string)
+        curr_host_dyna_cache = config_dict[GB_DYNA_DICT_CACHE].format(mark=curr_host_port_string)
+
         # 开始进行URL测试,确定动态排除用的变量
-        curr_dynamic_exclude_dict = gen_dynamic_exclude_dict(target_url, config_dict)
+        if file_is_empty(curr_host_dyna_cache):
+            curr_dynamic_exclude_dict = gen_dynamic_exclude_dict(target_url, config_dict)
+            output(f"[+] 生成动态排除字典 {target_url} -> {curr_dynamic_exclude_dict}", level=LOG_INFO)
+            dump_dict_to_json(curr_host_dyna_cache, curr_dynamic_exclude_dict)
+        else:
+            curr_dynamic_exclude_dict = load_json_to_dict(curr_host_dyna_cache)
+            output(f"[*] 加载历史排除字典 {target_url} -> {curr_dynamic_exclude_dict}", level=LOG_INFO)
 
         # 根据URL层级拆分为多个目标
         current_url_list = get_segment_urls(target_url) if config_dict[GB_SPLIT_TARGET] else [target_url]
@@ -237,10 +247,6 @@ def dyna_scan_controller(target_urls, paths_dict, config_dict):
         # URL列表限额
         if config_dict[GB_MAX_URL_NUM] and isinstance(config_dict[GB_MAX_URL_NUM], int):
             current_url_list = current_url_list[:config_dict[GB_MAX_URL_NUM]]
-
-        # 历史记录文件路径 基于主机HOST动态生成
-        curr_host_port_string = f"{get_url_scheme(target_url)}_{get_host_port(target_url, True)}"
-        curr_host_history_file = config_dict[GB_HISTORY_FORMAT].format(mark=curr_host_port_string)
 
         # 过滤当前的 current_url_list
         if config_dict[GB_EXCLUDE_HISTORY]:

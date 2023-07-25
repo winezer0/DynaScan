@@ -17,6 +17,8 @@ GB_EXCLUDE_HISTORY = ""  # 排除历史URLs文件
 GB_HISTORY_FORMAT = ""  # 自动生成的历史URLs文件路径
 GB_EXCLUDE_URLS = ""  # 自定义的历史URLs文件路径,用于联动其他工具
 GB_RESULT_DIR = ""
+
+GB_DYNA_DICT_CACHE = ""  # 存储历史的动态Json分析文件
 ######################################################
 # 输入参数相关
 GB_TARGET = ""
