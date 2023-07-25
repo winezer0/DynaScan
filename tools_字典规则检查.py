@@ -130,18 +130,18 @@ if __name__ == '__main__':
 
         # 1、获取所有基础变量
         all_base_var = get_all_base_var(base_dirs)                              # 内置基本变量
-        output(f"[+] MODULE[{module}]模块 所有基本变量【{len(all_base_var)}】个, 详情：{all_base_var}")
+        output(f"[+] 模块 [{module}] 所有基本变量【{len(all_base_var)}】个, 详情：{all_base_var}")
 
         all_base_var.extend(list(CONFIG[GB_BASE_REPLACE_DICT].keys()))          # 自定义 基本变量
-        output(f"[+] MODULE[{module}]模块 扩充基本变量【{len(all_base_var)}】个, 详情：{all_base_var}")
+        output(f"[+] 模块 [{module}] 扩充基本变量【{len(all_base_var)}】个, 详情：{all_base_var}")
 
         # 2、所有因变量
         all_depend_var = list(CONFIG[GB_DEPENDENT_REPLACE_DICT].keys())    # 动态因变量 及 自定义因变量
-        output(f"[+] MODULE[{module}]模块的所有因变量替换变量【{len(all_depend_var)}】个, 详情：{all_depend_var}")
+        output(f"[+] 模块 [{module}] 所有因变量替换变量【{len(all_depend_var)}】个, 详情：{all_depend_var}")
 
         # 3、检查每一行规则中的变量是否在数其中
         error_info = check_rule_base_var_format(rule_dirs, all_base_var, all_depend_var)
         if error_info:
-            output(f"[-] MODULE[{module}]: 发现错误变量|错误规则【{len(error_info)}】个, 详情:{error_info}", level=LOG_ERROR)
+            output(f"[-] 模块 [{module}]: 发现错误变量|错误规则【{len(error_info)}】个, 详情:{error_info}", level=LOG_ERROR)
         else:
-            output(f"[+] MODULE[{module}]: 没有发现错误变量|错误规则 ...", level=LOG_INFO)
+            output(f"[+] 模块 [{module}]: 没有发现错误变量|错误规则 ...", level=LOG_INFO)
