@@ -42,6 +42,22 @@ def get_dirs_dir_info_dict(dir_path):
     return info_dict
 
 
+
+def get_dirs_path_info_dict(dir_path, ext_list=['.txt']):
+    info_dict = {}
+    info_dict.update(get_dirs_file_info_dict(dir_path, ext_list=ext_list))
+    info_dict.update(get_dirs_dir_info_dict(dir_path))
+    return info_dict
+
+
+def get_sub_dirs(dir_path):
+    info_dict = {}
+    for item in os.listdir(dir_path):
+        if os.path.isdir(os.path.join(dir_path, item)):
+            info_dict[os.path.join(dir_path, item)] = item
+    return info_dict
+
+
 def get_dirs_all_info_dict(dir_path):
     """
     获取目录下的目录名|文件名信息, 返回 file_info_dict
@@ -67,12 +83,4 @@ def get_dirs_sub_info_dict(dir_path):
             info_dict["dir"][os.path.join(dir_path, item)] = item
         else:
             info_dict["file"][os.path.join(dir_path, item)] = item
-    return info_dict
-
-
-def get_sub_dirs(dir_path):
-    info_dict = {}
-    for item in os.listdir(dir_path):
-        if os.path.isdir(os.path.join(dir_path, item)):
-            info_dict[os.path.join(dir_path, item)] = item
     return info_dict
