@@ -157,8 +157,7 @@ def copy_dict_remove_keys(resp_dict, remove_keys=None):
     # 'HTTP_RESP_REDIRECT': 'RESP_REDIRECT_ORIGIN'}   # 可选排除
     # 保留原始dict数据
     copy_resp_dict = copy.copy(resp_dict)
-    if remove_keys is None:
-        remove_keys = [HTTP_REQ_TARGET, HTTP_CONST_SIGN]
+    remove_keys = remove_keys or FILTER_DYNA_IGNORE_KEYS
     for remove_key in remove_keys:
         # copy_resp_dict[remove_key] = ""  # 清空指定键的值
         copy_resp_dict.pop(remove_key, "")  # 删除指定键并返回其对应的值 # 删除不存在的键时，指定默认值，不会引发异常
