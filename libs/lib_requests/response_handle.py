@@ -243,7 +243,6 @@ def retry_action_check(actions_dict, response_dict):
         priority = list(response_dict.keys())
         # 根据priority列表中元素的索引进行排序 使用lambda函数来提供排序依据，
         sorted_actions = sorted(actions_dict.keys(), key=lambda x: priority.index(x))
-        print(f"sorted_actions:{sorted_actions}")
         for ac_type in sorted_actions:
             if ac_type in response_dict.keys():
                 if any(str(keyword) in str(response_dict[ac_type]) for keyword in actions_dict[ac_type]):

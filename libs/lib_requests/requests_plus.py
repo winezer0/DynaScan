@@ -12,6 +12,7 @@ from libs.lib_requests.requests_const import *
 from libs.lib_requests.requests_utils import get_random_str
 from libs.lib_requests.response_handle import show_requests_error, handle_common_error, analysis_resp_header, \
     get_resp_redirect_url, analysis_resp_body, retry_action_check
+
 requests.packages.urllib3.disable_warnings()
 
 
@@ -51,18 +52,11 @@ def requests_plus(req_url, req_method='GET', req_headers=None, req_data=None, re
 
     resp_redirect_url = DEFAULT_HTTP_RESP_DICT[HTTP_RESP_REDIRECT]  # 从响应中获取302的请求URL 应该有别的办法
     try:
-        resp = request_base(target=req_url,
-                            method=req_method,
-                            headers=req_headers,
-                            data=req_data,
-                            proxies=req_proxies,
-                            timeout=req_timeout,
-                            verify=verify_ssl,
-                            allow_redirects=req_allow_redirects,
-                            stream=req_stream)
-
+        resp = request_base(target=req_url, method=req_method, headers=req_headers, data=req_data, proxies=req_proxies,
+                            timeout=req_timeout, verify=verify_ssl, allow_redirects=req_allow_redirects, stream=req_stream)
         resp_status = resp.status_code
     except Exception as error:
+        resp_status = RESP_STATUS_ERROR
         # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
         current_module = HTTP_RESP_STATUS
         module_common_error_list = ["without response", "retries", "Read timed out",
@@ -117,10 +111,10 @@ def requests_plus(req_url, req_method='GET', req_headers=None, req_data=None, re
             HTTP_RESP_HEADERS_CRC: resp_hash_headers,  # 响应头HASH
             HTTP_RESP_LENGTH: resp_length,  # 响应头中的长度
 
-            HTTP_RESP_TITLE: resp_text_title,  # 响应文本标题
-            HTTP_RESP_CONTENT_CRC: resp_hash_content,  # 响应内容HASH
             HTTP_RESP_SIZE: resp_text_size,  # 响应内容大小
+            HTTP_RESP_TITLE: resp_text_title,  # 响应文本标题
 
+            HTTP_RESP_CONTENT_CRC: resp_hash_content,  # 响应内容HASH
             HTTP_RESP_REDIRECT: resp_redirect_url,  # 响应重定向URL
 
             HTTP_RESP_HEADERS_OPT: resp_headers_opt,  # 实际响应头
@@ -129,7 +123,7 @@ def requests_plus(req_url, req_method='GET', req_headers=None, req_data=None, re
         #############################################################
         #  active_retry_dict 主动重试动作 当满足条件时,进行主动请求重试
         if retry_times and retry_action_check(active_retry_dict, current_resp_dict):
-            output(f"[!] 主动重试 {req_url} retry_times: {retry_times}")
+            output(f"[!] 满足主动重试条件 {req_url} 开始倒数第 {retry_times} 次重试.")
             return requests_plus(req_url=req_url, req_method=req_method, req_headers=req_headers, req_data=req_data,
                                  req_proxies=req_proxies, req_timeout=req_timeout * 1.5, verify_ssl=verify_ssl,
                                  req_allow_redirects=req_allow_redirects, retry_times=retry_times - 1,
@@ -139,6 +133,7 @@ def requests_plus(req_url, req_method='GET', req_headers=None, req_data=None, re
                                  active_retry_dict=active_retry_dict, )
         #############################################################
         output(f"[*] 当前目标 {req_url} 请求返回结果集合:{current_resp_dict}")
+
         return current_resp_dict
 
 
@@ -180,8 +175,10 @@ if __name__ == '__main__':
                                )
             all_task.append(task)
         # 输出线程返回的结果
-        for future in as_completed(all_task):
-            result_dict = future.result()
-            output(future, result_dict)
-            write_dict_to_csv("tmp.csv", dict_data=result_dict, mode="a+", encoding="utf-8")
+        # for future in as_completed(all_task):
+        #     result_dict = future.result()
+        #     output(future, result_dict)
+        #     write_dict_to_csv("tmp.csv", dict_data=[result_dict], mode="a+", encoding="utf-8")
 
+        result_dict_list = [future.result() for future in as_completed(all_task)]
+        write_dict_to_csv("tmp.csv", dict_data=result_dict_list, mode="w+", encoding="utf-8")
