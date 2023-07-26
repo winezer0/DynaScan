@@ -155,6 +155,8 @@ def extract_title_by_bs(html_markup):
     :param html_markup: html标签
     :return: 标题
     """
+    from bs4 import BeautifulSoup
+
     soup = BeautifulSoup(html_markup, 'lxml')
 
     title = soup.title
