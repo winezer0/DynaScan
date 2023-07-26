@@ -4,8 +4,6 @@ import re
 import sys
 from urllib.parse import quote
 
-from bs4 import BeautifulSoup
-
 from libs.lib_log_print.logger_printer import output, LOG_DEBUG, LOG_ERROR
 from libs.lib_requests.requests_const import *
 from libs.lib_requests.requests_const import HTTP_RESP_REDIRECT, RESP_REDIRECT_ORIGIN, RESP_REDIRECT_ERROR, \
