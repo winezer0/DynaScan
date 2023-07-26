@@ -10,8 +10,8 @@ from requests.packages.urllib3.util.retry import Retry
 from libs.lib_log_print.logger_printer import output, LOG_ERROR
 from libs.lib_requests.requests_const import *
 from libs.lib_requests.requests_utils import get_random_str
-from libs.lib_requests.response_handle import show_requests_error, handle_common_error, get_resp_header_info, \
-    get_resp_redirect_url, get_resp_text_info, retry_action_check
+from libs.lib_requests.response_handle import show_requests_error, handle_common_error, analysis_resp_header, \
+    get_resp_redirect_url, analysis_resp_body, retry_action_check
 requests.packages.urllib3.disable_warnings()
 
 
@@ -97,10 +97,10 @@ def requests_plus(req_url, req_method='GET', req_headers=None, req_data=None, re
         # 当获取到响应结果时,获取响应关键匹配项目
         # #############################################################
         # 1 获取响应头相关的数据 resp_headers_opt | resp_hash_headers | resp_length # 流模式|普通模式都可以获取
-        resp_headers_opt, resp_hash_headers, resp_length = get_resp_header_info(req_url, resp, resp_headers_need)
+        resp_headers_opt, resp_hash_headers, resp_length = analysis_resp_header(req_url, resp, resp_headers_need)
         # #############################################################
         # 2、获取响应内容相关的信息 # resp_content_opt | resp_text_title | resp_hash_content | resp_text_size
-        text_info = get_resp_text_info(req_url, resp, req_stream, resp_content_need, resp_length, HTTP_MAXIMUM_READ)
+        text_info = analysis_resp_body(req_url, resp, req_stream, resp_content_need, resp_length, HTTP_MAXIMUM_READ)
         resp_content_opt, resp_hash_content, resp_text_title, resp_text_size = text_info
         #############################################################
         # 3 获取重定向后的URL 通过判断请求的URL是不是响应的URL #需要跟随重定向才行

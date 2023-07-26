@@ -4,6 +4,8 @@ import re
 import sys
 from urllib.parse import quote
 
+from bs4 import BeautifulSoup
+
 from libs.lib_log_print.logger_printer import output, LOG_DEBUG, LOG_ERROR
 from libs.lib_requests.requests_const import *
 from libs.lib_requests.requests_const import HTTP_RESP_REDIRECT, RESP_REDIRECT_ORIGIN, RESP_REDIRECT_ERROR, \
@@ -43,138 +45,41 @@ def handle_common_error(req_url, error, ignore_encode_error):
     return resp_status
 
 
-def get_resp_header_info(req_url, resp, resp_headers_need):
+def analysis_resp_header(req_url, resp, resp_headers_need):
     # 获取响应头相关的内容, resp_hash_headers|resp_headers_opt|resp_length
 
     # 获取原始响应头部
     raw_resp_headers = resp.headers
 
-    current_module = HTTP_RESP_HEADERS_CRC
-    try:
-        # 响应头 字符串 HASH
-        if raw_resp_headers:
-            resp_hash_headers = calc_dict_info_hash(raw_resp_headers)
-        else:
-            resp_hash_headers = RESP_HEADERS_CRC_BLANK
-    except Exception as error:
-        show_requests_error(req_url, [], current_module, error)
-        resp_hash_headers = RESP_HEADERS_CRC_ERROR
+    resp_hash_headers = get_resp_headers_hash(raw_resp_headers, req_url)
 
-    current_module = HTTP_RESP_HEADERS_OPT
-    try:
-        # 如果用户需要返回响应头,就进行返回
-        if isinstance(resp_headers_need, bool) and resp_headers_need:
-            resp_headers_opt = sorted_data_dict(raw_resp_headers)
-        elif isinstance(resp_headers_need, str):
-            value = raw_resp_headers.get(resp_headers_need)
-            resp_headers_opt = str(value) if value else RESP_HEADERS_BLANK
-        elif isinstance(resp_headers_need, list):
-            # 获取自定义的响应头
-            resp_headers_opt = sorted_data_dict({key: str(raw_resp_headers.get(key)) for key in resp_headers_need})
-        else:
-            # 设置为忽略获取
-            resp_headers_opt = RESP_HEADERS_IGNORE
-    except Exception as error:
-        show_requests_error(req_url, [], current_module, error)
-        resp_headers_opt = RESP_HEADERS_ERROR
+    resp_headers_opt = get_resp_headers_opt(raw_resp_headers, req_url, resp_headers_need)
 
-    current_module = HTTP_RESP_LENGTH
-    try:
-        if 'Content-Length' in raw_resp_headers.keys():
-            resp_length = int(str(raw_resp_headers.get('Content-Length')))
-        else:
-            resp_length = RESP_LENGTH_BLANK
-    except Exception as error:
-        module_common_error_list = ["invalid literal for int()"]
-        show_requests_error(req_url, module_common_error_list, current_module, error)
-        resp_length = RESP_LENGTH_ERROR
+    resp_length = get_resp_header_len(raw_resp_headers, req_url)
 
     return resp_headers_opt, resp_hash_headers, resp_length
 
 
-def get_resp_redirect_url(req_url, resp):
-    # 获取重定向后的URL信息
-    current_module = HTTP_RESP_REDIRECT
-    try:
-        resp_redirect_url = RESP_REDIRECT_ORIGIN if req_url == resp.url else resp.url
-    except Exception as error:
-        show_requests_error(req_url, [], current_module, error)
-        resp_redirect_url = RESP_REDIRECT_ERROR
-    return resp_redirect_url
-
-
-def get_resp_text_info(req_url, resp, req_stream, resp_content_need, resp_length, http_maximum_read):
+def analysis_resp_body(req_url, resp, req_stream, resp_content_need, resp_length, http_maximum_read):
     # 1, 先获取原始响应内容
-    current_module = "GET_RAW_RESP_CONTENT"
-    try:
-        # 1、正常获取到了响应头长度, 判断当前结果大小是否超出限制
-        if isinstance(resp_length, int) and resp_length == 0:
-            encode_content = RESP_CONTENT_BLANK
-        elif isinstance(resp_length, int) and 0 < resp_length < http_maximum_read:
-            # 大小没有超出限制, 可以进行正常读取
-            encode_content = content_encode(resp.content)  # bytes类型
-        else:
-            # 大小超出限制|或者没有发现大小数据,只读取部分数据
-            # 如果是流模式,使用raw读取 http_maximum_read
-            if req_stream:
-                bytes_content = resp.raw.read(http_maximum_read)
-                encode_content = content_encode(bytes_content)
-            else:
-                encode_content = RESP_CONTENT_LARGE
-    except Exception as error:
-        show_requests_error(req_url, [], current_module, error)
-        encode_content = RESP_CONTENT_ERROR
+    encode_content = get_resp_body_content(http_maximum_read, req_stream, req_url, resp, resp_length)
 
     # 2、获取响应HASH数据
-    current_module = HTTP_RESP_CONTENT_CRC
-    try:
-        if current_module in [RESP_CONTENT_BLANK, RESP_CONTENT_ERROR]:
-            resp_hash_content = RESP_CONTENT_CRC_BLANK
-        elif current_module in [RESP_CONTENT_LARGE]:
-            resp_hash_content = RESP_CONTENT_CRC_LARGE
-        else:
-            resp_hash_content = calc_dict_info_hash(encode_content, crc_mode=True)
-    except Exception as error:
-        show_requests_error(req_url, [], current_module, error)
-        resp_hash_content = RESP_CONTENT_CRC_ERROR
+    resp_hash_content = get_resp_body_content_hash(encode_content, req_url)
 
     # 3、获取响应title
-    current_module = HTTP_RESP_TITLE
-    try:
-        if current_module in [RESP_CONTENT_BLANK, RESP_CONTENT_ERROR]:
-            resp_text_title = RESP_TITLE_BLANK
-        elif current_module in [RESP_CONTENT_LARGE]:
-            resp_text_title = RESP_TITLE_LARGE
-        else:
-            try:
-                re_find = re.findall(r"<title.*?>(.+?)</title>", encode_content, re.IGNORECASE)
-                resp_text_title = ",".join(re_find)
-                resp_text_title.encode(sys.stdout.encoding)
-            except re.error as regex_error:
-                # 正则表达式匹配错误
-                output(f"[!] 正则提取标题失败 ERROR:{regex_error}", level=LOG_ERROR)
-                resp_text_title = RESP_TITLE_ERROR
-            except UnicodeEncodeError as encode_error:
-                resp_text_title = quote(resp_text_title.encode('utf-8'))
-                output(f"[!] 使用URL编码当前标题 URL标题:{resp_text_title}", level=LOG_ERROR)
-    except Exception as error:
-        show_requests_error(req_url, [], current_module, error)
-        resp_text_title = RESP_TITLE_ERROR
+    resp_text_title = get_resp_body_content_title(encode_content, req_url)
 
     # 4、获取响应实际大小
-    current_module = HTTP_RESP_SIZE
-    try:
-        if current_module in [RESP_CONTENT_BLANK, RESP_CONTENT_ERROR]:
-            resp_text_size = RESP_SIZE_BLANK
-        elif current_module in [RESP_CONTENT_LARGE]:
-            resp_text_size = RESP_SIZE_LARGE
-        else:
-            resp_text_size = len(encode_content)
-    except Exception as error:
-        show_requests_error(req_url, [], current_module, error)
-        resp_text_size = RESP_SIZE_ERROR
+    resp_text_size = get_resp_body_content_size(encode_content, req_url)
 
     # 5、提取响应内容
+    resp_content_opt = get_resp_body_content_opt(encode_content, req_url, resp_content_need)
+
+    return resp_content_opt, resp_hash_content, resp_text_title, resp_text_size
+
+
+def get_resp_body_content_opt(encode_content, req_url, resp_content_need):
     current_module = HTTP_RESP_CONTENT_OPT
     try:
         if current_module in [RESP_CONTENT_BLANK, RESP_CONTENT_ERROR, RESP_CONTENT_LARGE]:
@@ -196,8 +101,139 @@ def get_resp_text_info(req_url, resp, req_stream, resp_content_need, resp_length
     except Exception as error:
         show_requests_error(req_url, [], current_module, error)
         resp_content_opt = RESP_CONTENT_ERROR
+    return resp_content_opt
 
-    return resp_content_opt, resp_hash_content, resp_text_title, resp_text_size
+
+def get_resp_body_content_size(encode_content, req_url):
+    current_module = HTTP_RESP_SIZE
+    try:
+        if current_module in [RESP_CONTENT_BLANK, RESP_CONTENT_ERROR]:
+            resp_text_size = RESP_SIZE_BLANK
+        elif current_module in [RESP_CONTENT_LARGE]:
+            resp_text_size = RESP_SIZE_LARGE
+        else:
+            resp_text_size = len(encode_content)
+    except Exception as error:
+        show_requests_error(req_url, [], current_module, error)
+        resp_text_size = RESP_SIZE_ERROR
+    return resp_text_size
+
+
+def get_resp_body_content_title(encode_content, req_url):
+    current_module = HTTP_RESP_TITLE
+    try:
+        if current_module in [RESP_CONTENT_BLANK, RESP_CONTENT_ERROR]:
+            resp_text_title = RESP_TITLE_BLANK
+        elif current_module in [RESP_CONTENT_LARGE]:
+            resp_text_title = RESP_TITLE_LARGE
+        else:
+            resp_text_title = extract_title_by_re(encode_content)
+    except Exception as error:
+        show_requests_error(req_url, [], current_module, error)
+        resp_text_title = RESP_TITLE_ERROR
+    return resp_text_title
+
+
+def extract_title_by_re(encode_content):
+    try:
+        re_find = re.findall(r"<title.*?>(.+?)</title>", encode_content, re.IGNORECASE)
+        resp_text_title = ",".join(re_find)
+        resp_text_title.encode(sys.stdout.encoding)
+    except re.error as regex_error:
+        # 正则表达式匹配错误
+        output(f"[!] 正则提取标题失败 ERROR:{regex_error}", level=LOG_ERROR)
+        resp_text_title = RESP_TITLE_ERROR
+    except UnicodeEncodeError as encode_error:
+        resp_text_title = quote(resp_text_title.encode('utf-8'))
+        output(f"[!] 使用URL编码当前标题 URL标题:{resp_text_title} Error:{encode_error}", level=LOG_ERROR)
+    return resp_text_title
+
+
+def extract_title_by_bs(html_markup):
+    """
+    获取标题
+    :param html_markup: html标签
+    :return: 标题
+    """
+    soup = BeautifulSoup(html_markup, 'lxml')
+
+    title = soup.title
+    if title:
+        return title.text
+
+    h1 = soup.h1
+    if h1:
+        return h1.text
+
+    h2 = soup.h2
+    if h2:
+        return h2.text
+
+    h3 = soup.h3
+    if h2:
+        return h3.text
+
+    desc = soup.find('meta', attrs={'name': 'description'})
+    if desc:
+        return desc['content']
+
+    word = soup.find('meta', attrs={'name': 'keywords'})
+    if word:
+        return word['content']
+
+    text = soup.text
+    if len(text) <= 200:
+        return text.strip().replace('\r', '').replace('\n', '')
+    return RESP_TITLE_BLANK
+
+
+def get_resp_body_content_hash(encode_content, req_url):
+    current_module = HTTP_RESP_CONTENT_CRC
+    try:
+        if current_module in [RESP_CONTENT_BLANK, RESP_CONTENT_ERROR]:
+            resp_hash_content = RESP_CONTENT_CRC_BLANK
+        elif current_module in [RESP_CONTENT_LARGE]:
+            resp_hash_content = RESP_CONTENT_CRC_LARGE
+        else:
+            resp_hash_content = calc_dict_info_hash(encode_content, crc_mode=True)
+    except Exception as error:
+        show_requests_error(req_url, [], current_module, error)
+        resp_hash_content = RESP_CONTENT_CRC_ERROR
+    return resp_hash_content
+
+
+def get_resp_body_content(http_maximum_read, req_stream, req_url, resp, resp_length):
+    current_module = "GET_RAW_RESP_CONTENT"
+    try:
+        # 1、正常获取到了响应头长度, 判断当前结果大小是否超出限制
+        if isinstance(resp_length, int) and resp_length == 0:
+            encode_content = RESP_CONTENT_BLANK
+        elif isinstance(resp_length, int) and 0 < resp_length < http_maximum_read:
+            # 大小没有超出限制, 可以进行正常读取
+            encode_content = content_encode(resp.content)  # bytes类型
+        else:
+            # 大小超出限制|或者没有发现大小数据,只读取部分数据
+            # 如果是流模式,使用raw读取 http_maximum_read
+            if req_stream:
+                bytes_content = resp.raw.read(http_maximum_read)
+                encode_content = content_encode(bytes_content)
+            else:
+                encode_content = RESP_CONTENT_LARGE
+    except Exception as error:
+        show_requests_error(req_url, [], current_module, error)
+        encode_content = RESP_CONTENT_ERROR
+    return encode_content
+
+
+def get_resp_redirect_url(req_url, resp):
+    # 获取重定向后的URL信息
+    current_module = HTTP_RESP_REDIRECT
+    try:
+        resp_redirect_url = RESP_REDIRECT_ORIGIN if req_url == resp.url else resp.url
+    except Exception as error:
+        show_requests_error(req_url, [], current_module, error)
+        resp_redirect_url = RESP_REDIRECT_ERROR
+    return resp_redirect_url
 
 
 def retry_action_check(actions_dict, response_dict):
@@ -213,3 +249,52 @@ def retry_action_check(actions_dict, response_dict):
                 if any(str(keyword) in str(response_dict[ac_type]) for keyword in actions_dict[ac_type]):
                     return True
     return False
+
+
+def get_resp_header_len(raw_resp_headers, req_url):
+    current_module = HTTP_RESP_LENGTH
+    try:
+        if 'Content-Length' in raw_resp_headers.keys():
+            resp_length = int(str(raw_resp_headers.get('Content-Length')))
+        else:
+            resp_length = RESP_LENGTH_BLANK
+    except Exception as error:
+        module_common_error_list = ["invalid literal for int()"]
+        show_requests_error(req_url, module_common_error_list, current_module, error)
+        resp_length = RESP_LENGTH_ERROR
+    return resp_length
+
+
+def get_resp_headers_opt(raw_resp_headers, req_url, resp_headers_need):
+    current_module = HTTP_RESP_HEADERS_OPT
+    try:
+        # 如果用户需要返回响应头,就进行返回
+        if isinstance(resp_headers_need, bool) and resp_headers_need:
+            resp_headers_opt = sorted_data_dict(raw_resp_headers)
+        elif isinstance(resp_headers_need, str):
+            value = raw_resp_headers.get(resp_headers_need)
+            resp_headers_opt = str(value) if value else RESP_HEADERS_BLANK
+        elif isinstance(resp_headers_need, list):
+            # 获取自定义的响应头
+            resp_headers_opt = sorted_data_dict({key: str(raw_resp_headers.get(key)) for key in resp_headers_need})
+        else:
+            # 设置为忽略获取
+            resp_headers_opt = RESP_HEADERS_IGNORE
+    except Exception as error:
+        show_requests_error(req_url, [], current_module, error)
+        resp_headers_opt = RESP_HEADERS_ERROR
+    return resp_headers_opt
+
+
+def get_resp_headers_hash(raw_resp_headers, req_url):
+    current_module = HTTP_RESP_HEADERS_CRC
+    try:
+        # 响应头 字符串 HASH
+        if raw_resp_headers:
+            resp_hash_headers = calc_dict_info_hash(raw_resp_headers)
+        else:
+            resp_hash_headers = RESP_HEADERS_CRC_BLANK
+    except Exception as error:
+        show_requests_error(req_url, [], current_module, error)
+        resp_hash_headers = RESP_HEADERS_CRC_ERROR
+    return resp_hash_headers
