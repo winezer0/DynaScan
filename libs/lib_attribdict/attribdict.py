@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# encoding: utf-8
 
 """
 Copyright (c) 2006-2019 sqlmap developers (http://sqlmap.org/)

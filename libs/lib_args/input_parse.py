@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
 # 解析输入参数
 import argparse
 from pyfiglet import Figlet

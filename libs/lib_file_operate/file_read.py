@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
 import os
 
 from libs.lib_file_operate.file_coding import file_encoding

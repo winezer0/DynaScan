@@ -19,7 +19,7 @@ requests.packages.urllib3.disable_warnings()
 def requests_plus(req_url, req_method='GET', req_headers=None, req_data=None, req_proxies=None, req_timeout=10,
                   verify_ssl=False, req_allow_redirects=False, req_stream=False, retry_times=3, const_sign=None,
                   add_host_header=None, add_refer_header=None, ignore_encode_error=None,
-                  resp_headers_need=False, resp_content_need=False, active_retry_dict=None,
+                  resp_headers_need=True, resp_content_need=False, active_retry_dict=None,
                   ):
     # const_sign # 设置本请求的标记
     random = get_random_str(length=5, has_num=True, has_char=False, has_capital=False)
@@ -151,6 +151,10 @@ def request_base(target, method='GET', headers=None, data=None, proxies=None,
 
 
 if __name__ == '__main__':
+    # 导入PY3多线程池模块
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    from libs.lib_file_operate.rw_csv_file import write_dict_to_csv
+
     target_url_path_list = ['http://www.baidu.com/201902.iso',
                             'http://www.baidu.com/%%path%%_4_.gz',
                             'http://www.baidu.com/2013.7z',
@@ -164,10 +168,7 @@ if __name__ == '__main__':
         HTTP_RESP_HEADERS_OPT: ["浏览器安全检查"],  # 当 请求头  包含关键字时,需要重试
     }
 
-    # 导入PY3多线程池模块
-    from concurrent.futures import ThreadPoolExecutor, as_completed
-
-    threads_count = 1  # 线程池线程数
+    threads_count = 10  # 线程池线程数
     with ThreadPoolExecutor(max_workers=threads_count) as pool:
         all_task = []
         for url in target_url_path_list:
@@ -180,4 +181,7 @@ if __name__ == '__main__':
             all_task.append(task)
         # 输出线程返回的结果
         for future in as_completed(all_task):
-            output(future, future.result())
+            result_dict = future.result()
+            output(future, result_dict)
+            write_dict_to_csv("tmp.csv", dict_data=result_dict, mode="a+", encoding="utf-8")
+

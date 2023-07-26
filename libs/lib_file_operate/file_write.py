@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
 from libs.lib_file_operate.file_utils import file_is_empty
 
 

@@ -1,12 +1,13 @@
-import csv
-import os
+#!/usr/bin/env python
+# encoding: utf-8
 
+import csv
 from libs.lib_file_operate.file_utils import file_is_empty
 
 
 def read_csv_to_dict(csv_file, mode="r", encoding="utf-8"):
     """
-    ¶Á¸öCSVÎÄ¼şµ½×Öµä¸ñÊ½(»á×Ô¶¯Æ´½Ó±íÍ·)
+    è¯»ä¸ªCSVæ–‡ä»¶åˆ°å­—å…¸æ ¼å¼(ä¼šè‡ªåŠ¨æ‹¼æ¥è¡¨å¤´)
     :param csv_file:
     :param mode:
     :param encoding:
@@ -15,7 +16,7 @@ def read_csv_to_dict(csv_file, mode="r", encoding="utf-8"):
     if file_is_empty:
         return None
     with open(csv_file, mode=mode, encoding=encoding, newline='') as csvfile:
-        # ×Ô¶¯·ÖÎö·Ö¸ô·û
+        # è‡ªåŠ¨åˆ†æåˆ†éš”ç¬¦
         dialect = csv.Sniffer().sniff(csvfile.read(1024))
         csvfile.seek(0)
         reader = csv.DictReader(csvfile, dialect=dialect)
@@ -25,7 +26,7 @@ def read_csv_to_dict(csv_file, mode="r", encoding="utf-8"):
 
 def read_csv_to_simple_list(csv_file, mode="r", encoding="utf-8"):
     """
-    ¶Á¸öCSVÎÄ¼şµ½ÁĞ±í¸ñÊ½(»ù±¾²»×ö²Ù×÷)
+    è¯»ä¸ªCSVæ–‡ä»¶åˆ°åˆ—è¡¨æ ¼å¼(åŸºæœ¬ä¸åšæ“ä½œ)
     :param csv_file:
     :param mode:
     :param encoding:
@@ -34,7 +35,7 @@ def read_csv_to_simple_list(csv_file, mode="r", encoding="utf-8"):
     if file_is_empty:
         return None
     with open(csv_file, mode=mode, encoding=encoding, newline='') as csvfile:
-        # ×Ô¶¯·ÖÎö·Ö¸ô·û
+        # è‡ªåŠ¨åˆ†æåˆ†éš”ç¬¦
         dialect = csv.Sniffer().sniff(csvfile.read(1024))
         csvfile.seek(0)
         reader = csv.reader(csvfile, dialect=dialect)
@@ -44,21 +45,21 @@ def read_csv_to_simple_list(csv_file, mode="r", encoding="utf-8"):
 
 def write_dict_to_csv(csv_file, dict_data=[], mode="a+", encoding="utf-8"):
     """
-    Ğ´Èë×Öµä¸ñÊ½µÄÊı¾İµ½csvÎÄ¼şÖĞ
+    å†™å…¥å­—å…¸æ ¼å¼çš„æ•°æ®åˆ°csvæ–‡ä»¶ä¸­
     :param csv_file:
     :param dict_data:
     :param mode:
     :param encoding:
     :return:
     """
-    # ÅĞ¶ÏÊÇ·ñĞèÒªĞ´Èë±íÍ·
+    # åˆ¤æ–­æ˜¯å¦éœ€è¦å†™å…¥è¡¨å¤´
     file_empty = file_is_empty(csv_file)
 
-    # ÔÚÊ¹ÓÃcsv.writer()Ğ´ÈëCSVÎÄ¼şÊ±£¬Í¨³£½¨Òé½«newline²ÎÊıÉèÖÃÎª''£¬ÒÔ±ã°´ÕÕÏµÍ³µÄÄ¬ÈÏĞĞÎª½øĞĞ»»ĞĞ·ûµÄ´¦Àí¡£
+    # åœ¨ä½¿ç”¨csv.writer()å†™å…¥CSVæ–‡ä»¶æ—¶ï¼Œé€šå¸¸å»ºè®®å°†newlineå‚æ•°è®¾ç½®ä¸º''ï¼Œä»¥ä¾¿æŒ‰ç…§ç³»ç»Ÿçš„é»˜è®¤è¡Œä¸ºè¿›è¡Œæ¢è¡Œç¬¦çš„å¤„ç†ã€‚
     with open(csv_file, mode=mode, encoding=encoding, newline='') as file_open:
-        # DictWriter Ö±½ÓĞ´Èë×Öµä¸ñÊ½µÄÊı¾İ
-        # fieldnames=data[0].keys() ½«×ÖµäµÄ¼ü×÷Îª±íÍ·
-        # quoting=csv.QUOTE_ALL  ½«Ã¿¸öÔªËØ¶¼ÓÃË«ÒıºÅ°ü¹ü
+        # DictWriter ç›´æ¥å†™å…¥å­—å…¸æ ¼å¼çš„æ•°æ®
+        # fieldnames=data[0].keys() å°†å­—å…¸çš„é”®ä½œä¸ºè¡¨å¤´
+        # quoting=csv.QUOTE_ALL  å°†æ¯ä¸ªå…ƒç´ éƒ½ç”¨åŒå¼•å·åŒ…è£¹
         csv_writer = csv.DictWriter(file_open, fieldnames=dict_data[0].keys(), quoting=csv.QUOTE_ALL)
         if file_empty:
             csv_writer.writeheader()
