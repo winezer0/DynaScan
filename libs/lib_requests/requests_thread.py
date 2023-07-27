@@ -18,20 +18,20 @@ TASK_FORMAT = {TASK_URL: 0, TASK_DATA: 0, TASK_HEADERS: 0, TASK_SIGN: 0}  # 必�
 def multi_thread_requests(task_list,
                           threads_count=100,
                           thread_sleep=0,
-                          req_method=None,
+                          req_method="GET",
                           req_headers=None,  # 可选
                           req_data=None,  # 可选
                           req_proxies=None,
-                          req_timeout=None,
-                          verify_ssl=None,
-                          req_allow_redirects=None,
-                          req_stream=None,
-                          retry_times=None,
+                          req_timeout=5,
+                          verify_ssl=False,
+                          req_allow_redirects=False,
+                          req_stream=False,
+                          retry_times=3,
                           const_sign=None,  # 可选
-                          add_host_header=None,
-                          add_refer_header=None,
+                          add_host_header=True,
+                          add_refer_header=True,
                           ignore_encode_error=False,
-                          resp_headers_need=False,
+                          resp_headers_need=True,
                           resp_content_need=False,
                           active_retry_dict=None,
                           ):
@@ -82,7 +82,7 @@ def multi_thread_requests(task_list,
                                )
             time.sleep(thread_sleep)
             all_task.append(task)
-            output(f"[*] 当前进度 {task_index + 1}/{len(task_list)} {const_sign}", level=LOG_DEBUG)
+            output(f"[*] 当前进度 {task_index + 1}/{len(task_list)} {const_sign or req_url}", level=LOG_DEBUG)
         all_access_result = [future.result() for future in as_completed(all_task)]
         # all_access_result = [task.result() for task in all_task]
         return all_access_result

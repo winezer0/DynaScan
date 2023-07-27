@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # encoding: utf-8
-import sys
 from datetime import datetime
 from urllib.parse import urlparse, urljoin
 
@@ -52,7 +51,8 @@ def requests_plus(req_url, req_method='GET', req_headers=None, req_data=None, re
     resp_redirect_url = DEFAULT_HTTP_RESP_DICT[HTTP_RESP_REDIRECT]  # 从响应中获取302的请求URL 应该有别的办法
     try:
         resp = request_base(target=req_url, method=req_method, headers=req_headers, data=req_data, proxies=req_proxies,
-                            timeout=req_timeout, verify=verify_ssl, allow_redirects=req_allow_redirects, stream=req_stream)
+                            timeout=req_timeout, verify=verify_ssl, allow_redirects=req_allow_redirects,
+                            stream=req_stream)
         resp_status = resp.status_code
     except Exception as error:
         resp_status = RESP_STATUS_ERROR
@@ -146,38 +146,22 @@ def request_base(target, method='GET', headers=None, data=None, proxies=None,
 
 if __name__ == '__main__':
     # 导入PY3多线程池模块
-    from concurrent.futures import ThreadPoolExecutor, as_completed
     from libs.lib_file_operate.rw_csv_file import write_dict_to_csv
+    from libs.lib_requests.requests_thread import multi_thread_requests
 
-    target_url_path_list = ['http://www.baidu.com/201902.iso',
-                            'http://www.baidu.com/%%path%%_4_.gz',
-                            'http://www.baidu.com/2013.7z',
-                            'http://www.baidu.com/201804.rar',
-                            'http://www.baidu.com/201706.z']
+    test_urls = ['http://www.baidu.com/201902.iso',
+                 'http://www.baidu.com/%%path%%_4_.gz',
+                 'http://www.baidu.com/2013.7z',
+                 'http://www.baidu.com/201804.rar',
+                 'http://www.baidu.com/201706.z',
+                 ]
 
     action_dict = {
-        HTTP_RESP_STATUS: [429, 500, 503, 504],  # 当状态码处于其中时,需要主动重试
+        HTTP_RESP_STATUS: [429, 500, 503, 504,404],  # 当状态码处于其中时,需要主动重试
         HTTP_RESP_TITLE: ["浏览器安全检查"],  # 当 标题  包含关键字时,需要重试
         HTTP_RESP_CONTENT_OPT: ["浏览器安全检查"],  # 当 请求体 包含关键字时,需要重试
         HTTP_RESP_HEADERS_OPT: ["浏览器安全检查"],  # 当 请求头  包含关键字时,需要重试
     }
 
-    threads_count = 10  # 线程池线程数
-    with ThreadPoolExecutor(max_workers=threads_count) as pool:
-        all_task = []
-        for url in target_url_path_list:
-            # 把请求任务加入线程池
-            task = pool.submit(requests_plus,
-                               req_url=url,
-                               req_stream=False,
-                               active_retry_dict=action_dict
-                               )
-            all_task.append(task)
-        # 输出线程返回的结果
-        # for future in as_completed(all_task):
-        #     result_dict = future.result()
-        #     output(future, result_dict)
-        #     write_dict_to_csv("tmp.csv", dict_data=[result_dict], mode="a+", encoding="utf-8")
-
-        result_dict_list = [future.result() for future in as_completed(all_task)]
-        write_dict_to_csv("tmp.csv", dict_data=result_dict_list, mode="w+", encoding="utf-8")
+    result_dict_list = multi_thread_requests(test_urls, threads_count=10, active_retry_dict=action_dict)
+    write_dict_to_csv("tmp.csv", dict_data=result_dict_list, mode="w+", encoding="utf-8")
