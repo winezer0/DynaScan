@@ -63,27 +63,26 @@ def list_ele_in_str(list_=None, str_=None, default=False):
 
 
 # 获得随机字符串
-def get_random_str(length=12, has_char=True, has_num=True, has_capital=True,
-                   has_symbols=False, has_dot=False, with_slash=False):
+def random_str(length=12, num=False, char=False, capital=False, symbol=False, dot=False, slash=False):
     base_str = ""
-    if has_char:
+    if char:
         base_str += 'abcdefghigklmnopqrstuvwxyz'
-    if has_num:
+    if num:
         base_str += '0123456789'
-    if has_capital:
+    if capital:
         base_str += 'ABCDEFGHIGKLMNOPQRSTUVWXYZ'
-    if has_symbols:
+    if symbol:
         base_str += '~!@#$%^&*()_+-=><'
 
-    random_str = ''
+    str_ = ''
     for i in range(0, length - 1):
-        if has_dot and i == length - 5:
-            random_str += '.'
+        if dot and i == length - 5:
+            str_ += '.'
         else:
-            random_str += base_str[random.randint(0, len(base_str) - 1)]
-    if with_slash:
-        random_str = '/' + random_str
-    return random_str
+            str_ += base_str[random.randint(0, len(base_str) - 1)]
+    if slash:
+        str_ = '/' + str_
+    return str_
 
 
 # 随机生成User-Agent

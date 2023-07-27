@@ -11,7 +11,7 @@ from libs.lib_dyna_rule.set_depend_var import set_dependent_var_dict
 from libs.lib_file_operate.rw_json_file import load_json_to_dict, dump_dict_to_json
 from libs.lib_requests.requests_const import FILTER_HTTP_VALUE_DICT, FILTER_DYNA_IGNORE_KEYS, HTTP_CONST_SIGN
 from libs.lib_requests.requests_thread import multi_thread_requests_url, multi_thread_requests_url_sign
-from libs.lib_requests.requests_utils import get_random_str, analysis_dict_same_keys, access_result_handle
+from libs.lib_requests.requests_utils import random_str, analysis_dict_same_keys, access_result_handle
 from libs.lib_url_analysis.parse_path import get_curr_dir_url
 from libs.lib_url_analysis.url_utils import combine_urls_and_paths, get_segment_urls
 from libs.lib_url_analysis.parse_host import get_proto, get_host_port
@@ -153,14 +153,14 @@ def init_load_dict(config_dict):
 
 # 生成动态排除字典
 def gen_dynamic_exclude_dict(target_url, config_dict):
-    test_path_1 = get_random_str(length=8, has_symbols=False, has_dot=True, with_slash=True)
+    test_path_1 = random_str(length=8, num=True, char=True, capital=True, dot=True, slash=True)
 
-    test_path_2 = get_random_str(length=9, has_symbols=False, has_dot=False, with_slash=True)
-    test_path_2 += get_random_str(length=10, has_symbols=False, has_dot=True, with_slash=True)
+    test_path_2 = random_str(length=9, num=True, char=True, capital=True, dot=False, slash=True)
+    test_path_2 += random_str(length=10, num=True, char=True, capital=True, dot=True, slash=True)
 
-    test_path_3 = get_random_str(length=11, has_symbols=False, has_dot=False, with_slash=True)
-    test_path_3 += get_random_str(length=12, has_symbols=False, has_dot=False, with_slash=True)
-    test_path_3 += get_random_str(length=13, has_symbols=False, has_dot=True, with_slash=True)
+    test_path_3 = random_str(length=11, num=True, char=True, capital=True, dot=False, slash=True)
+    test_path_3 += random_str(length=12, num=True, char=True, capital=True, dot=False, slash=True)
+    test_path_3 += random_str(length=13, num=True, char=True, capital=True, dot=True, slash=True)
 
     test_path_list = [test_path_1, test_path_2, test_path_3]
 

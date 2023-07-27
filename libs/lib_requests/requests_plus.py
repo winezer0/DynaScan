@@ -9,7 +9,7 @@ from requests.packages.urllib3.util.retry import Retry
 
 from libs.lib_log_print.logger_printer import output, LOG_ERROR
 from libs.lib_requests.requests_const import *
-from libs.lib_requests.requests_utils import get_random_str
+from libs.lib_requests.requests_utils import random_str
 from libs.lib_requests.response_handle import show_requests_error, handle_common_error, analysis_resp_header, \
     get_resp_redirect_url, analysis_resp_body, retry_action_check
 
@@ -23,8 +23,7 @@ def requests_plus(req_url, req_method='GET', req_headers=None, req_data=None, re
                   resp_headers_need=True, resp_content_need=False, active_retry_dict=None,
                   ):
     # const_sign # 设置本请求的标记
-    random = get_random_str(length=5, has_num=True, has_char=False, has_capital=False)
-    const_sign = const_sign or datetime.now().strftime(f'%Y%m%d-%H%M%S-{random}')
+    const_sign = const_sign or datetime.now().strftime(f'%Y%m%d-%H%M%S-{random_str(length=5, num=True)}')
 
     # 设置默认请求头
     if not req_headers:
