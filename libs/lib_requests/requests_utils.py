@@ -7,8 +7,11 @@ import copy
 import hashlib
 import random
 import re
+
 import chardet
-from libs.lib_file_operate.file_write import write_line, write_title
+
+from libs.lib_file_operate.file_write import write_line
+from libs.lib_file_operate.rw_csv_file import write_dict_to_csv
 from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_DEBUG, LOG_ERROR
 from libs.lib_requests.requests_const import *
 
@@ -214,28 +217,19 @@ def access_result_handle(result_dict_list,
                 # output(f"[!] 保留命中 [{hit_info_hash}]", level=LOG_INFO)
                 hit_info_hashes.append(hit_info_hash)
 
-        # 写入结果格式
-        result_format = "\"%s\"," * len(access_resp_dict.keys()) + "\n"
         # 当前需要保存和显示的字段
         saving_field = access_resp_dict[hit_saving_field]
+
         # 按照指定的顺序获取 dict 的 values
-        key_order_list = list(access_resp_dict.keys())
-        key_order_list.sort()  # 按字母排序
-        access_resp_values = tuple([access_resp_dict[key] for key in key_order_list])
 
         if IGNORE_RESP:
-            # 写入结果表头
-            write_title(ignore_file, result_format % tuple(key_order_list), encoding="utf-8", new_line=True, mode="a+")
-            write_line(ignore_file, result_format % access_resp_values, encoding="utf-8", new_line=True, mode="a+")
-
+            write_dict_to_csv(ignore_file, access_resp_dict, mode="a+", encoding="utf-8", title_keys=None)
             output(f"[-] 忽略结果 [{saving_field}]", level=LOG_DEBUG)
         else:
-            # 写入结果表头
-            write_title(result_file, result_format % tuple(key_order_list), encoding="utf-8", new_line=True, mode="a+")
-            write_line(result_file, result_format % access_resp_values, encoding="utf-8", new_line=True, mode="a+")
-            output(f"[+] 可能存在 [{saving_field}]", level=LOG_INFO)
+            write_dict_to_csv(result_file, access_resp_dict, mode="a+", encoding="utf-8", title_keys=None)
             # 加入到命中结果列表
             hit_result_list.append(saving_field)
+            output(f"[+] 可能存在 [{saving_field}]", level=LOG_INFO)
 
         # 取消继续访问进程 错误太多 或者 已经爆破成功
         if isinstance(max_error_num, int) and access_fail_count >= max_error_num:

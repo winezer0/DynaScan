@@ -4,7 +4,7 @@
 from libs.lib_file_operate.file_coding import file_encoding
 from libs.lib_file_operate.file_read import remove_unprintable_chars
 from libs.lib_file_operate.file_utils import file_is_empty
-from libs.lib_file_operate.file_write import write_lines
+from libs.lib_file_operate.file_write import write_line
 
 
 def write_list_to_freq_file(file_path, path_list=None, encoding='utf-8', freq_symbol="<-->", anno_symbol="###"):
@@ -16,7 +16,7 @@ def write_list_to_freq_file(file_path, path_list=None, encoding='utf-8', freq_sy
     sorted_dict = dict(sorted(freq_dict.items(), key=lambda item: item[1], reverse=True))
     # 将结果字典写入文件
     str_list = [f"{path}  {freq_symbol}{freq}" for path, freq in sorted_dict.items()]
-    write_lines(file_path, str_list, encoding=encoding, new_line=True, mode="w+")
+    write_line(file_path, str_list, encoding=encoding, new_line=True, mode="w+")
     return True
 
 

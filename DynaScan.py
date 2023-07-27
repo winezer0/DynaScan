@@ -19,7 +19,7 @@ from libs.path_handle import url_and_paths_dict_handle
 from libs.lib_attribdict.config import CONFIG
 from libs.lib_file_operate.file_utils import auto_make_dir, file_is_exist, exclude_history_files, file_is_empty
 from libs.lib_file_operate.file_read import read_file_to_list
-from libs.lib_file_operate.file_write import write_lines
+from libs.lib_file_operate.file_write import write_line
 from libs.lib_file_operate.rw_freq_file import write_list_to_freq_file
 from libs.lib_log_print.logger_printer import output, LOG_INFO, set_logger, LOG_ERROR, LOG_DEBUG
 from libs.lib_args.input_const import *
@@ -77,9 +77,9 @@ def init_target(config_dict):
             req_allow_redirects=config_dict[GB_ALLOW_REDIRECTS],
             retry_times=config_dict[GB_RETRY_TIMES])
         # 记录可以访问的目标到文件
-        write_lines(config_dict[GB_ACCESS_OK_FILE], accessible_target, encoding="utf-8", new_line=True, mode="a+")
+        write_line(config_dict[GB_ACCESS_OK_FILE], accessible_target, encoding="utf-8", new_line=True, mode="a+")
         # 记录不可访问的目标到文件
-        write_lines(config_dict[GB_ACCESS_NO_FILE], inaccessible_target, encoding="utf-8", new_line=True, mode="a+")
+        write_line(config_dict[GB_ACCESS_NO_FILE], inaccessible_target, encoding="utf-8", new_line=True, mode="a+")
         # 需要扫描的目标列表
         targets = list(set(accessible_target))
 
