@@ -3,7 +3,7 @@
 
 from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_ERROR
 from libs.lib_requests.requests_const import *
-from libs.lib_requests.requests_thread import multi_thread_requests_url_sign, multi_thread_requests_url
+from libs.lib_requests.requests_thread import multi_thread_requests
 
 
 # 进行协议检查
@@ -14,22 +14,22 @@ def check_protocol(req_host, req_path, req_method, req_headers, req_proxies, req
         req_url_task_list.append((req_url, protocol))
 
     # 开始多线程请求
-    access_result_dict_list = multi_thread_requests_url_sign(task_list=req_url_task_list,
-                                                             threads_count=min(30, len(req_url)),
-                                                             thread_sleep=0,
-                                                             req_method=req_method,
-                                                             req_headers=req_headers,
-                                                             req_data=None,
-                                                             req_proxies=req_proxies,
-                                                             req_timeout=req_timeout,
-                                                             verify_ssl=verify_ssl,
-                                                             req_allow_redirects=True,
-                                                             req_stream=False,
-                                                             retry_times=0,
-                                                             add_host_header=True,
-                                                             add_refer_header=True,
-                                                             ignore_encode_error=True
-                                                             )
+    access_result_dict_list = multi_thread_requests(task_list=req_url_task_list,
+                                                    threads_count=min(30, len(req_url)),
+                                                    thread_sleep=0,
+                                                    req_method=req_method,
+                                                    req_headers=req_headers,
+                                                    req_data=None,
+                                                    req_proxies=req_proxies,
+                                                    req_timeout=req_timeout,
+                                                    verify_ssl=verify_ssl,
+                                                    req_allow_redirects=True,
+                                                    req_stream=False,
+                                                    retry_times=0,
+                                                    add_host_header=True,
+                                                    add_refer_header=True,
+                                                    ignore_encode_error=True
+                                                    )
 
     # print(f"access_result_dict_list:{access_result_dict_list}")
 
@@ -81,23 +81,23 @@ def check_url_list_access(target_list,
 
     output("[*] 批量访问筛选URL列表...", level=LOG_INFO)
     # 批量进行URL访问测试
-    access_result_dict_list = multi_thread_requests_url(task_list=target_list,
-                                                        threads_count=min(30, len(target_list)),
-                                                        thread_sleep=thread_sleep,
-                                                        req_method=req_method,
-                                                        req_headers=req_headers,
-                                                        req_data=None,
-                                                        req_proxies=req_proxies,
-                                                        req_timeout=req_timeout,
-                                                        verify_ssl=verify_ssl,
-                                                        req_allow_redirects=req_allow_redirects,
-                                                        req_stream=False,
-                                                        retry_times=retry_times,
-                                                        const_sign=None,
-                                                        add_host_header=True,
-                                                        add_refer_header=True,
-                                                        ignore_encode_error=True,
-                                                        )
+    access_result_dict_list = multi_thread_requests(task_list=target_list,
+                                                    threads_count=min(30, len(target_list)),
+                                                    thread_sleep=thread_sleep,
+                                                    req_method=req_method,
+                                                    req_headers=req_headers,
+                                                    req_data=None,
+                                                    req_proxies=req_proxies,
+                                                    req_timeout=req_timeout,
+                                                    verify_ssl=verify_ssl,
+                                                    req_allow_redirects=req_allow_redirects,
+                                                    req_stream=False,
+                                                    retry_times=retry_times,
+                                                    const_sign=None,
+                                                    add_host_header=True,
+                                                    add_refer_header=True,
+                                                    ignore_encode_error=True,
+                                                    )
     # 分析多线程检测结果
     for access_result_dict in access_result_dict_list:
         req_url = access_result_dict[HTTP_REQ_TARGET]
