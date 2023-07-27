@@ -4,10 +4,11 @@ import os
 import re
 from urllib.parse import unquote
 from libs.lib_args.input_const import STR_BASE_ROOT
+from libs.lib_collect_opera.list_operate import cartesian_product_merging
+from libs.lib_collect_opera.tuple_operate import frozen_tuples
 from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
 from libs.lib_dyna_rule.base_rule_parser import base_rule_render_list
 from libs.lib_dyna_rule.dyna_rule_tools import list_to_re_str, get_key_list_with_freq
-from libs.lib_collect_opera.collect_operation import cartesian_product_merging, frozen_tuple_list
 from libs.lib_file_operate.file_path import get_dirs_file_info_dict
 from libs.lib_file_operate.rw_freq_file import read_files_to_freq_dict
 from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_ERROR
@@ -87,7 +88,7 @@ def product_folders_and_files(folder_list, files_list):
     files_list = format_paths(files_list)
 
     group_folder_files_list = cartesian_product_merging(folder_list, files_list)
-    group_folder_files_list = frozen_tuple_list(group_folder_files_list, link_symbol="")
+    group_folder_files_list = frozen_tuples(group_folder_files_list, link_symbol="")
     return group_folder_files_list
 
 

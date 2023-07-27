@@ -47,21 +47,6 @@ def content_encode(content):
     return content
 
 
-# 判断列表内的元素是否存在有包含在字符串内的
-def list_ele_in_str(list_=None, str_=None, default=False):
-    if not list_:
-        flag = default
-    else:
-        # flag = False
-        # for ele in list_:
-        #     if ele in str_:
-        #         flag = True
-        #         break
-        # 在 lists为空列表时，any(key in string for key in lists) 会返回 False。
-        flag = any(key in str(str_) for key in list_)
-    return flag
-
-
 # 获得随机字符串
 def random_str(length=12, num=False, char=False, capital=False, symbol=False, dot=False, slash=False):
     base_str = ""
@@ -242,6 +227,7 @@ def access_result_handle(result_dict_list,
             # 写入结果表头
             write_title(ignore_file, result_format % tuple(key_order_list), encoding="utf-8", new_line=True, mode="a+")
             write_line(ignore_file, result_format % access_resp_values, encoding="utf-8", new_line=True, mode="a+")
+
             output(f"[-] 忽略结果 [{saving_field}]", level=LOG_DEBUG)
         else:
             # 写入结果表头

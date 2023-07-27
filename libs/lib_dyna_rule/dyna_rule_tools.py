@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import itertools
 import re
 
 from libs.lib_dyna_rule.base_rule_parser import base_rule_render_list
