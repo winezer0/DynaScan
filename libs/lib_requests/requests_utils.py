@@ -142,8 +142,8 @@ def access_result_handle(result_dict_list,
             IGNORE_RESP = True
 
         # 排除标题被匹配的情况
-        if not IGNORE_RESP and isinstance(exclude_title_regexp,str) \
-                and re.match(exclude_title_regexp, access_resp_dict[HTTP_RESP_TITLE], re.IGNORECASE):
+        if not IGNORE_RESP and isinstance(exclude_title_regexp, str) \
+                and re.match(exclude_title_regexp, access_resp_dict[HTTP_RESP_TITLE], re.I):
             IGNORE_RESP = True
 
         # 排除响应结果被匹配的情况
@@ -188,3 +188,31 @@ def access_result_handle(result_dict_list,
         # 写入历史爆破记录文件
         write_line(history_file, f"{access_resp_dict[history_field]}", encoding="utf-8", new_line=True, mode="a+")
     return should_stop_run, hit_result_list
+
+
+def access_result_callback(access_resp_dict, history_field=HTTP_REQ_TARGET):
+    # 简单的访问结果处理,在回调中使用
+    from libs.lib_args.input_const import GB_HISTORY_FORMAT, GB_RESULT_FORMAT, GB_IGNORE_FORMAT
+    from libs.lib_args.input_const import GB_EXCLUDE_STATUS, GB_EXCLUDE_REGEXP
+    from libs.lib_attribdict.config import CONFIG
+
+    history_file = CONFIG[GB_HISTORY_FORMAT].format(host_port=access_resp_dict[HTTP_CONST_SIGN] + "xxx")
+    result_file = CONFIG[GB_RESULT_FORMAT].format(host_port=access_resp_dict[HTTP_CONST_SIGN] + "xxx")
+    ignore_file = CONFIG[GB_IGNORE_FORMAT].format(host_port=access_resp_dict[HTTP_CONST_SIGN] + "xxx")
+    exclude_status_list = CONFIG[GB_EXCLUDE_STATUS]
+    exclude_title_regexp = CONFIG[GB_EXCLUDE_REGEXP]
+    # 是否忽略响应结果
+    IGNORE_RESP = False
+    # 判断响应是否正常
+    resp_status = access_resp_dict[HTTP_RESP_STATUS]
+    if (resp_status in FILTER_HTTP_VALUE_DICT[HTTP_RESP_STATUS]) \
+            or (exclude_status_list and resp_status in exclude_status_list) \
+            or (exclude_title_regexp and re.match(exclude_title_regexp, access_resp_dict[HTTP_RESP_TITLE], re.I)):
+        IGNORE_RESP = True
+    # 当前需要保存和显示的字段
+    if IGNORE_RESP:
+        write_dict_to_csv(ignore_file, access_resp_dict, mode="a+", encoding="utf-8", title_keys=None)
+    else:
+        write_dict_to_csv(result_file, access_resp_dict, mode="a+", encoding="utf-8", title_keys=None)
+    # 写入历史爆破记录文件
+    write_line(history_file, f"{access_resp_dict[history_field]}", encoding="utf-8", new_line=True, mode="a+")

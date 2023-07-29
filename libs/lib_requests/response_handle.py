@@ -75,7 +75,7 @@ def get_resp_body_content_opt(encode_content, req_url, resp_content_need):
                 resp_content_opt = replace_content(encode_content)
             elif isinstance(resp_content_need, str):
                 try:
-                    re_find = re.findall(resp_content_need, encode_content, re.IGNORECASE)
+                    re_find = re.findall(resp_content_need, encode_content, re.I)
                     resp_content_opt = ",".join(re_find)
                 except re.error as regex_error:
                     # 正则表达式匹配错误
@@ -121,7 +121,7 @@ def get_resp_body_content_title(encode_content, req_url):
 
 def extract_title_by_re(encode_content):
     try:
-        re_find = re.findall(r"<title.*?>(.+?)</title>", encode_content, re.IGNORECASE)
+        re_find = re.findall(r"<title.*?>(.+?)</title>", encode_content, re.I)
         resp_text_title = ",".join(re_find)
         resp_text_title.encode(sys.stdout.encoding)
     except re.error as regex_error:

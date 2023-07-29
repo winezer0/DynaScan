@@ -16,6 +16,17 @@ TASK_SIGN = "const_sign"
 TASK_FORMAT = {TASK_URL: 0, TASK_DATA: 0, TASK_HEADERS: 0, TASK_SIGN: 0}  # 必须按照这个格式赋值
 
 
+# 回调函数
+def callback_func(future):
+    # 当需要在 多线程 请求 内部进行操作时,需要自定义回调函数
+    # try:
+    #     result = future.result()  # 获取任务的执行结果
+    #     print(f"[*] Callback function: Task result: {result}")
+    # except Exception as e:
+    #     print(f"[!] Callback function: Task raised an exception: {e}")
+    pass
+
+
 def parse_task_info(task_info, const_sign, req_data, req_headers):
     if isinstance(task_info, str):
         # 输入的时URL列表时
@@ -39,16 +50,6 @@ def parse_task_info(task_info, const_sign, req_data, req_headers):
     else:
         raise "Task Parameter Type Error"
     return req_url, const_sign, req_data, req_headers
-
-
-# 回调函数
-def callback_func_demo(future):
-    # 当需要在 多线程 请求 内部进行操作时,需要自定义回调函数
-    try:
-        result = future.result()  # 获取任务的执行结果
-        print(f"[*] Callback function: Task result: {result}")
-    except Exception as e:
-        print(f"[!] Callback function: Task raised an exception: {e}")
 
 
 def multi_thread_requests(task_list,
@@ -96,7 +97,7 @@ def multi_thread_requests(task_list,
                                active_retry_dict=active_retry_dict,
                                )
             # 添加回调函数 回调函数将在任务完成后被调用，并接收 Future 对象作为参数，从而可以获取任务的执行结果。
-            # task.add_done_callback(callback_func_demo)
+            task.add_done_callback(callback_func)
             # time.sleep(thread_sleep)
             all_task.append(task)
             output(f"[*] 当前进度 {task_index + 1}/{len(task_list)} {const_sign or req_url}", level=LOG_DEBUG)
@@ -152,7 +153,7 @@ def async_httpx(task_list,
                                            thread_count=thread_count,
                                            ))
         # 添加回调函数 回调函数将在任务完成后被调用，并接收 Future 对象作为参数，从而可以获取任务的执行结果。
-        # task.add_done_callback(callback_func_demo)
+        task.add_done_callback(callback_func)
         tasks.append(task)
         output(f"[*] 当前进度 {task_index + 1}/{len(task_list)} {const_sign or req_url}", level=LOG_DEBUG)
     # loop.run_until_complete(asyncio.wait(tasks)) 会等待 tasks 中的所有协程运行完成。
