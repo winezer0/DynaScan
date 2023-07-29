@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 import csv
-from libs.lib_file_operate.file_utils import file_is_empty
+from libs.lib_file_operate.file_utils import file_is_empty, auto_make_dir
 from libs.lib_file_operate.file_write import write_title, write_line
 
 
@@ -65,15 +65,13 @@ def write_dict_to_csv(csv_file, dict_data=[], mode="a+", encoding="utf-8", title
     :param title_keys: 自定义需要的表头
     :return:
     """
+    auto_make_dir(csv_file, is_file=True)
     # 判断输入的是字典列表,还是单个字典
     dict_data = [dict_data] if isinstance(dict_data, dict) else dict_data
-
     # 判断是否需要写入表头
     file_empty = file_is_empty(csv_file)
-
     # 获取表头格式
     title_keys = title_keys or dict_data[0].keys()
-
     # 在使用csv.writer()写入CSV文件时，通常建议将newline参数设置为''，以便按照系统的默认行为进行换行符的处理。
     with open(csv_file, mode=mode, encoding=encoding, newline='') as file_open:
         # DictWriter 直接写入字典格式的数据
@@ -83,6 +81,7 @@ def write_dict_to_csv(csv_file, dict_data=[], mode="a+", encoding="utf-8", title
         if file_empty:
             csv_writer.writeheader()
         csv_writer.writerows(dict_data)
+        file_open.close()
 
 
 def write_dict_to_csv_s(csv_path, dict_list, mode="a+", encoding="utf-8", title_keys=None):

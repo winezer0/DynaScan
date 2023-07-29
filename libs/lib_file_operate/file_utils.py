@@ -47,10 +47,12 @@ def auto_create_file(file_path):
     return False
 
 
-def auto_make_dir(path):
-    # 自动创建目录
-    if not os.path.exists(path):
-        os.makedirs(path)
+def auto_make_dir(path, is_file=False):
+    # 自动创建目录  如果输入的是文件路径,就创建上一级目录
+    directory = os.path.dirname(os.path.abspath(path)) if is_file else path
+    # print(f"auto_make_dir:{directory}")
+    if not os.path.exists(directory):
+        os.makedirs(directory)
         return True
     return False
 
