@@ -69,7 +69,6 @@ def requests_plus(req_url, req_method='GET', req_headers=None, req_data=None, re
         else:
             # 如果是其他访问错误,就进程访问重试
             if retry_times <= 0:
-                resp_status = RESP_STATUS_ERROR
                 output(f"[-] 当前目标 {req_url} 剩余重试次数为0, 返回错误状态!", level=LOG_ERROR)
             else:
                 # 处理一种需要额外修改请求头的情况

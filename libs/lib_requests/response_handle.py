@@ -11,7 +11,8 @@ from libs.lib_requests.requests_const import HTTP_RESP_REDIRECT, RESP_REDIRECT_O
     RESP_CONTENT_CRC_LARGE, RESP_CONTENT_CRC_ERROR, HTTP_RESP_TITLE, RESP_TITLE_BLANK, RESP_TITLE_LARGE, \
     RESP_TITLE_ERROR, HTTP_RESP_SIZE, RESP_SIZE_BLANK, RESP_SIZE_LARGE, RESP_SIZE_ERROR, HTTP_RESP_CONTENT_OPT, \
     RESP_CONTENT_IGNORE
-from libs.lib_requests.requests_utils import sorted_data_dict, calc_dict_info_hash, content_encode, replace_content
+from libs.lib_requests.requests_utils import content_encode, replace_content
+from libs.lib_collect_opera.dict_operate import sorted_data_dict, calc_dict_info_hash
 
 
 def show_requests_error(url_info, common_error_list, module_name, error_info):
