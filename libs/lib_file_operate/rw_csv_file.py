@@ -18,7 +18,7 @@ def read_csv_to_dict(csv_file, mode="r", encoding="utf-8"):
     :param encoding:
     :return:
     """
-    if file_is_empty:
+    if file_is_empty(csv_file):
         return None
     with open(csv_file, mode=mode, encoding=encoding, newline='') as csvfile:
         # 方案1、使用 reader
@@ -44,7 +44,7 @@ def read_csv_to_simple_list(csv_file, mode="r", encoding="utf-8"):
     :param encoding:
     :return:
     """
-    if file_is_empty:
+    if file_is_empty(csv_file):
         return None
     with open(csv_file, mode=mode, encoding=encoding, newline='') as csvfile:
         # 自动分析分隔符
