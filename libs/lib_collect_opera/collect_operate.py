@@ -55,7 +55,8 @@ def collects_subtract(reduced_collects, reduce_collects, link_symbol):
         reduced_collects = frozen_collects(reduced_collects, link_symbol=link_symbol)
         collects = list(set(reduced_collects) - set(reduce_collects))
         collects = unfrozen_collects(collects, link_symbol=link_symbol)
-    return collects
+        return collects
+    return reduced_collects
 
 
 def list_ele_in_str(list_=None, str_=None, default=False):
