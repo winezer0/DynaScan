@@ -58,15 +58,15 @@ def requests_plus(req_url, req_method='GET', req_headers=None, req_data=None, re
         resp_status = RESP_STATUS_ERROR
         # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
         current_module = HTTP_RESP_STATUS
-        module_common_error_list = ["without response", "retries", "Read timed out",
+        module_common_error_list = ["without response", "Max retries exceeded",
+                                    "Read timed out", "ConnectTimeoutError",
                                     "codec can't encode", "No host supplied",
                                     "Exceeded 30 redirects", 'WSAECONNRESET']
         show_requests_error(req_url, module_common_error_list, current_module, error)
 
-        if any(key in str(error) for key in ["codec can't encode", "No host supplied"]):
-            # 不常见错误中需要重试的类型
-            resp_status = handle_common_error(req_url, error, ignore_encode_error)
-        else:
+        # 不进行错误重试的类型
+        resp_status = handle_common_error(req_url, error, ignore_encode_error)
+        if not resp_status:
             # 如果是其他访问错误,就进程访问重试
             if retry_times <= 0:
                 output(f"[-] 当前目标 {req_url} 剩余重试次数为0, 返回错误状态!", level=LOG_ERROR)
@@ -93,7 +93,7 @@ def requests_plus(req_url, req_method='GET', req_headers=None, req_data=None, re
         # #############################################################
         # 2、获取响应内容相关的信息 # resp_content_opt | resp_text_title | resp_hash_content | resp_text_size
         encode_content = get_resp_body_content(req_url, resp, resp_length, HTTP_MAXIMUM_READ, req_stream)
-        text_info = analysis_resp_body(req_url,encode_content, resp_content_need)
+        text_info = analysis_resp_body(req_url, encode_content, resp_content_need)
         resp_content_opt, resp_hash_content, resp_text_title, resp_text_size = text_info
         #############################################################
         # 3 获取重定向后的URL 通过判断请求的URL是不是响应的URL #需要跟随重定向才行
@@ -157,7 +157,7 @@ if __name__ == '__main__':
                  ]
 
     action_dict = {
-        HTTP_RESP_STATUS: [429, 500, 503, 504,404],  # 当状态码处于其中时,需要主动重试
+        HTTP_RESP_STATUS: [429, 500, 503, 504, 404],  # 当状态码处于其中时,需要主动重试
         HTTP_RESP_TITLE: ["浏览器安全检查"],  # 当 标题  包含关键字时,需要重试
         HTTP_RESP_CONTENT_OPT: ["浏览器安全检查"],  # 当 请求体 包含关键字时,需要重试
         HTTP_RESP_HEADERS_OPT: ["浏览器安全检查"],  # 当 请求头  包含关键字时,需要重试

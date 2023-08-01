@@ -24,7 +24,11 @@ def show_requests_error(url_info, common_error_list, module_name, error_info):
 
 
 def handle_common_error(req_url, error, ignore_encode_error):
-    if "codec can't encode" in str(error):
+    if "ConnectTimeoutError" in str(error):
+        # 目标无法访问处理
+        resp_status = RESP_STATUS_ERROR
+        output(f"[-] 当前目标 {req_url} 连接超时,返回错误状态!!!", level=LOG_ERROR)
+    elif "codec can't encode" in str(error):
         # 数据编码错误处理
         if ignore_encode_error:
             # 不需要重试的结果 设置resp_status标记为1,
@@ -39,8 +43,7 @@ def handle_common_error(req_url, error, ignore_encode_error):
         resp_status = RESP_STATUS_IGNORE
         output(f"[-] 当前目标 {req_url} 格式输入错误,忽略本次结果!!!", level=LOG_ERROR)
     else:
-        resp_status = RESP_STATUS_ERROR
-        output(f"[-] 当前目标 {req_url} 发生未知错误 {error}!!!", level=LOG_ERROR)
+        resp_status = None
     return resp_status
 
 

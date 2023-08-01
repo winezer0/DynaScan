@@ -67,15 +67,14 @@ async def httpx_plus(req_url, **kwargs):
                 resp_status = RESP_STATUS_ERROR
                 # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
                 current_module = HTTP_RESP_STATUS
-                module_common_error_list = ["without response", "retries", "Read timed out",
+                module_common_error_list = ["without response", "Max retries exceeded",
+                                            "Read timed out", "ConnectTimeoutError",
                                             "codec can't encode", "No host supplied",
                                             "Exceeded 30 redirects", 'WSAECONNRESET']
                 show_requests_error(req_url, module_common_error_list, current_module, error)
-
-                if any(key in str(error) for key in ["codec can't encode", "No host supplied"]):
-                    # 不常见错误中需要重试的类型
-                    resp_status = handle_common_error(req_url, error, ignore_encode_error)
-                else:
+                # 不进行错误重试的类型
+                resp_status = handle_common_error(req_url, error, ignore_encode_error)
+                if not resp_status:
                     # 如果是其他访问错误,就进程访问重试
                     if retry_times <= 0:
                         resp_status = RESP_STATUS_ERROR
