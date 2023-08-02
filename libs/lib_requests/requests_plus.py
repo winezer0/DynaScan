@@ -35,6 +35,7 @@ def requests_plus(req_url, req_method='GET', req_headers=None, req_data=None, re
     # 需要动态添加refer字段
     if add_refer_header:
         req_headers["Referer"] = urljoin(req_url, "./")
+        req_headers["Origin"] = urljoin(req_url, "./")
 
     # 设置需要接受的参数的默认值 #如果返回结果是默认值,说明程序异常没有获取到
     resp_status = DEFAULT_HTTP_RESP_DICT[HTTP_RESP_STATUS]  # 响应状态码 # 完成
