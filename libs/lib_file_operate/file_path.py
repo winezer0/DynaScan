@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
 import os
 
 
-# 获取目录下的文件名信息, 返回 {文件绝对路径:文件名}
 def get_dirs_file_info_dict(dir_path, ext_list=['.txt']):
     """
-    获取目录下的文件名信息, 返回 {文件绝对路径:文件名}
-    存在问题,如果目录下存在同名文件|目录,会被覆盖.
+    获取目录下的（指定后缀的）文件名信息, 返回 {文件绝对路径:文件名}
+    :param dir_path:
+    :param ext_list:
+    :return:
     """
     if ext_list and isinstance(ext_list, str):
         ext_list = [ext_list]
@@ -29,11 +29,11 @@ def get_dirs_file_info_dict(dir_path, ext_list=['.txt']):
     return info_dict
 
 
-# 获取目录下的目录名信息, 返回 {目录名绝对路径:目录名}
 def get_dirs_dir_info_dict(dir_path):
     """
-    获取目录下的目录名信息, 返回 {目录名:目录名绝对路径}
-    存在问题,如果目录下存在同名文件|目录,会被覆盖.
+    获取目录下的目录名信息, 返回 {目录名绝对路径:目录名}
+    :param dir_path:
+    :return:
     """
     info_dict = {}
     for root, dirs, files in os.walk(dir_path):
@@ -42,8 +42,13 @@ def get_dirs_dir_info_dict(dir_path):
     return info_dict
 
 
-
 def get_dirs_path_info_dict(dir_path, ext_list=['.txt']):
+    """
+    获取目录下的文件名|目录名信息, 返回 {文件名|目录名绝对路径: 文件名|目录名}
+    :param dir_path:
+    :param ext_list:
+    :return:
+    """
     info_dict = {}
     info_dict.update(get_dirs_file_info_dict(dir_path, ext_list=ext_list))
     info_dict.update(get_dirs_dir_info_dict(dir_path))
@@ -51,6 +56,11 @@ def get_dirs_path_info_dict(dir_path, ext_list=['.txt']):
 
 
 def get_sub_dirs(dir_path):
+    """
+    获取第一层目录下的目录名信息, 返回 {目录名绝对路径: 目录名}
+    :param dir_path:
+    :return:
+    """
     info_dict = {}
     for item in os.listdir(dir_path):
         if os.path.isdir(os.path.join(dir_path, item)):
@@ -60,8 +70,9 @@ def get_sub_dirs(dir_path):
 
 def get_dirs_all_info_dict(dir_path):
     """
-    获取目录下的目录名|文件名信息, 返回 file_info_dict
-    {'dir': {path : name}, 'file':{path : name}}
+    获取目录下的目录名|文件名信息, 返回 {'dir': {path : name}, 'file':{path : name}}
+    :param dir_path:
+    :return:
     """
     info_dict = {"dir": {}, "file": {}}
     for root, dirs, files in os.walk(dir_path):
@@ -76,6 +87,8 @@ def get_dirs_sub_info_dict(dir_path):
     """
     获取第一层目录下的目录名|文件名信息, 返回 file_info_dict
     {'dir': {path : name}, 'file':{path : name}}
+    :param dir_path:
+    :return:
     """
     info_dict = {"dir": {}, "file": {}}
     for item in os.listdir(dir_path):
