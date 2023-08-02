@@ -22,3 +22,8 @@ def cartesian_product_merging(name_list, pass_list):
     # cartesian_product_list = list(set(cartesian_product_list))
     cartesian_product_list = de_dup_tuples(cartesian_product_list)
     return cartesian_product_list
+
+
+def de_dep_list(unique_lst):
+    unique_lst = list(dict.fromkeys(unique_lst))
+    return unique_lst
