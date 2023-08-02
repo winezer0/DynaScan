@@ -5,13 +5,14 @@ import os
 import setting_com
 import setting_dict
 import setting_http
+from libs.lib_collect_opera.dict_check import analysis_dict_same_keys
 from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
 from libs.lib_dyna_rule.set_basic_var import set_base_var_dict_with_freq
 from libs.lib_dyna_rule.set_depend_var import set_dependent_var_dict
 from libs.lib_file_operate.rw_json_file import load_json_to_dict, dump_dict_to_json
 from libs.lib_requests.requests_const import FILTER_HTTP_VALUE_DICT, FILTER_DYNA_IGNORE_KEYS, HTTP_CONST_SIGN
 from libs.lib_requests.requests_thread import multi_thread_requests
-from libs.lib_requests.requests_utils import random_str, analysis_dict_same_keys, access_result_handle
+from libs.lib_requests.requests_utils import random_str, access_result_handle
 from libs.lib_url_analysis.parse_path import get_curr_dir_url
 from libs.lib_url_analysis.url_utils import combine_urls_and_paths, get_segment_urls
 from libs.lib_url_analysis.parse_host import get_proto, get_host_port
