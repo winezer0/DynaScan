@@ -19,7 +19,7 @@ def init_custom(config):
     config[GB_TASK_CHUNK_SIZE] = config[GB_THREADS_COUNT]
     ##################################################################
     # 默认请求方法
-    config[GB_REQ_METHOD] = "head"  # 使用get等方法需要进行全下载,会卡顿
+    config[GB_REQ_METHOD] = "HEAD"  # 使用get等方法需要进行全下载,会卡顿
     # 默认请求数据
     config[GB_REQ_BODY] = None
     # 对外请求代理
@@ -30,9 +30,7 @@ def init_custom(config):
         # "https": "https://192.168.88.1:8080",
         # "http": "socks5://192.168.88.1:1080",
     }
-    # 默认请求头配置
-    config[GB_REQ_HEADERS] = {}
-    ##################################################################
+
     # 采用流模式访问 流模式能够解决大文件读取问题
     config[GB_STREAM_MODE] = True
     # 是否开启https服务器的证书校验
@@ -43,6 +41,22 @@ def init_custom(config):
     config[GB_ALLOW_REDIRECTS] = False
     # 访问没有结果时,自动重试的最大次数
     config[GB_RETRY_TIMES] = 3
+    ##################################################################
+    # 默认请求头配置
+    config[GB_REQ_HEADERS] = {
+        # 'Host': 'testphp.vulnweb.com',    # 默认会自动添加请求HOST
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+        'Accept-Encoding': 'gzip, deflate',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+        'Cache-Control': 'max-age=0',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        # 'Origin': 'http://www.baidu.com/',   # 默认会自动添加请求URL
+        # 'Referer': 'http://www.baidu.com/',  # 默认会自动添加请求URL
+        # 'Upgrade-Insecure-Requests': '1',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188',
+        'Transfer-Encoding': 'identity',      # 多个请求头综合影响响应头CL的获取
+        'Connection': 'close',
+    }
     ##################################################################
     # 是否自动根据URL设置动态HOST头
     config[GB_DYNA_REQ_HOST] = True

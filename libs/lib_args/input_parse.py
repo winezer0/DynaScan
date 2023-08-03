@@ -7,10 +7,10 @@ from pyfiglet import Figlet
 
 from libs.lib_args.input_basic import extract_heads
 from libs.lib_file_operate.file_path import get_sub_dirs
-from libs.lib_log_print.logger_printer import output, LOG_ERROR
+from libs.lib_log_print.logger_printer import *
 from libs.lib_args.input_const import *
 from libs.lib_requests.requests_const import HTTP_USER_AGENTS
-from libs.lib_requests.requests_utils import random_useragent, random_x_forwarded_for
+from libs.lib_requests.requests_utils import random_ua, random_xff
 
 
 def args_parser(config_dict):
@@ -153,12 +153,19 @@ def config_dict_handle(config_dict):
         update_dict[GB_DICT_RULE_SCAN] = config_dict[GB_DICT_RULE_SCAN]
 
     # HTTP 头设置
-    config_dict[GB_REQ_HEADERS] = {
-        'User-Agent': random_useragent(HTTP_USER_AGENTS, config_dict[GB_RANDOM_UA]),
-        'X_FORWARDED_FOR': random_x_forwarded_for(config_dict[GB_RANDOM_XFF]),
-        'Accept-Encoding': ''
-    }
-    update_dict[GB_REQ_HEADERS] = config_dict[GB_REQ_HEADERS]
+    update_headers = {}
+
+    if config_dict[GB_RANDOM_UA]:
+        update_headers['User-Agent'] = random_ua()
+
+    if config_dict[GB_RANDOM_XFF]:
+        tmp = config_dict[GB_RANDOM_XFF]
+        update_headers['X-Forwarded-For'] = tmp if isinstance(tmp, str) else random_xff()
+
+    if update_headers:
+        # setdefault方法可用于设置字典中的键值对，如果键不存在，则添加该键。以下是一个简化的示例：
+        config_dict.setdefault(GB_REQ_HEADERS, {}).update(update_headers)
+        update_dict.setdefault(GB_REQ_HEADERS, {}).update(update_headers)
     return update_dict
 
 

@@ -72,22 +72,16 @@ def random_str(length=12, num=False, char=False, capital=False, symbol=False, do
 
 
 # 随机生成User-Agent
-def random_useragent(user_agents, condition=False):
-    if condition:
-        return random.choice(user_agents)
-    else:
-        return user_agents[0]
+def random_ua():
+    return random.choice(HTTP_USER_AGENTS)
 
 
 # 随机X-Forwarded-For，动态IP
-def random_x_forwarded_for(condition=False):
-    if condition:
-        return '%d.%d.%d.%d' % (random.randint(1, 254),
-                                random.randint(1, 254),
-                                random.randint(1, 254),
-                                random.randint(1, 254))
-    else:
-        return '127.0.0.1'
+def random_xff():
+    return '%d.%d.%d.%d' % (random.randint(1, 254),
+                            random.randint(1, 254),
+                            random.randint(1, 254),
+                            random.randint(1, 254))
 
 
 # 访问结果处理
