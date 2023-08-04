@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
+import binascii
+import hashlib
 
 
 def frozen_collects(collects, link_symbol="<-->"):
@@ -98,3 +100,41 @@ def list_ele_in_str(list_=None, str_=None, default=False):
         # 在 lists为空列表时，any(key in string for key in lists) 会返回 False。
         flag = any(key in str(str_) for key in list_)
     return flag
+
+
+def sorted_collect(data_dict):
+    """
+    将常见类型的集合数据转为固定的字符串
+    :param data_dict:
+    :return:
+    """
+    # 快速将响应头字典固定为字符串
+    if isinstance(data_dict, str):
+        return data_dict
+    # 对于列表、元组、字典都需排序处理, 并且字典不能直接排序
+    sorted_items = sorted(data_dict.items())
+    if isinstance(data_dict,dict):
+        stores_string = ', '.join([f'{key}: {value}' for key, value in sorted_items])
+    else:
+        stores_string = ', '.join(sorted_items)
+    return stores_string
+
+
+def calc_collect_hash(data_dict, crc_mode=True):
+    """
+    计算任意集合集合类型的字符串特征值
+    :param data_dict:
+    :param crc_mode:
+    :return:
+    """
+    # 对字典的键值对进行固定和排序
+    str_sorted_items = data_dict if isinstance(data_dict, str) else sorted_collect(data_dict)
+
+    if crc_mode:
+        # 计算crc32的值,比md5更快
+        mark_value = binascii.crc32(str_sorted_items.encode())
+        mark_value = f"CRC32_{mark_value}"
+    else:
+        mark_value = hashlib.md5(str_sorted_items.encode()).hexdigest()
+        mark_value = f"MD5_{mark_value}"
+    return mark_value

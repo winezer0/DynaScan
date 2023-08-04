@@ -12,7 +12,7 @@ from libs.lib_requests.requests_const import HTTP_RESP_REDIRECT, RESP_REDIRECT_O
     RESP_TITLE_ERROR, HTTP_RESP_SIZE, RESP_SIZE_BLANK, RESP_SIZE_LARGE, RESP_SIZE_ERROR, HTTP_RESP_CONTENT_OPT, \
     RESP_CONTENT_IGNORE
 from libs.lib_requests.requests_utils import content_encode, replace_content
-from libs.lib_collect_opera.dict_operate import sorted_data_dict, calc_dict_info_hash
+from libs.lib_collect_opera.collect_operate import sorted_collect, calc_collect_hash
 
 
 def show_requests_error(url_info, common_error_list, module_name, error_info):
@@ -185,7 +185,7 @@ def get_resp_body_content_hash(encode_content, req_url):
         elif encode_content in [RESP_CONTENT_LARGE]:
             resp_hash_content = RESP_CONTENT_CRC_LARGE
         else:
-            resp_hash_content = calc_dict_info_hash(encode_content, crc_mode=True)
+            resp_hash_content = calc_collect_hash(encode_content, crc_mode=True)
     except Exception as error:
         show_requests_error(req_url, [], current_module, error)
         resp_hash_content = RESP_CONTENT_CRC_ERROR
@@ -316,13 +316,13 @@ def get_resp_headers_opt(resp_headers, req_url, resp_headers_need):
     try:
         # 如果用户需要返回响应头,就进行返回
         if isinstance(resp_headers_need, bool) and resp_headers_need:
-            resp_headers_opt = sorted_data_dict(resp_headers)
+            resp_headers_opt = sorted_collect(resp_headers)
         elif isinstance(resp_headers_need, str):
             value = resp_headers.get(resp_headers_need)
             resp_headers_opt = str(value) if value else RESP_HEADERS_BLANK
         elif isinstance(resp_headers_need, list):
             # 获取自定义的响应头
-            resp_headers_opt = sorted_data_dict({key: str(resp_headers.get(key)) for key in resp_headers_need})
+            resp_headers_opt = sorted_collect({key: str(resp_headers.get(key)) for key in resp_headers_need})
         else:
             # 设置为忽略获取
             resp_headers_opt = RESP_HEADERS_IGNORE
@@ -337,7 +337,7 @@ def get_resp_headers_hash(resp_headers, req_url):
     try:
         # 响应头 字符串 HASH
         if resp_headers:
-            resp_hash_headers = calc_dict_info_hash(resp_headers)
+            resp_hash_headers = calc_collect_hash(resp_headers)
         else:
             resp_hash_headers = RESP_HEADERS_CRC_BLANK
     except Exception as error:

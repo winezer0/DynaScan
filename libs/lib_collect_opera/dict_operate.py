@@ -3,9 +3,7 @@
 
 
 # 判断列表内的元素是否存在有包含在字符串内的
-import binascii
 import copy
-import hashlib
 import json
 
 
@@ -37,29 +35,6 @@ def search_key_in_list(data_dict={}, search_keys=[]):
         if any(s in str(key).lower() for s in search_keys):
             return key
     return None
-
-
-def sorted_data_dict(data_dict):
-    # 快速将响应头字典固定为字符串
-    sorted_items = sorted(data_dict.items())
-    stores_string = ', '.join([f'{key}: {value}' for key, value in sorted_items])
-    return stores_string
-
-
-def calc_dict_info_hash(data_dict, crc_mode=True):
-    # 计算响应结果的特征值
-
-    # 对字典的键值对进行固定和排序
-    str_sorted_items = data_dict if isinstance(data_dict, str) else sorted_data_dict(data_dict)
-
-    if crc_mode:
-        # 计算crc32的值,比md5更快
-        mark_value = binascii.crc32(str_sorted_items.encode())
-        mark_value = f"CRC32_{mark_value}"
-    else:
-        mark_value = hashlib.md5(str_sorted_items.encode()).hexdigest()
-        mark_value = f"MD5_{mark_value}"
-    return mark_value
 
 
 def copy_dict_remove_keys(resp_dict, remove_keys):

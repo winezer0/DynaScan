@@ -7,7 +7,8 @@ import re
 
 import chardet
 
-from libs.lib_collect_opera.dict_operate import calc_dict_info_hash, copy_dict_remove_keys
+from libs.lib_collect_opera.dict_operate import copy_dict_remove_keys
+from libs.lib_collect_opera.collect_operate import calc_collect_hash
 from libs.lib_file_operate.file_write import write_line
 from libs.lib_file_operate.rw_csv_file import write_dict_to_csv
 from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_DEBUG, LOG_ERROR
@@ -154,7 +155,7 @@ def access_result_handle(result_dict_list,
 
         # 计算结果hash并判断是否是已命中结果
         if not IGNORE_RESP and isinstance(hit_info_hashes, list):
-            hit_info_hash = calc_dict_info_hash(resp_dict_without_keys)
+            hit_info_hash = calc_collect_hash(resp_dict_without_keys)
             if hit_info_hash in hit_info_hashes:
                 output(f"[!] 忽略命中 [{hit_info_hash}] <--> {access_resp_dict[HTTP_REQ_TARGET]}", level=LOG_ERROR)
                 IGNORE_RESP = True
