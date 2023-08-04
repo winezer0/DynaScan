@@ -124,3 +124,14 @@ def write_list_to_csv_s(csv_path, data_lists, encoding="utf-8", title_keys=None,
         return csv_path
     except Exception as error:
         raise f"[-] An Error Occurred Writing:{error}"
+
+
+def write_list_to_csv(csv_path, data_lists, encoding="utf-8", title_keys=None, mode="w+"):
+    auto_make_dir(csv_path, is_file=True)
+    with open(csv_path, mode=mode, newline='', encoding=encoding) as file:
+        writer = csv.writer(file)
+        # 检查是否已经写入标题行
+        if file.tell() == 0 and title_keys:
+            writer.writerow(title_keys)
+        # 循环写入数据行
+        writer.writerows(data_lists)
