@@ -24,6 +24,9 @@ def cartesian_product_merging(name_list, pass_list):
     return cartesian_product_list
 
 
-def de_dep_list(unique_lst):
+def de_dup_list(unique_lst):
+    # 使用字典去重
     unique_lst = list(dict.fromkeys(unique_lst))
+    # 使用set去重
+    # unique_lst = sorted(set(unique_lst), key=unique_lst.index)
     return unique_lst
