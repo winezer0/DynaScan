@@ -112,10 +112,11 @@ def sorted_collect(data_dict):
     if isinstance(data_dict, str):
         return data_dict
     # 对于列表、元组、字典都需排序处理, 并且字典不能直接排序
-    sorted_items = sorted(data_dict.items())
     if isinstance(data_dict,dict):
+        sorted_items = sorted(data_dict.items())
         stores_string = ', '.join([f'{key}: {value}' for key, value in sorted_items])
     else:
+        sorted_items = sorted(data_dict)
         stores_string = ', '.join(sorted_items)
     return stores_string
 
