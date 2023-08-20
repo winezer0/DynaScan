@@ -10,6 +10,7 @@ from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
 from libs.lib_dyna_rule.set_basic_var import set_base_var_dict_with_freq
 from libs.lib_dyna_rule.set_depend_var import set_dependent_var_dict
 from libs.lib_file_operate.rw_json_file import load_json_to_dict, dump_dict_to_json
+from libs.lib_input_format.format_input import load_targets
 from libs.lib_requests.requests_const import FILTER_HTTP_VALUE_DICT, FILTER_DYNA_IGNORE_KEYS, HTTP_CONST_SIGN
 from libs.lib_requests.requests_thread import multi_thread_requests
 from libs.lib_requests.requests_utils import random_str, access_result_handle
@@ -18,74 +19,15 @@ from libs.lib_url_analysis.url_utils import combine_urls_and_paths, get_segment_
 from libs.lib_url_analysis.parse_host import get_proto, get_host_port
 from libs.path_handle import url_and_paths_dict_handle
 from libs.lib_attribdict.config import CONFIG
-from libs.lib_file_operate.file_utils import auto_make_dir, file_is_exist, exclude_history_files, file_is_empty
-from libs.lib_file_operate.file_read import read_file_to_list
-from libs.lib_file_operate.file_write import write_line
+from libs.lib_file_operate.file_utils import auto_make_dir, exclude_history_files, file_is_empty
 from libs.lib_file_operate.rw_freq_file import write_list_to_freq_file
 from libs.lib_log_print.logger_printer import output, LOG_INFO, set_logger, LOG_ERROR, LOG_DEBUG
 from libs.lib_args.input_const import *
-from libs.lib_requests.check_protocol import check_host_list_proto, check_url_list_access
+from libs.lib_requests.check_protocol import check_protocol_and_access
 from libs.lib_args.input_parse import args_parser, args_dict_handle, config_dict_handle
 from libs.lib_args.input_basic import config_dict_add_args
 from libs.utils import analysis_ends_url, url_to_raw_rule_classify, read_dir_and_parse_rule_with_freq, \
     combine_urls_and_path_dict
-
-
-# 读取用户输入的URL和目标文件参数
-def init_target(config_dict):
-    # 读取用户输入的URL和目标文件参数
-    input_target = config_dict[GB_TARGET]
-    if isinstance(input_target, str):
-        input_target = [input_target]
-
-    targets = []
-    if isinstance(input_target, list):
-        for target in input_target:
-            if file_is_exist(target):
-                lists = read_file_to_list(file_path=target, de_strip=True, de_weight=True, de_unprintable=True)
-                targets.extend(lists)
-            else:
-                if not target.startswith(("http://", "https://")) and any(c in target for c in ['\\', '/', '.txt']):
-                    # 字符串既不以 "http://" 或 "https://" 开头，且包含 '\'、'/' 或以 ".txt" 结尾
-                    # 表示该字符串符合 Windows 或 Linux 的路径格式
-                    output(f"[!] 目标文件路径不存在 {target}", level=LOG_ERROR)
-                    exit()
-                else:
-                    targets.append(target)
-    # 去重输入目标
-    targets = list(dict.fromkeys(targets))
-
-    # 尝试对输入的目标进行HOST头添加
-    targets = check_host_list_proto(target_list=targets,
-                                    req_method=config_dict[GB_REQ_METHOD],
-                                    req_path="/",
-                                    req_headers=config_dict[GB_REQ_HEADERS],
-                                    req_proxies=config_dict[GB_PROXIES],
-                                    req_timeout=config_dict[GB_TIME_OUT],
-                                    verify_ssl=config_dict[GB_SSL_VERIFY],
-                                    default_proto=config_dict[GB_DEFAULT_PROTO])
-
-    # 尝试对输入的目标访问测试等处理
-    if config_dict[GB_URL_ACCESS_TEST]:
-        accessible_target, inaccessible_target = check_url_list_access(
-            target_list=targets,
-            thread_sleep=config_dict[GB_THREAD_SLEEP],
-            req_method=config_dict[GB_REQ_METHOD],
-            req_headers=config_dict[GB_REQ_HEADERS],
-            req_proxies=config_dict[GB_PROXIES],
-            verify_ssl=config_dict[GB_SSL_VERIFY],
-            req_timeout=config_dict[GB_TIME_OUT],
-            req_allow_redirects=config_dict[GB_ALLOW_REDIRECTS],
-            retry_times=config_dict[GB_RETRY_TIMES])
-        # 记录可以访问的目标到文件
-        write_line(config_dict[GB_ACCESS_OK_FILE], accessible_target, encoding="utf-8", new_line=True, mode="a+")
-        # 记录不可访问的目标到文件
-        write_line(config_dict[GB_ACCESS_NO_FILE], inaccessible_target, encoding="utf-8", new_line=True, mode="a+")
-        # 需要扫描的目标列表
-        targets = list(set(accessible_target))
-
-    output(f"[*] 当前整合URL 剩余目标 {len(targets)}个", level=LOG_INFO)
-    return targets
 
 
 # 生成基本扫描字典
@@ -373,7 +315,23 @@ if __name__ == '__main__':
 
     # 对输入的目标数量进行处理
     output(f"[*] 分析输入目标 [{CONFIG[GB_TARGET]}] 进行访问解析测试", level=LOG_INFO)
-    target_list = init_target(CONFIG)
+    # 读取用户输入的URL和目标文件参数
+    target_list = load_targets(CONFIG[GB_TARGET])
+    # 对输入的目标进行http协议格式化及可选的访问测试
+    target_list = check_protocol_and_access(target_list,
+                                            req_method=CONFIG[GB_REQ_METHOD],
+                                            req_headers=CONFIG[GB_REQ_HEADERS],
+                                            req_proxies=CONFIG[GB_PROXIES],
+                                            req_timeout=CONFIG[GB_TIME_OUT],
+                                            verify_ssl=CONFIG[GB_SSL_VERIFY],
+                                            default_proto=CONFIG[GB_DEFAULT_PROTO],
+                                            req_allow_redirects=CONFIG[GB_ALLOW_REDIRECTS],
+                                            retry_times=CONFIG[GB_RETRY_TIMES],
+                                            thread_sleep=CONFIG[GB_THREAD_SLEEP],
+                                            url_access_test=CONFIG[GB_URL_ACCESS_TEST],
+                                            access_ok_file=CONFIG[GB_ACCESS_OK_FILE],
+                                            access_no_file=CONFIG[GB_ACCESS_NO_FILE],
+                                            )
     if not len(target_list):
         output("[-] 未输入任何有效目标,即将退出程序...", level=LOG_ERROR)
         exit()

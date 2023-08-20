@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
+from libs.lib_file_operate.file_write import write_line
 from libs.lib_log_print.logger_printer import output, LOG_INFO, LOG_ERROR
 from libs.lib_requests.requests_const import *
 from libs.lib_requests.requests_thread import multi_thread_requests
@@ -56,16 +56,49 @@ def check_protocol(req_host, req_path, req_method, req_headers, req_proxies, req
             return "https"
 
 
+def check_hosts_protocol(target_list, req_method, req_path, req_headers, req_proxies, req_timeout, verify_ssl,
+                         default_proto):
+    have_proto_head_host = []  # 存储有http头的目标
+    none_proto_head_host = []  # 存储没有http头的目标
+    # 目标属性判断
+    for target in target_list:
+        if target.startswith("http"):
+            have_proto_head_host.append(target)
+        else:
+            none_proto_head_host.append(target)
+    output(f"[*] 有协议头目标 {len(have_proto_head_host)}个 {have_proto_head_host}", level=LOG_INFO)
+    output(f"[-] 无协议头目标 {len(none_proto_head_host)}个 {none_proto_head_host}", level=LOG_INFO)
+    # 对none_proto_head_host里面的目标进行协议判断处理
+    for target in none_proto_head_host:
+        protocol = str(default_proto).lower()
+        if not protocol:
+            protocol = check_protocol(req_host=target,
+                                      req_method=req_method,
+                                      req_path=req_path,
+                                      req_headers=req_headers,
+                                      req_proxies=req_proxies,
+                                      req_timeout=req_timeout,
+                                      verify_ssl=verify_ssl)
+            if protocol:
+                output(f"[+] 获取协议成功 [{target}]: [{protocol}]", level=LOG_INFO)
+                have_proto_head_host.append(f"{protocol}://{target}")
+            else:
+                output(f"[-] 获取协议失败 [{target}] ,需手动检查重试!!!", level=LOG_ERROR)
+        else:
+            have_proto_head_host.append(f"{protocol}://{target}")
+    return have_proto_head_host
+
+
 # 判断输入的URL列表是否添加协议头,及是否能够访问
-def check_url_list_access(target_list,
-                          thread_sleep=0,
-                          req_method=None,
-                          req_headers=None,
-                          req_proxies=None,
-                          verify_ssl=False,
-                          req_timeout=10,
-                          req_allow_redirects=False,
-                          retry_times=2):
+def check_urls_access(target_list,
+                      thread_sleep=0,
+                      req_method=None,
+                      req_headers=None,
+                      req_proxies=None,
+                      verify_ssl=False,
+                      req_timeout=10,
+                      req_allow_redirects=False,
+                      retry_times=2):
     # 1、对所有没有协议头的目标添加协议头。
     # 2、结果去重
     # 3、URL排除
@@ -112,36 +145,39 @@ def check_url_list_access(target_list,
     return accessible_target, inaccessible_target
 
 
-def check_host_list_proto(target_list, req_method, req_path, req_headers, req_proxies, req_timeout, verify_ssl, default_proto):
-    have_proto_head_host = []  # 存储有http头的目标
-    none_proto_head_host = []  # 存储没有http头的目标
-    # 目标熟悉判断
-    for target in target_list:
-        if target.startswith("http"):
-            have_proto_head_host.append(target)
-        else:
-            none_proto_head_host.append(target)
-    output(f"[*] 有协议头目标 {len(have_proto_head_host)}个 {have_proto_head_host}", level=LOG_INFO)
-    output(f"[-] 无协议头目标 {len(none_proto_head_host)}个 {none_proto_head_host}", level=LOG_INFO)
-    # 对none_proto_head_host里面的目标进行协议判断处理
-    for target in none_proto_head_host:
-        protocol = str(default_proto).lower()
-        if not protocol:
-            protocol = check_protocol(req_host=target,
-                                      req_method=req_method,
-                                      req_path=req_path,
-                                      req_headers=req_headers,
-                                      req_proxies=req_proxies,
-                                      req_timeout=req_timeout,
-                                      verify_ssl=verify_ssl)
-            if protocol:
-                output(f"[+] 获取协议成功 [{target}]: [{protocol}]", level=LOG_INFO)
-                have_proto_head_host.append(f"{protocol}://{target}")
-            else:
-                output(f"[-] 获取协议失败 [{target}] ,需手动检查重试!!!", level=LOG_ERROR)
-        else:
-            have_proto_head_host.append(f"{protocol}://{target}")
-    return have_proto_head_host
+def check_protocol_and_access(targets, req_method, req_headers, req_proxies, req_timeout,
+                              verify_ssl, req_allow_redirects, retry_times, thread_sleep,
+                              default_proto=None, url_access_test=False,
+                              access_ok_file="access_ok.txt", access_no_file="access_no.txt"):
+    # 尝试对输入的目标进行HOST头添加
+    targets = check_hosts_protocol(target_list=targets,
+                                   req_method=req_method,
+                                   req_path="/",
+                                   req_headers=req_headers,
+                                   req_proxies=req_proxies,
+                                   req_timeout=req_timeout,
+                                   verify_ssl=verify_ssl,
+                                   default_proto=default_proto)
+    # 尝试对输入的目标访问测试等处理
+    if url_access_test:
+        accessible_target, inaccessible_target = check_urls_access(
+            target_list=targets,
+            thread_sleep=thread_sleep,
+            req_method=req_method,
+            req_headers=req_headers,
+            req_proxies=req_proxies,
+            verify_ssl=verify_ssl,
+            req_timeout=req_timeout,
+            req_allow_redirects=req_allow_redirects,
+            retry_times=retry_times,
+        )
+        # 记录可以访问的目标到文件
+        write_line(access_ok_file, accessible_target, encoding="utf-8", new_line=True, mode="a+")
+        # 记录不可访问的目标到文件
+        write_line(access_no_file, inaccessible_target, encoding="utf-8", new_line=True, mode="a+")
+        # 需要扫描的目标列表
+        targets = list(set(accessible_target))
+    return targets
 
 
 if __name__ == "__main__":
