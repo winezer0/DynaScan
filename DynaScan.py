@@ -6,6 +6,7 @@ import setting_com
 import setting_dict
 import setting_http
 from libs.lib_collect_opera.dict_check import analysis_dict_same_keys
+from libs.lib_collect_opera.list_operate import split_list
 from libs.lib_dyna_rule.base_key_replace import replace_list_has_key_str
 from libs.lib_dyna_rule.set_basic_var import set_base_var_dict_with_freq
 from libs.lib_dyna_rule.set_depend_var import set_dependent_var_dict
@@ -205,9 +206,8 @@ def dyna_scan_controller(target_urls, paths_dict, config_dict):
         brute_task_list = [(url, url) for url in current_url_list]
 
         # 将任务列表拆分为多个任务列表 再逐步进行爆破,便于统一处理结果
-        task_size = config_dict[GB_TASK_CHUNK_SIZE]
-        brute_task_list = [brute_task_list[i:i + task_size] for i in range(0, len(brute_task_list), task_size)]
-        output(f"[*] 任务拆分 SIZE:[{task_size}] * NUM:[{len(brute_task_list)}]", level=LOG_INFO)
+        brute_task_list = split_list(brute_task_list, size=config_dict[GB_TASK_CHUNK_SIZE])
+        output(f"[*] 任务拆分 SIZE:[{config_dict[GB_TASK_CHUNK_SIZE]}] * NUM:[{len(brute_task_list)}]", level=LOG_INFO)
 
         # 直接被排除的请求记录
         ignore_file_path = config_dict[GB_RESULT_DIR].joinpath(f"{curr_host_port_string}.ignore.csv")

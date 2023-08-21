@@ -30,3 +30,14 @@ def de_dup_list(unique_lst):
     # 使用set去重
     # unique_lst = sorted(set(unique_lst), key=unique_lst.index)
     return unique_lst
+
+
+def split_list(task_list, size):
+    """
+    将列表安装指定的大小分割为多个列表
+    :param task_list: 原始列表
+    :param size: 分割大小
+    :return: 分割后的列表
+    """
+    task_list = [task_list[i:i + size] for i in range(0, len(task_list), size)]
+    return task_list
