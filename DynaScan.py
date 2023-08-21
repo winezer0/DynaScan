@@ -340,7 +340,7 @@ if __name__ == '__main__':
     output(f"[*] 读取字典 [{CONFIG[GB_DICT_RULE_SCAN]}] 进行频率筛选、规则渲染、基本变量替换", level=LOG_INFO)
     path_dict = init_load_dict(CONFIG)
     if not len(path_dict):
-        output("[-] 未输入任何有效字典,,即将退出程序...", level=LOG_ERROR)
+        output("[-] 未输入任何有效字典, 即将退出程序...", level=LOG_ERROR)
         exit()
 
     # 开始扫描
