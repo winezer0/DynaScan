@@ -3,11 +3,12 @@
 
 from libs.lib_file_operate.file_coding import file_encoding
 from libs.lib_file_operate.file_read import remove_unprintable_chars
-from libs.lib_file_operate.file_utils import file_is_empty
+from libs.lib_file_operate.file_utils import file_is_empty, auto_make_dir
 from libs.lib_file_operate.file_write import write_line
 
 
 def write_list_to_freq_file(file_path, path_list=None, encoding='utf-8', freq_symbol="<-->", anno_symbol="###"):
+    auto_make_dir(file_path, is_file=True)
     # 先读取以前的命中文件文件内容
     freq_dict = read_file_to_freq_dict(file_path=file_path, encoding=encoding, freq_symbol=freq_symbol, anno_symbol=anno_symbol)
     # 遍历命中结果列表对结果列表进行添加

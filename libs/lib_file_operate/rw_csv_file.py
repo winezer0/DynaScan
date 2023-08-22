@@ -55,7 +55,7 @@ def read_csv_to_simple_list(csv_file, mode="r", encoding="utf-8"):
         return row_list
 
 
-def write_dict_to_csv(csv_file, dict_data=[], mode="a+", encoding="utf-8", title_keys=None):
+def write_dict_to_csv(csv_file, dict_data, mode="a+", encoding="utf-8", title_keys=None):
     """
     写入字典格式的数据到csv文件中
     :param csv_file: 文件路径
@@ -78,13 +78,14 @@ def write_dict_to_csv(csv_file, dict_data=[], mode="a+", encoding="utf-8", title
         # fieldnames=data[0].keys() 将字典的键作为表头
         # quoting=csv.QUOTE_ALL  将每个元素都用双引号包裹
         csv_writer = csv.DictWriter(file_open, fieldnames=title_keys, quoting=csv.QUOTE_ALL)
-        if file_empty:
+        if file_empty or "w" in mode:
             csv_writer.writeheader()
         csv_writer.writerows(dict_data)
         file_open.close()
 
 
 def write_dict_to_csv_s(csv_path, dict_list, mode="a+", encoding="utf-8", title_keys=None):
+    auto_make_dir(csv_path, is_file=True)
     # 判断输入的是字典列表,还是单个字典
     dict_list = [dict_list] if isinstance(dict_list, dict) else dict_list
     # 设计CSV表头格式
@@ -92,9 +93,11 @@ def write_dict_to_csv_s(csv_path, dict_list, mode="a+", encoding="utf-8", title_
     # 根据表头个书生成format格式文件
     row_format = ('"{}",' * len(columns)).strip(",")
     try:
-        # 写入标题
+        # 文本文件写入标题
         title = row_format.format(*tuple(columns))
-        write_title(csv_path, title, encoding=encoding, new_line=True, mode="w+")
+        # 判断是否需要写入表头
+        if file_is_empty(csv_path) or "w" in mode:
+            write_title(csv_path, title, encoding=encoding, new_line=True, mode=mode)
 
         # 按 title 列表顺序格式化 dict
         data_lists = [[escape_quotes(a_dict[key]) for key in columns] for a_dict in dict_list]
@@ -107,6 +110,7 @@ def write_dict_to_csv_s(csv_path, dict_list, mode="a+", encoding="utf-8", title_
 
 
 def write_list_to_csv_s(csv_path, data_lists, encoding="utf-8", title_keys=None, mode="w+"):
+    auto_make_dir(csv_path, is_file=True)
     # 判断是二维列表还是一维列表
     data_lists = [data_lists] if isinstance(data_lists[0], str) else data_lists
     # 设计CSV表头格式
@@ -116,7 +120,9 @@ def write_list_to_csv_s(csv_path, data_lists, encoding="utf-8", title_keys=None,
     try:
         # 文本文件写入标题
         title = row_format.format(*tuple(title_keys))
-        write_title(csv_path, title, encoding=encoding, new_line=True, mode="w+")
+        # 判断是否需要写入表头
+        if file_is_empty(csv_path) or "w" in mode:
+            write_title(csv_path, title, encoding=encoding, new_line=True, mode=mode)
 
         # 转义双引号数据 并 格式化
         data_lists = [row_format.format(*tuple([escape_quotes(ele) for ele in a_list])) for a_list in data_lists]
@@ -128,10 +134,14 @@ def write_list_to_csv_s(csv_path, data_lists, encoding="utf-8", title_keys=None,
 
 def write_list_to_csv(csv_path, data_lists, encoding="utf-8", title_keys=None, mode="w+"):
     auto_make_dir(csv_path, is_file=True)
+
+    # 判断是否需要写入表头
+    file_empty = file_is_empty(csv_path)
+
     with open(csv_path, mode=mode, newline='', encoding=encoding) as file:
         writer = csv.writer(file)
         # 检查是否已经写入标题行
-        if file.tell() == 0 and title_keys:
+        if file_empty or "w" in mode:
             writer.writerow(title_keys)
         # 循环写入数据行
         writer.writerows(data_lists)

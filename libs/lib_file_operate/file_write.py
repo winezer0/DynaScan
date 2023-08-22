@@ -7,7 +7,7 @@ from libs.lib_file_operate.file_utils import file_is_empty, auto_make_dir
 def write_title(file_path, title, encoding="utf-8", new_line=True, mode="a+"):
     auto_make_dir(file_path, is_file=True)
     # 文本文件写入表头,仅在文件不存在时,写入
-    if file_is_empty(file_path):
+    if file_is_empty(file_path) or "w" in mode:
         with open(file_path, mode=mode, encoding=encoding) as f_open:
             title = f"{title.strip()}\n" if new_line else title
             f_open.write(title)

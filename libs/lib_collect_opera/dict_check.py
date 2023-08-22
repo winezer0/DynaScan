@@ -1,5 +1,5 @@
-from libs.lib_log_print.logger_printer import output, LOG_DEBUG, LOG_ERROR
-
+#!/usr/bin/env python
+# encoding: utf-8
 
 def check_dict_update_eq(old_dict, new_dict):
     """
@@ -48,6 +48,14 @@ def check_keys_in_list(params_dict, allowed_keys):
     """
     unexpected = [key for key in params_dict.keys() if key not in set(allowed_keys)]
     return unexpected
+
+
+def search_key_in_list(data_dict={}, search_keys=[]):
+    # 在参数字典的键中，查找是否有 存在于列表中的键
+    for key, value in data_dict.items():
+        if any(s in str(key).lower() for s in search_keys):
+            return key
+    return None
 
 
 def analysis_dict_same_keys(result_dict_list, exclude_value_dict, filter_ignore_keys):
