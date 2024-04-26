@@ -40,6 +40,9 @@ def check_protocol(req_host, req_path, req_method, req_headers, req_proxies, req
 
     output(f"[*] PROTOCOL CHECK RESULT:{proto_result}")
 
+    # 处理协议值为None的情况
+    proto_result = {key: value if value is not None else -1 for key, value in proto_result.items()}
+
     if proto_result["https"] <= 0 and proto_result["http"] <= 0:
         return None
 
@@ -70,8 +73,9 @@ def check_hosts_protocol(target_list, req_method, req_path, req_headers, req_pro
     output(f"[-] 无协议头目标 {len(none_proto_head_host)}个 {none_proto_head_host}", level=LOG_INFO)
     # 对none_proto_head_host里面的目标进行协议判断处理
     for target in none_proto_head_host:
-        protocol = str(default_proto).lower()
-        if not protocol:
+        if default_proto is not None and protocol.lower() in ("http", "https"):
+            have_proto_head_host.append(f"{protocol.lower()}://{target}")
+        else:
             protocol = check_protocol(req_host=target,
                                       req_method=req_method,
                                       req_path=req_path,
@@ -84,8 +88,6 @@ def check_hosts_protocol(target_list, req_method, req_path, req_headers, req_pro
                 have_proto_head_host.append(f"{protocol}://{target}")
             else:
                 output(f"[-] 获取协议失败 [{target}] ,需手动检查重试!!!", level=LOG_ERROR)
-        else:
-            have_proto_head_host.append(f"{protocol}://{target}")
     return have_proto_head_host
 
 
