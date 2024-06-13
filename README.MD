@@ -37,7 +37,7 @@ dynamic Weak File Scanner 动态敏感文件扫描器  By NOVASEC && WINEZER0
 ### 0.4、TODO
 
 ```
-暂无
+继续优化备份文件扫描字典频率
 
 等待用户提交其他敏感文件扫描字典
 ```
