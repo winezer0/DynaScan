@@ -1,11 +1,13 @@
+%%DOMAIN%%  <-->999
 sql  <-->18
+{date=year:*--10}$  <-->18
 temp  <-->16
+{int=series:1-10}$  <-->11
 backup  <-->10
 test  <-->10
 ±¸·İ  <-->10
 {date=year_mon_day:*--15}$  <-->8
 {date=year_mon:*--5}$  <-->8
-{date=year:*--5}$  <-->8
 lastbackup  <-->1
 gg  <-->1
 520  <-->1
