@@ -9,7 +9,7 @@ import time
 import exrex
 # import sre_yield
 
-from libs.lib_log_print.logger_printer import output, LOG_ERROR
+from libs.lib_log_print.logger_printer import output, LOG_ERROR, LOG_INFO
 
 sys.dont_write_bytecode = True  # 设置不生成pyc文件
 
@@ -165,7 +165,7 @@ class RuleParser(object):
         # 进一步处理options选项
         options = self.options_action(rule_name, rule_type, old_options)
         if options != old_options:
-            output(f"old_options:{old_options} -> new_options:{options}", level=LOG_ERROR)
+            output(f"[*] old_options:{old_options} -> new_options:{options}", level=LOG_INFO)
 
         # 解析规则类型
         # 日期、整数、字符
