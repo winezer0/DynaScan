@@ -8,6 +8,10 @@ dynamic Weak File Scanner 动态敏感文件扫描器  By NOVASEC && WINEZER0
 如果感觉字典太多， 请修改  config[GB_FREQUENCY_MIN]=10 或者指定  -fm=10 或更大数字
 ```
 
+## 效果预览
+
+![-fm=10 扫描效果预览](doc/-fm=10.png)
+
 ## 0、前提摘要
 
 ### 0.1、严正声明:

@@ -26,7 +26,7 @@ def init_custom(config):
     # 指定path和频率的分隔符,如果每一行的内容为/xxx/xxx  <-->10,那么切割符为'<-->'
     config[GB_FREQUENCY_SYMBOL] = '<-->'
     # 要提取的最小路径频率阈值，大于等于 FREQUENCY_MIN 的字典会被提取
-    config[GB_FREQUENCY_MIN] = 5
+    config[GB_FREQUENCY_MIN] = 10
     # 字典文件的行注释符号
     config[GB_ANNOTATION_SYMBOL] = "###"
 
