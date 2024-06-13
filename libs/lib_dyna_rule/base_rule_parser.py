@@ -159,11 +159,13 @@ class RuleParser(object):
         # re=exrex:(201[7-9]{1}[0-1]{1}[0-9]{1})(\.rar|\.zip|\.gz|\.tar|\.tgz|\.tar\.gz|\.7z|\.z|\.bz2|\.tar\.bz2|\.iso|\.cab)
         # re=exrex:/(www\.baidu\.com\.cn:8080|www\.baidu\.com\.cn|baidu\.com\.cn|baidu)!
         # rules, options = myrule.split() # 如果myrule内有冒号会报错的 # ValueError: too many values to unpack (expected 2)
-        rules, options = myrule.split(':', 1)
+        rules, old_options = myrule.split(':', 1)
         rule_name, rule_type = rules.split('=')
 
         # 进一步处理options选项
-        options = self.options_action(rule_name, rule_type, options)
+        options = self.options_action(rule_name, rule_type, old_options)
+        if options != old_options:
+            output(f"old_options:{old_options} -> new_options:{options}", level=LOG_ERROR)
 
         # 解析规则类型
         # 日期、整数、字符
