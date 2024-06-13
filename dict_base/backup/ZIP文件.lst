@@ -1,7 +1,7 @@
 sql  <-->18
 temp  <-->16
 backup  <-->10
-{date=year_mon_day:*--5}$  <-->8
+{date=year_mon_day:*--15}$  <-->8
 {date=year_mon:*--5}$  <-->8
 {date=year:*--5}$  <-->8
 test  <-->5
