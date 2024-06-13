@@ -28,7 +28,8 @@ def init_custom(config):
         # "https": "http://127.0.0.1:8080",  # 此处不能使用https
         # "http": "http://user:pass@10.10.1.10:3128/",
         # "https": "https://192.168.88.1:8080",
-        # "http": "socks5://192.168.88.1:1080",
+        "http": "http://127.0.0.1:8080",
+        "https": "http://127.0.0.1:8080",
     }
 
     # 采用流模式访问 流模式能够解决大文件读取问题
@@ -49,12 +50,12 @@ def init_custom(config):
         'Accept-Encoding': 'gzip, deflate',
         'Accept-Language': 'zh-CN,zh;q=0.9',
         'Cache-Control': 'max-age=0',
-        'Content-Type': 'application/x-www-form-urlencoded',
+        # 'Content-Type': 'application/x-www-form-urlencoded',
         # 'Origin': 'http://www.baidu.com/',   # 默认会自动添加请求URL
         # 'Referer': 'http://www.baidu.com/',  # 默认会自动添加请求URL
         # 'Upgrade-Insecure-Requests': '1',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188',
-        'Transfer-Encoding': 'identity',      # 多个请求头综合影响响应头CL的获取
+        # 'Transfer-Encoding': 'identity',      # 多个请求头综合影响响应头CL的获取|不建议设置,部分服务器不支持
         'Connection': 'close',
     }
     ##################################################################
