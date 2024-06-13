@@ -103,8 +103,7 @@ def get_domain_words(url, ignore_ip_format=True, symbol_replace_dict={}, not_all
             real_domain_val_list = list(set(real_domain_val_list))
     except Exception as e:
         output(f"[!] Get Base Domain Occur UnKnow Error: {e} !!!", level=LOG_ERROR)
-    finally:
-        return real_domain_val_list
+    return real_domain_val_list
 
 
 def split_path_to_words(path):

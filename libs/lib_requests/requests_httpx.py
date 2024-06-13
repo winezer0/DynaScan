@@ -103,36 +103,36 @@ async def httpx_plus(req_url, **kwargs):
                 # 3 获取重定向后的URL 通过判断请求的URL是不是响应的URL #需要跟随重定向才行
                 resp_redirect_url = get_resp_redirect_url(req_url, resp)
                 #############################################################
-            finally:
-                # 最终合并所有获取到的结果
-                current_resp_dict = {
-                    HTTP_REQ_TARGET: req_url,  # 请求的URL
-                    HTTP_CONST_SIGN: const_sign,  # 请求的标记,自定义标记,原样返回
 
-                    HTTP_RESP_STATUS: resp_status,  # 响应状态码
+            # 最终合并所有获取到的结果
+            current_resp_dict = {
+                HTTP_REQ_TARGET: req_url,  # 请求的URL
+                HTTP_CONST_SIGN: const_sign,  # 请求的标记,自定义标记,原样返回
 
-                    HTTP_RESP_HEADERS_CRC: resp_hash_headers,  # 响应头HASH
-                    HTTP_RESP_LENGTH: resp_length,  # 响应头中的长度
+                HTTP_RESP_STATUS: resp_status,  # 响应状态码
 
-                    HTTP_RESP_SIZE: resp_text_size,  # 响应内容大小
-                    HTTP_RESP_TITLE: resp_text_title,  # 响应文本标题
+                HTTP_RESP_HEADERS_CRC: resp_hash_headers,  # 响应头HASH
+                HTTP_RESP_LENGTH: resp_length,  # 响应头中的长度
 
-                    HTTP_RESP_CONTENT_CRC: resp_hash_content,  # 响应内容HASH
-                    HTTP_RESP_REDIRECT: resp_redirect_url,  # 响应重定向URL
+                HTTP_RESP_SIZE: resp_text_size,  # 响应内容大小
+                HTTP_RESP_TITLE: resp_text_title,  # 响应文本标题
 
-                    HTTP_RESP_HEADERS_OPT: resp_headers_opt,  # 实际响应头
-                    HTTP_RESP_CONTENT_OPT: resp_content_opt,  # 实际响应内容
-                }
-                #############################################################
-                #  active_retry_dict 主动重试动作 当满足条件时,进行主动请求重试
-                if retry_times and retry_action_check(active_retry_dict, current_resp_dict):
-                    output(f"[!] 满足主动重试条件 {req_url} 开始倒数第 {retry_times} 次重试.")
-                    kwargs['retry_times'] = retry_times - 1
-                    return await httpx_plus(req_url=req_url, **kwargs)
-                #############################################################
-                output(f"[*] 当前目标 {req_url} 请求返回结果集合:{current_resp_dict}")
+                HTTP_RESP_CONTENT_CRC: resp_hash_content,  # 响应内容HASH
+                HTTP_RESP_REDIRECT: resp_redirect_url,  # 响应重定向URL
 
-                return current_resp_dict
+                HTTP_RESP_HEADERS_OPT: resp_headers_opt,  # 实际响应头
+                HTTP_RESP_CONTENT_OPT: resp_content_opt,  # 实际响应内容
+            }
+            #############################################################
+            #  active_retry_dict 主动重试动作 当满足条件时,进行主动请求重试
+            if retry_times and retry_action_check(active_retry_dict, current_resp_dict):
+                output(f"[!] 满足主动重试条件 {req_url} 开始倒数第 {retry_times} 次重试.")
+                kwargs['retry_times'] = retry_times - 1
+                return await httpx_plus(req_url=req_url, **kwargs)
+            #############################################################
+            output(f"[*] 当前目标 {req_url} 请求返回结果集合:{current_resp_dict}")
+
+            return current_resp_dict
 
 
 if __name__ == '__main__':

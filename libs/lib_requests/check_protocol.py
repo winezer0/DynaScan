@@ -137,7 +137,7 @@ def check_urls_access(target_list,
     for access_result_dict in access_result_dict_list:
         req_url = access_result_dict[HTTP_REQ_TARGET]
         resp_status = access_result_dict[HTTP_RESP_STATUS]
-        if resp_status > 0:
+        if isinstance(resp_status,int) and resp_status > 0:
             output(f"[*] 当前目标 {req_url} 将被添加 响应结果:{access_result_dict}", level=LOG_INFO)
             accessible_target.append(req_url)
         else:

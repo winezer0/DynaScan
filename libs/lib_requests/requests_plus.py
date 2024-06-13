@@ -4,6 +4,7 @@ from datetime import datetime
 from urllib.parse import urlparse, urljoin
 
 import requests
+from requests import HTTPError
 from requests.packages.urllib3.util.retry import Retry
 
 from libs.lib_log_print.logger_printer import output, LOG_ERROR
@@ -55,8 +56,11 @@ def requests_plus(req_url, req_method='GET', req_headers=None, req_data=None, re
                             timeout=req_timeout, verify=verify_ssl, allow_redirects=req_allow_redirects,
                             stream=req_stream)
         resp_status = resp.status_code
+
+        # 解决 501 Not Implemented 问题
+        if resp.status_code == 501 and resp.reason == 'Not Implemented':
+            raise HTTPError(f"Server returned {resp.status_code} {resp.reason}")
     except Exception as error:
-        resp_status = RESP_STATUS_ERROR
         # 把常规错误的关键字加入列表内,列表为空时都作为非常规错误处理
         current_module = HTTP_RESP_STATUS
         module_common_error_list = ["without response", "Max retries exceeded",
@@ -71,11 +75,13 @@ def requests_plus(req_url, req_method='GET', req_headers=None, req_data=None, re
             # 如果是其他访问错误,就进程访问重试
             if retry_times <= 0:
                 output(f"[-] 当前目标 {req_url} 剩余重试次数为0, 返回错误状态!", level=LOG_ERROR)
+                resp_status = RESP_STATUS_ERROR
             else:
-                # 处理一种需要额外修改请求头的情况
-                if "Exceeded 30 redirects" in str(error):
+                # 处理需要额外修改请求头的情况
+                if "Exceeded 30 redirects" in str(error) or "Not Implemented" in str(error):
                     req_headers = HTTP_HEADERS
                     output(f"[-] 当前目标 {req_url} 将自动进行请求头修改重试操作", level=LOG_ERROR)
+                # 进行请求重试
                 output(f"[-] 当前目标 {req_url} 开始进行倒数第 {retry_times} 次重试, TIMEOUT * 1.5...", level=LOG_ERROR)
                 return requests_plus(req_url=req_url, req_method=req_method, req_headers=req_headers, req_data=req_data,
                                      req_proxies=req_proxies, req_timeout=req_timeout * 1.5, verify_ssl=verify_ssl,
@@ -100,41 +106,41 @@ def requests_plus(req_url, req_method='GET', req_headers=None, req_data=None, re
         # 3 获取重定向后的URL 通过判断请求的URL是不是响应的URL #需要跟随重定向才行
         resp_redirect_url = get_resp_redirect_url(req_url, resp)
         #############################################################
-    finally:
-        # 最终合并所有获取到的结果
-        current_resp_dict = {
-            HTTP_REQ_TARGET: req_url,  # 请求的URL
-            HTTP_CONST_SIGN: const_sign,  # 请求的标记,自定义标记,原样返回
 
-            HTTP_RESP_STATUS: resp_status,  # 响应状态码
+    # 最终合并所有获取到的结果
+    current_resp_dict = {
+        HTTP_REQ_TARGET: req_url,  # 请求的URL
+        HTTP_CONST_SIGN: const_sign,  # 请求的标记,自定义标记,原样返回
 
-            HTTP_RESP_HEADERS_CRC: resp_hash_headers,  # 响应头HASH
-            HTTP_RESP_LENGTH: resp_length,  # 响应头中的长度
+        HTTP_RESP_STATUS: resp_status,  # 响应状态码
 
-            HTTP_RESP_SIZE: resp_text_size,  # 响应内容大小
-            HTTP_RESP_TITLE: resp_text_title,  # 响应文本标题
+        HTTP_RESP_HEADERS_CRC: resp_hash_headers,  # 响应头HASH
+        HTTP_RESP_LENGTH: resp_length,  # 响应头中的长度
 
-            HTTP_RESP_CONTENT_CRC: resp_hash_content,  # 响应内容HASH
-            HTTP_RESP_REDIRECT: resp_redirect_url,  # 响应重定向URL
+        HTTP_RESP_SIZE: resp_text_size,  # 响应内容大小
+        HTTP_RESP_TITLE: resp_text_title,  # 响应文本标题
 
-            HTTP_RESP_HEADERS_OPT: resp_headers_opt,  # 实际响应头
-            HTTP_RESP_CONTENT_OPT: resp_content_opt,  # 实际响应内容
-        }
-        #############################################################
-        #  active_retry_dict 主动重试动作 当满足条件时,进行主动请求重试
-        if retry_times and retry_action_check(active_retry_dict, current_resp_dict):
-            output(f"[!] 满足主动重试条件 {req_url} 开始倒数第 {retry_times} 次重试.")
-            return requests_plus(req_url=req_url, req_method=req_method, req_headers=req_headers, req_data=req_data,
-                                 req_proxies=req_proxies, req_timeout=req_timeout * 1.5, verify_ssl=verify_ssl,
-                                 req_allow_redirects=req_allow_redirects, retry_times=retry_times - 1,
-                                 const_sign=const_sign, add_host_header=add_host_header,
-                                 add_refer_header=add_refer_header, ignore_encode_error=ignore_encode_error,
-                                 resp_headers_need=resp_headers_need, resp_content_need=resp_content_need,
-                                 active_retry_dict=active_retry_dict, )
-        #############################################################
-        output(f"[*] 当前目标 {req_url} 请求返回结果集合:{current_resp_dict}")
+        HTTP_RESP_CONTENT_CRC: resp_hash_content,  # 响应内容HASH
+        HTTP_RESP_REDIRECT: resp_redirect_url,  # 响应重定向URL
 
-        return current_resp_dict
+        HTTP_RESP_HEADERS_OPT: resp_headers_opt,  # 实际响应头
+        HTTP_RESP_CONTENT_OPT: resp_content_opt,  # 实际响应内容
+    }
+    #############################################################
+    #  active_retry_dict 主动重试动作 当满足条件时,进行主动请求重试
+    if retry_times and retry_action_check(active_retry_dict, current_resp_dict):
+        output(f"[!] 满足主动重试条件 {req_url} 开始倒数第 {retry_times} 次重试.")
+        return requests_plus(req_url=req_url, req_method=req_method, req_headers=req_headers, req_data=req_data,
+                             req_proxies=req_proxies, req_timeout=req_timeout * 1.5, verify_ssl=verify_ssl,
+                             req_allow_redirects=req_allow_redirects, retry_times=retry_times - 1,
+                             const_sign=const_sign, add_host_header=add_host_header,
+                             add_refer_header=add_refer_header, ignore_encode_error=ignore_encode_error,
+                             resp_headers_need=resp_headers_need, resp_content_need=resp_content_need,
+                             active_retry_dict=active_retry_dict, )
+    #############################################################
+    output(f"[*] 当前目标 {req_url} 请求返回结果集合:{current_resp_dict}")
+
+    return current_resp_dict
 
 
 # 支持基本重试的请求操作
