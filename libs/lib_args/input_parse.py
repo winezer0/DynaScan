@@ -3,7 +3,6 @@
 
 # 解析输入参数
 import argparse
-from pyfiglet import Figlet
 
 from libs.lib_args.input_basic import extract_heads
 from libs.lib_file_operate.file_path import get_sub_dirs
@@ -18,83 +17,84 @@ def args_parser(config_dict):
     argument_parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, add_help=True)
 
     # description 程序描述信息
-    argument_parser.description = Figlet().renderText("DynaScan")
+    argument_parser.description = """基于规则的动态备份文件扫描工具"""
 
     # 动态实现重复参数设置代码  # 可提取到函数外正常使用
     # 规则示例: { "param": "", "dest": "","name": "", "default": "", "nargs": "","action": "",  "choices": "", "type": "","help": ""}
+    allowed_rules = get_sub_dirs(config_dict[GB_DICT_RULE_PATH]).values()
+
     args_options = [
         # 指定扫描URL或文件
-        {"param": GB_TARGET, "nargs": "+", "help": f"Specify the Target URLs or Files"},
+        {"param": GB_TARGET, "nargs": "+", "help": f"指定URLs或URLs文件列表"},
 
         # 指定调用的字典目录
-        {"param": GB_DICT_RULE_SCAN, "nargs": "+", "help": f"Specifies Rule dirs list",
-         "choices": get_sub_dirs(config_dict[GB_DICT_RULE_PATH]).values(), },
+        {"param": GB_DICT_RULE_SCAN, "nargs": "+", "help": f"指定规则目录列表, 可选:{allowed_rules}", "choices": allowed_rules},
 
         # 指定最小提取频率
-        {"param": GB_FREQUENCY_MIN, "type": int, "help": "Specifies the pair rule file level or prefix"},
+        {"param": GB_FREQUENCY_MIN, "type": int, "help": "指定最小规则频率, 小于该频率的规则不会被调用."},
 
         # 指定频率分割符号
-        {"param": GB_FREQUENCY_SYMBOL, "help": "Specifies Name Pass Link Symbol in history file"},
+        {"param": GB_FREQUENCY_SYMBOL, "help": "频率字符串连接符"},
 
         # 指定请求代理服务
-        {"param": GB_PROXIES, "help": "Specifies Proxy http|https|socks5"},
+        {"param": GB_PROXIES, "help": "HTTP代理 支持:http|https|socks5"},
 
         # 指定请求线程数量
-        {"param": GB_THREADS_COUNT, "type": int, "help": "Specifies request threads"},
+        {"param": GB_THREADS_COUNT, "type": int, "help": "请求线程数"},
 
         # 开启调试功能
-        {"param": GB_DEBUG_FLAG, "action": "store_true", "help": "Specifies Display Debug Info"},
+        {"param": GB_DEBUG_FLAG, "action": "store_true", "help": "开启调试功能"},
 
         # 开启随机UA
-        {"param": GB_RANDOM_UA, "action": "store_true", "help": "Specifies Start Random UA Header"},
+        {"param": GB_RANDOM_UA, "action": "store_true", "help": "开启随机UserAgent"},
 
         # 开启随机XFF
-        {"param": GB_RANDOM_XFF, "action": "store_true", "help": "Specifies Start Random XFF Header"},
+        {"param": GB_RANDOM_XFF, "action": "store_true", "help": "开启随机XFF头"},
 
         # 关闭流模式扫描
-        {"param": GB_STREAM_MODE, "action": "store_false", "help": "Shutdown Request Stream Mode"},
+        {"param": GB_STREAM_MODE, "action": "store_false", "help": "关闭流模式扫描"},
 
         # 关闭历史扫描URL过滤
-        {"param": GB_EXCLUDE_HISTORY, "action": "store_false", "help": "Specifies Start Random XFF Header"},
+        {"param": GB_EXCLUDE_HISTORY, "action": "store_false", "help": "关闭历史扫描URL过滤"},
 
         # 手动指定排除扫描的URLs文件
-        {"param": GB_EXCLUDE_URLS, "action": "store_true", "help": "Specify the Exclude Custom URLs File"},
+        {"param": GB_EXCLUDE_URLS, "help": "手动指定需要排除扫描的URL文件"},
 
         # 关闭 URL目标可访问性判断
-        {"param": GB_URL_ACCESS_TEST, "action": "store_false", "help": "Shutdown URL Access Test"},
+        {"param": GB_URL_ACCESS_TEST, "action": "store_false", "help": "关闭URL目标可访问性判断"},
 
         # 开启 目标URL拆分
-        {"param": GB_SPLIT_TARGET, "action": "store_true", "help": "Shutdown URL Access Test"},
+        {"param": GB_SPLIT_TARGET, "action": "store_true", "help": "开启将目标URL拆分为多个子目录"},
 
         # 排除匹配指定的状态码的响应结果
-        {"param": GB_EXCLUDE_STATUS, "nargs": "+", "type": int, "help": "Specified Response Status List Which Exclude"},
+        {"param": GB_EXCLUDE_STATUS, "nargs": "+", "type": int, "help": "指定需要排除的响应状态码列表"},
 
         # 排除匹配指定正则 响应结果
-        {"param": GB_EXCLUDE_REGEXP, "help": "Specified RE String When response matches the Str Excluded"},
+        {"param": GB_EXCLUDE_REGEXP, "help": "排除匹配指定正则的响应结果"},
 
         # 指定字典后缀名列表
-        {"param": GB_DICT_SUFFIX, "nargs": "+", "help": "Specifies Dict File Suffix List"},
+        {"param": GB_DICT_SUFFIX, "nargs": "+", "help": "指定字典文件的后缀列表"},
 
         # 指定仅扫描的URL后缀名列表
-        {"param": GB_ONLY_SCAN_SPECIFY_EXT, "nargs": "+", "help": "Only Scan Specifies Suffix List Url"},
+        {"param": GB_ONLY_SCAN_SPECIFY_EXT, "nargs": "+", "help": "仅扫描指定后缀的URL列表"},
 
         # 指定不扫描的URL后缀名列表
-        {"param": GB_NO_SCAN_SPECIFY_EXT, "nargs": "+", "help": "No Scan Specifies Suffix List Url"},
+        {"param": GB_NO_SCAN_SPECIFY_EXT, "nargs": "+", "help": "指定不扫描的URL后缀名列表"},
 
         # 为生成的每条字典添加特定前缀
-        {"param": GB_CUSTOM_URL_PREFIX, "nargs": "+", "help": "Add Custom Prefix List for Each Path"},
+        {"param": GB_CUSTOM_URL_PREFIX, "nargs": "+", "help": "为生成的每条字典添加特定前缀"},
 
         # 去除以特定字符结尾的URL
-        {"param": GB_REMOVE_END_SYMBOLS, "nargs": "+", "help": "Remove Url When Url endswith the Char List"},
+        {"param": GB_REMOVE_END_SYMBOLS, "nargs": "+", "help": "去除以特定字符结尾的URL"},
 
         # 指定默认请求方法
-        {"param": GB_REQ_METHOD, "help": "Specifies request method"},
+        {"param": GB_REQ_METHOD, "help": "指定默认请求方法"},
 
         #  指定请求超时时间
-        {"param": GB_TIME_OUT, "type": int, "help": "Specifies request timeout"},
+        {"param": GB_TIME_OUT, "type": int, "help": "指定请求超时时间"},
 
         # 指定自动错误重试次数
-        {"param": GB_RETRY_TIMES, "type": int, "help": "Specifies request retry times"},
+        {"param": GB_RETRY_TIMES, "type": int, "help": "指定自动错误重试次数"},
     ]
 
     param_dict = {"help": "h"}  # 存储所有长-短 参数对应关系,用于自动处理重复的短参数名
@@ -107,19 +107,13 @@ def args_parser(config_dict):
              \r  批量扫描 target.txt
              \r  python3 {shell_name} --{param_dict[GB_TARGET]} target.txt
              
-             \r  指定扫描 baidu.com
-             \r  python3 {shell_name} --{param_dict[GB_TARGET]} https://www.baidu.com
-             
              \r  进行备份文件字典扫描,筛选频率10以上的字典:
              \r  python3 {shell_name} --{param_dict[GB_TARGET]} https://www.xxx.com --{param_dict[GB_DICT_RULE_SCAN]} backup -f 10
-             
-             \r  进行Spring Boot文件字典扫描,筛选频率1以上的字典:
-             \r  python3 {shell_name} --{param_dict[GB_TARGET]} https://www.xxx.com --{param_dict[GB_DICT_RULE_SCAN]} backup -f 1
              
              \r  进行所有文件字典扫描,设置Socks5请求代理:
              \r  python3 {shell_name} --{param_dict[GB_TARGET]} https://www.baidu.com --{param_dict[GB_PROXIES]} socks5://127.0.0.1:1080
              \r
-             \r  其他控制细节参数可通过setting_***.py进行配置
+             \r  其他默认控制细节参数可通过setting_***.py 或 命令行 进行配置
              \r
              \r  Version: {config_dict[GB_VERSION]}
              \r  """

@@ -1,5 +1,3 @@
-pyfiglet
-chardet
 argparse
 loguru
 tldextract

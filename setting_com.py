@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+import sys
 from pathlib import Path
 import time
 from libs.lib_args.input_const import *
@@ -14,13 +15,15 @@ def init_common(config):
     """
     ##################################################################
     # 获取setting.py脚本所在路径作为的基本路径
-    config[GB_BASE_DIR] = Path(__file__).parent.resolve()
+    # config[GB_BASE_DIR] = Path(__file__).parent.resolve()
+    # 获取实际运行的可执行文件所在目录（即使被打包为exe）
+    config[GB_BASE_DIR] = Path(sys.executable).parent if getattr(sys, 'frozen', False) else Path(__file__).parent.resolve()
     ##################################################################
     # 程序开始运行时间
     config[GB_RUN_TIME] = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
     ##################################################################
     # 版本号配置
-    config[GB_VERSION] = "Ver 0.6.8 2024-06-13 16:30"
+    config[GB_VERSION] = "Ver 0.6.9"
     ##################################################################
     # 是否显示DEBUG级别信息,默认False
     config[GB_DEBUG_FLAG] = False
