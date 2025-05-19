@@ -29,13 +29,3 @@ def file_encoding(file_path: str):
         return "utf-8"
     with open(file_path, 'rb') as f:
         return string_encoding(f.read())
-
-
-def file_chardet(file_path: str):
-    # 获取文件编码类型
-    import chardet
-    if not os.path.exists(file_path):
-        return "utf-8"
-    with open(file_path, 'rb') as file:
-        result = chardet.detect(file.read())
-        return result['encoding']

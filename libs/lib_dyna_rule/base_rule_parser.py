@@ -400,7 +400,8 @@ class RuleParser(object):
         start_str = re.compile(r'^.+(\{date|\{int|\{re|\{str)')
         result = start_str.search(self.dict_str)
         if result:
-            return re.sub('(\{date|\{int|\{re|\{str)', '', result.group())
+            # return re.sub('({date|\{int|\{re|\{str)', '', result.group())
+            return re.sub(r'({date|{int|{re|{str)', '', result.group())
         else:
             return ''
 
@@ -492,6 +493,7 @@ if __name__ == '__main__':
     result = RuleParser(
         '/{re=exrex:(|v[1-3]|v1\.[0-9]|v[2-3]\.[0-5]|api|api/v[1-3]|api/v1\.[0-9]|api/v[2-3]\.[0-5])}$/agent/self').parse()  # ['', 'admin/', 'exec/']
 
+    output(len(result))
     output(result)
 
     ##########base_rule_render_list

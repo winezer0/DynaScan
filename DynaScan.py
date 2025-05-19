@@ -36,17 +36,6 @@ def init_load_dict(config_dict):
     cur_rule_dir_list = config_dict[GB_DICT_RULE_SCAN]
     output(f"[*] 当前指定加载目录:{cur_rule_dir_list}", level=LOG_DEBUG)
 
-    # # 1、获取所有的基本变量替换字典
-    # base_replace_dict = set_base_var_dict_with_freq(
-    #     base_var_dir=config_dict[GB_BASE_VAR_DIR],
-    #     ext_list=config_dict[GB_DICT_SUFFIX],
-    #     base_replace_dict=config_dict[GB_BASE_REPLACE_DICT],
-    #     freq_symbol=config_dict[GB_FREQUENCY_SYMBOL],
-    #     anno_symbol=config_dict[GB_ANNOTATION_SYMBOL],
-    #     freq_min=config_dict[GB_FREQUENCY_MIN]
-    # )
-    # output(f"[*] 获取基本变量完成:{base_replace_dict.keys()}", level=LOG_DEBUG)
-
     # 读取扫描字典
     bse_path_dict = {
         STR_BASE_PATH: [],
