@@ -9,3 +9,6 @@ result*
 HIT*
 *.pyc
 target.txt
+/build
+/dist
+*.spec

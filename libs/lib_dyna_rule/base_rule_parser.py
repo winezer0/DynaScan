@@ -491,7 +491,7 @@ if __name__ == '__main__':
 
     # result = RuleParser('{re=exrex:(''|admin/|exec/)}$').parse() # ['', 'admin/', 'exec/']
     result = RuleParser(
-        '/{re=exrex:(|v[1-3]|v1\.[0-9]|v[2-3]\.[0-5]|api|api/v[1-3]|api/v1\.[0-9]|api/v[2-3]\.[0-5])}$/agent/self').parse()  # ['', 'admin/', 'exec/']
+        r'/{re=exrex:(|v[1-3]|v1\.[0-9]|v[2-3]\.[0-5]|api|api/v[1-3]|api/v1\.[0-9]|api/v[2-3]\.[0-5])}$/agent/self').parse()  # ['', 'admin/', 'exec/']
 
     output(len(result))
     output(result)
