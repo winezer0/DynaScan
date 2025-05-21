@@ -4,7 +4,7 @@ database  <-->35
 data  <-->34
 db  <-->29
 html  <-->29
-bin  <-->27
+bin  <-->28
 index  <-->26
 site  <-->25
 user  <-->24
@@ -24,10 +24,10 @@ jsp  <-->19
 js  <-->19
 log  <-->17
 clients  <-->17
-config  <-->16
+config  <-->17
 auth  <-->16
+upload  <-->16
 default  <-->15
-upload  <-->15
 local  <-->15
 website  <-->14
 ftp  <-->13
@@ -99,6 +99,7 @@ logs  <-->6
 Upload  <-->5
 Data  <-->5
 Member  <-->3
+soft  <-->3
 info  <-->2
 src  <-->2
 新建文件夹  <-->2
@@ -107,7 +108,6 @@ images  <-->2
 doc  <-->2
 static  <-->2
 control  <-->2
-soft  <-->2
 connectors  <-->2
 pages  <-->2
 config.inc  <-->2
@@ -115,6 +115,9 @@ plugins  <-->2
 public  <-->2
 wechat  <-->2
 node_modules  <-->2
+lib  <-->2
+app_data  <-->2
+aspnet_client  <-->2
 wap  <-->1
 proxy  <-->1
 deploy  <-->1
@@ -143,7 +146,6 @@ host  <-->1
 access  <-->1
 inc  <-->1
 modules  <-->1
-lib  <-->1
 uploadfile  <-->1
 member  <-->1
 scripts  <-->1
@@ -170,13 +172,11 @@ admincenter  <-->1
 data.project  <-->1
 connections  <-->1
 updates  <-->1
-app_data  <-->1
 work  <-->1
 uploads  <-->1
 cgi-bin  <-->1
 apps  <-->1
 class  <-->1
-aspnet_client  <-->1
 upload_files  <-->1
 downloads  <-->1
 uploadfiles  <-->1
@@ -206,3 +206,6 @@ syssetup  <-->1
 web_edu  <-->1
 xiazai  <-->1
 cgicso  <-->1
+ajax  <-->1
+app_code  <-->1
+xladmin  <-->1
