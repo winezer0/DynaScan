@@ -63,11 +63,13 @@ server  <-->10
 err_log  <-->10
 Release  <-->10
 manage  <-->10
+front  <-->10
 http  <-->10
 asp  <-->10
 aspx  <-->10
 back  <-->10
 backup  <-->10
+backend  <-->10
 backups  <-->10
 bak  <-->10
 dat  <-->10
