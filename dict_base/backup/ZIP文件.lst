@@ -6,9 +6,14 @@ temp  <-->16
 {int=series:1-10}$  <-->11
 backup  <-->10
 test  <-->10
-备份  <-->10
+澶囦唤  <-->10
 {date=year_mon_day:*--15}$  <-->8
 {date=year_mon:*--5}$  <-->8
+web{re=exrex:[1-5]}$  <-->5
+web{date=year_mon_day:*-5}$  <-->5
+{date=year_mon:*-5}$.backup  <-->5
+{date=year:*-5}$.backup  <-->5
+db_%%DOMAIN%%_{date=year_mon_day:*-5}$.sql.gz  <-->5
 lastbackup  <-->1
 gg  <-->1
 520  <-->1
@@ -23,18 +28,10 @@ gg  <-->1
 {int=overlap#4:0-3}$  <-->1
 {int=overlap#5:0-3}$  <-->1
 {int=overlap#6:0-3}$  <-->1
-
-###其他的字典规则
-web{re=exrex:[1-5]}$  <-->1
-web{date=year_mon_day:*-5}$  <-->1
-{date=year_mon:*-5}$.backup  <-->1
-{date=year:*-5}$.backup  <-->1
-
-###实战记录### db_%%DOMAIN%%_{date=year_mon_day:*-*}$_{120002}_{随机字符串}.sql.gz    <-->0
-db_%%DOMAIN%%_{date=year_mon_day:*-5}$_230002.sql.gz  <-->5
-db_%%DOMAIN%%_{date=year_mon_day:*-5}$_120002.sql.gz  <-->5
-db_%%DOMAIN%%_{date=year_mon_day:*-5}$_000002.sql.gz  <-->5
-db_%%DOMAIN%%_{date=year_mon_day:*-5}$_1200.sql.gz  <-->5
-db_%%DOMAIN%%_{date=year_mon_day:*-5}$_0000.sql.gz  <-->5
-db_%%DOMAIN%%_{date=year_mon_day:*-5}$_2300.sql.gz  <-->5
-db_%%DOMAIN%%_{date=year_mon_day:*-5}$.sql.gz  <-->5
+###瀹炴垬璁板綍  <-->1
+db_%%DOMAIN%%_{date=year_mon_day:*-5}$_230002.sql.gz  <-->1
+db_%%DOMAIN%%_{date=year_mon_day:*-5}$_120002.sql.gz  <-->1
+db_%%DOMAIN%%_{date=year_mon_day:*-5}$_000002.sql.gz  <-->1
+db_%%DOMAIN%%_{date=year_mon_day:*-5}$_1200.sql.gz  <-->1
+db_%%DOMAIN%%_{date=year_mon_day:*-5}$_0000.sql.gz  <-->1
+db_%%DOMAIN%%_{date=year_mon_day:*-5}$_2300.sql.gz  <-->1
